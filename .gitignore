@@ -12,6 +12,8 @@ _research
 logs/
 references/**/*.pdf
 run/
+exp/run_*
+exp/prm/*sample*
 
 ################################################################################
 #                                    Julia                                     #
