@@ -31,7 +31,7 @@ for yr in range(1979,2020):
                 '2m_temperature',
                 'total_column_water',
                 'total_column_water_vapour',
-                'land_sea_mask',
+                'surface_pressure'
             ],
             'year': yr,
             'month': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -71,6 +71,7 @@ c.retrieve(
             'total_column_water',
             'total_column_water_vapour',
             'land_sea_mask',
+            'surface_pressure'
         ],
         'year': [
             1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
