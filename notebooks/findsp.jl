@@ -41,9 +41,9 @@ end
 
 # ╔═╡ b1798d06-4f94-11eb-0132-4370fe8d3a0f
 md"
-# X. Finding average Skin Temperature over the Maritime Continent
+# X. Finding average Surface Pressure over the Maritime Continent
 
-In this notebook, I plotted the spatial distribution of average skin temperature distribution within the region of the western Maritime Continent in order to find a representative skin-temperature that we can use for our baseline RCE simulations.  I downloaded data from monthly-averaged ERA5 reanalysis dataset for the [TropicalRCE](https://github.com/natgeo-wong/TropicalRCE) experiment, which I duplicated for this project ([TroPrecLS]()).
+In this notebook, I plotted the spatial distribution of average surface pressure distribution within the region of the western Maritime Continent in order to find a representative surface pressure that we can use in the sounding profile for our baseline RCE simulations.  I downloaded data from monthly-averaged ERA5 reanalysis dataset for the [TropicalRCE](https://github.com/natgeo-wong/TropicalRCE) experiment, which I duplicated for this project ([TroPrecLS]()).
 
 Instructions on how to download the data for yourself can be found in the notebook *'XXX. Notebook'*
 "
@@ -142,10 +142,10 @@ First, we load the following datsets: (1) Skin surface temperature data, and (2)
 
 # ╔═╡ ca513f5c-4f98-11eb-2f12-87c79bfb38d1
 begin
-	ds = NCDataset(datadir("reanalysis/era5-TRPx0.25-skt-sfc.nc"))
+	ds = NCDataset(datadir("reanalysis/era5-TRPx0.25-sp-sfc.nc"))
 	lon = ds["longitude"][:]
 	lat = ds["latitude"][:]
-	skt = ds["skt"][:]*1
+	sp  = ds["sp"][:] / 100
 	close(ds)
 	
 	ds = NCDataset(datadir("reanalysis/era5-TRPx0.25-lsm-sfc.nc"))
@@ -154,16 +154,16 @@ begin
 end
 
 # ╔═╡ 48403866-4f9c-11eb-1de4-bb0223eae1bd
-md"lower bound (sea) : $(@bind smin PlutoUI.Slider(295:300))"
+md"lower bound (sea) : $(@bind smin PlutoUI.Slider(990:5:1010))"
 
 # ╔═╡ 534e72f4-4f9c-11eb-0cba-2501d13478ce
-md"upper bound (sea) : $(@bind smax PlutoUI.Slider(303:0.5:305))"
+md"upper bound (sea) : $(@bind smax PlutoUI.Slider(1010:5:1030))"
 
 # ╔═╡ 8efd83be-4f9c-11eb-1211-0fcd19ef5976
-md"lower bound (land) : $(@bind lmin PlutoUI.Slider(290:0.5:300))"
+md"lower bound (land) : $(@bind lmin PlutoUI.Slider(850:10:900))"
 
 # ╔═╡ 94d00a08-4f9c-11eb-372c-214e62a0687e
-md"upper bound (land) : $(@bind lmax PlutoUI.Slider(300:305))"
+md"upper bound (land) : $(@bind lmax PlutoUI.Slider(1020:10:1050))"
 
 # ╔═╡ 85bd3c62-4f9b-11eb-3523-6f6a181001c8
 md"
@@ -176,17 +176,17 @@ md"We then proceed to bin the data and plot it"
 
 # ╔═╡ de0a8f18-4f9e-11eb-2cfb-35a503c455e9
 begin
-	sbinvec = smin:0.05:smax; psbin = sbinvec[2:end] .- 0.025
-	lbinvec = lmin:0.05:lmax; plbin = lbinvec[2:end] .- 0.025
+	sbinvec = smin:0.2:smax; psbin = sbinvec[2:end] .- 0.025
+	lbinvec = lmin:1:lmax; plbin = lbinvec[2:end] .- 0.025
 	
-	sbin,savg = bindatasea([N,S,E,W],sbinvec,skt,lon,lat,lsm)
-	lbin,lavg = bindatalnd([N,S,E,W],lbinvec,skt,lon,lat,lsm)
+	sbin,savg = bindatasea([N,S,E,W],sbinvec,sp,lon,lat,lsm)
+	lbin,lavg = bindatalnd([N,S,E,W],lbinvec,sp,lon,lat,lsm)
 	
 	arr = [[1,1],[1,1],[2,3]]
 	pplt.close(); f2,axs2 = pplt.subplots(arr,aspect=aratio,axwidth=4,sharey=3);
 	axs2[1].plot(x,y,c="k",lw=0.2)
-	c = axs2[1].contourf(lon,lat,skt',levels=298:0.5:303,extend="both")
-	axs2[1].contour(lon,lat,skt',levels=301:303,colors="k",lw=0.5,linestyle="--")
+	c = axs2[1].contourf(lon,lat,sp',levels=900:10:1100,extend="both")
+	#axs2[1].contour(lon,lat,sp',levels=301:303,colors="k",lw=0.5,linestyle="--")
 	axs2[1].format(
 		xlim=(W,E),xlocator=80:10:180,
     	ylim=(S,N),ylocator=-30:10:30
@@ -204,18 +204,18 @@ begin
 	
 	axs2[2].format(
         xlim=(minimum(lbinvec),maximum(lbinvec)),
-		ylim=(0.1,10),yscale="log",ylabel="Density",
-		ultitle="Land: $lavgs K"
+		ylim=(0.1,20),yscale="log",ylabel="Density",
+		ultitle="Land: $lavgs hPa"
     )
 	
 	axs2[3].format(
         xlim=(minimum(sbinvec),maximum(sbinvec)),
-		ylim=(0.1,10),yscale="log",
-		ultitle="Sea: $savgs K"
+		ylim=(0.1,20),yscale="log",
+		ultitle="Sea: $savgs hPa"
     )
 	
-	f2.savefig("era5skt.png",transparent=false,dpi=200)
-	load("era5skt.png")
+	f2.savefig("era5sp.png",transparent=false,dpi=200)
+	load("era5sp.png")
 end
 
 # ╔═╡ 94884a3c-4fa2-11eb-340a-15d16998969d
@@ -230,7 +230,7 @@ md"Save Plot? $(@bind dosave PlutoUI.Slider(0:1))"
 if isone(dosave)
 	if !isdir(plotsdir()); mkpath(plotsdir()) end
 	f1.savefig(plotsdir("domain.png"),transparent=false,dpi=200)
-	f2.savefig(plotsdir("era5skt.png"),transparent=false,dpi=200)
+	f2.savefig(plotsdir("era5sp.png"),transparent=false,dpi=200)
 
 md"We have decided to save the plots"
 else
@@ -252,12 +252,12 @@ end
 # ╟─0b9f29f2-4f9d-11eb-0680-8b2dbabf879c
 # ╠═ca513f5c-4f98-11eb-2f12-87c79bfb38d1
 # ╟─85bd3c62-4f9b-11eb-3523-6f6a181001c8
-# ╟─48403866-4f9c-11eb-1de4-bb0223eae1bd
-# ╟─534e72f4-4f9c-11eb-0cba-2501d13478ce
-# ╟─8efd83be-4f9c-11eb-1211-0fcd19ef5976
-# ╟─94d00a08-4f9c-11eb-372c-214e62a0687e
+# ╠═48403866-4f9c-11eb-1de4-bb0223eae1bd
+# ╠═534e72f4-4f9c-11eb-0cba-2501d13478ce
+# ╠═8efd83be-4f9c-11eb-1211-0fcd19ef5976
+# ╠═94d00a08-4f9c-11eb-372c-214e62a0687e
 # ╟─ca3e0c4c-4f9e-11eb-0c7b-3b6875674f64
-# ╟─de0a8f18-4f9e-11eb-2cfb-35a503c455e9
+# ╠═de0a8f18-4f9e-11eb-2cfb-35a503c455e9
 # ╟─94884a3c-4fa2-11eb-340a-15d16998969d
 # ╟─cb733eb4-4fa2-11eb-011b-83632ab01544
-# ╟─f6eddeb2-4fa2-11eb-0389-bb88c0547f2c
+# ╠═f6eddeb2-4fa2-11eb-0389-bb88c0547f2c
