@@ -179,7 +179,7 @@ function plot3Ddiurnal(
 
     axs[1].format(suptitle="$(uppercase(experiment)) | $(uppercase(config))");
 
-    for ii = 1 : 5; axs[ii].format(ylim=(1000,50)) end
+    for ii = 1 : 5; axs[ii].format(ylim=(1010,50)) end
 
     if !isdir(plotsdir("SAM_STAT-3D")); mkpath(plotsdir("SAM_STAT-3D")) end
     f.savefig(plotsdir("SAM_STAT-3D/$experiment-$config.png"),transparent=false,dpi=200)
