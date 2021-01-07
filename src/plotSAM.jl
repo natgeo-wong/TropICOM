@@ -1,78 +1,48 @@
-using NCDatasets
-using NumericalIntegration
-using Statistics
-
 using PyCall
 using LaTeXStrings
 pplt = pyimport("proplot");
 
-include(srcdir("sam.jl"))
+function plot2Dtimeseries(axs,ii,t,var;dbeg,dend)
+	axs[ii].plot(t,var,lw=1,c="k")
+	axs[ii].format(xlim=(dbeg,dend))
+end
 
-function retrievevar(
-    variable::AbstractString,
-    experiment::AbstractString,
-    config::AbstractString
-)
+function plot3Dtimeseries(axs,ii,t,p,var;lvl=[],cmapname="Fire",dbeg,dend)
 
-    rce = NCDataset(datadir(joinpath(
-        experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
-    )))
-    t   = rce["time"][:]*1
-    var = rce[variable][:]*1
-    close(rce)
+	if isempty(lvl)
+		  c = axs[ii].contourf(t,p,var,cmap=cmapname)
+	else; c = axs[ii].contourf(t,p,var,cmap=cmapname,levels=lvl)
+	end
 
-    return t,var
+	axs[ii].format(xlim=(dbeg,dend),ylim=(maximum(p),minimum(p)))
+	axs[ii].colorbar(c,loc="r")
 
 end
 
-function plotsample(
-    experiment::AbstractString, config::AbstractString;
-    dbeg::Integer, dend::Integer
-)
+function plot2Ddiurnal(axs,ii,t,var;subtractm=true)
 
-    t,p    = retrievevar("p",experiment,config); nt = length(t)
-    _,cld  = retrievevar("CLD",experiment,config); cld = cld*100
-    _,qv   = retrievevar("QV",experiment,config);  qv  = qv/1000
-    _,tair = retrievevar("TABS",experiment,config)
-    _,sst  = retrievevar("SST",experiment,config)
-    _,insl = retrievevar("SWNS",experiment,config)
+	mvar = mean(var)
+	if subtractm
+		  axs[ii].plot(t,var .- mvar,lw=1)
+	else; axs[ii].plot(t,var,lw=1)
+	end
 
-    rh = zeros(size(qv,1)+1,nt)
-    for it = 1 : nt, ilvl = 1 : length(p)
+	axs[ii].format(xlim=(0,24))
+	if !subtractm; axs[ii].format(ylim=(0,2)) end
 
-        rh[ilvl,it] = qv[ilvl,it] / temp2qsat(tair[ilvl,it],p[ilvl]*100)
+end
 
-    end
+function plot3Ddiurnal(axs,ii,t,p,var;lvl=[],cmapname="Fire")
 
-    pvec = vcat(0,reverse(p)); pint = integrate(pvec,ones(length(p)+1))
-    csf = zeros(nt)
-    for it = 1 : nt
-        csf[it] = integrate(pvec,@view rh[:,it]) / pint
-    end
+	mvar = dropdims(mean(var,dims=2),dims=2)
+	axs[ii].plot(mvar,p,lw=1)
 
-    arr = [[0,1,1,0],[2,2,3,3]]
-    pplt.close(); f,axs = pplt.subplots(arr,axwidth=4,aspect=2,sharex=2)
+	if isempty(lvl)
+		  c = axs[ii+1].contourf(t,p,var,cmap=cmapname)
+	else; c = axs[ii+1].contourf(t,p,var,cmap=cmapname,levels=lvl)
+	end
 
-    # sst = dropdims(mean(reshape(sst,24,:),dims=2),dims=2)[:]
-    # insl = dropdims(mean(reshape(insl,24,:),dims=2),dims=2)[:]
-    # axs[1].scatter(mod.((0:23).+12.5,24),sst)
-    # ax2 = axs[1].twinx()
-    # ax2.scatter(mod.((0:23).+12.5,24),insl,c="r")
-
-    axs[1].plot(t,sst)
-
-    axs[2].contourf(t,p,tair,levels=150:10:300);
-    axs[2].format(ylabel="Pressure / hPa")
-
-    axs[3].contourf(t,p,cld,levels=0:10:100);
-    axs[3].format(ylabel="Pressure / hPa")
-
-    axs[1].format(suptitle="$(uppercase(experiment)) | $(uppercase(config))");
-
-    for ax in axs; ax.format(xlim=(dbeg,dend)) end
-
-    if !isdir(plotsdir("SAM-SAMPLE")); mkpath(plotsdir("SAM-SAMPLE")) end
-    f.savefig(plotsdir("SAM-SAMPLE/$experiment-$config.png"),transparent=false,dpi=200)
+	axs[ii+1].format(xlim=(0,24),ylim=(maximum(p),minimum(p)))
+	axs[ii+1].colorbar(c,loc="r")
 
 end
