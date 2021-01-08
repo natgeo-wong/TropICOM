@@ -47,3 +47,10 @@ function plot3Ddiurnal(axs,ii,t,p,var;lvl=[],cmapname="Fire",subtractm=true)
 	axs[ii+1].colorbar(c,loc="r")
 
 end
+
+function plot3Dprofile(axs,ii,t,p,var)
+
+	mvar = dropdims(mean(var,dims=2),dims=2)
+	axs[ii].plot(mvar,p,lw=1)
+
+end
