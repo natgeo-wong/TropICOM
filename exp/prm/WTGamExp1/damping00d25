@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-WTGSndDiurnal',
+caseid ='TroPrecLS-WTGSndMean',
 
 dx = 500.,
 dy = 500.,
@@ -88,8 +88,8 @@ rad3Dout     = .true.,
 
 compute_advection_everywhere = .true.,
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-am_wtg  = 16.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
-am_wtg_exp = 0.,                        ! exponent of p/p0 in momentum damping rate.
+am_wtg  = 0.25,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
+am_wtg_exp = 1.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 650.e3,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
 
 dowtg_qnudge = .false.,                 ! if T, nudge q profile to observations on below timescale
