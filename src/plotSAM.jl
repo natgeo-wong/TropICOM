@@ -21,7 +21,7 @@ end
 
 function plot2Ddiurnal(axs,ii,t,var;subtractm=true)
 
-	mvar = mean(var)
+	mvar = mean(var[2:(end-1)])
 	if subtractm
 		  axs[ii].plot(t,var .- mvar,lw=1)
 	else; axs[ii].plot(t,var,lw=1)
@@ -34,7 +34,7 @@ end
 
 function plot3Ddiurnal(axs,ii,t,p,var;lvl=[],cmapname="Fire",subtractm=true)
 
-	mvar = mean(var,dims=2)
+	mvar = mean(var[:,2:(end-1)],dims=2)
 	axs[ii].plot(mvar[:],p,lw=1)
         if subtractm; var = var .- mvar end
 
