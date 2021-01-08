@@ -27,22 +27,23 @@ function plot2Ddiurnal(axs,ii,t,var;subtractm=true)
 	else; axs[ii].plot(t,var,lw=1)
 	end
 
-	axs[ii].format(xlim=(0,24))
+	axs[ii].format(xlim=(0,24),xlocator=0:4:24)
 	if !subtractm; axs[ii].format(ylim=(0,2)) end
 
 end
 
-function plot3Ddiurnal(axs,ii,t,p,var;lvl=[],cmapname="Fire")
+function plot3Ddiurnal(axs,ii,t,p,var;lvl=[],cmapname="Fire",subtractm=true)
 
-	mvar = dropdims(mean(var,dims=2),dims=2)
-	axs[ii].plot(mvar,p,lw=1)
+	mvar = mean(var,dims=2)
+	axs[ii].plot(mvar[:],p,lw=1)
+        if subtractm; var = var .- mvar end
 
 	if isempty(lvl)
-		  c = axs[ii+1].contourf(t,p,var,cmap=cmapname)
-	else; c = axs[ii+1].contourf(t,p,var,cmap=cmapname,levels=lvl)
+		  c = axs[ii+1].contourf(t,p,var,cmap=cmapname,extend="both")
+	else; c = axs[ii+1].contourf(t,p,var,cmap=cmapname,levels=lvl,extend="both")
 	end
 
-	axs[ii+1].format(xlim=(0,24),ylim=(maximum(p),minimum(p)))
+	axs[ii+1].format(xlim=(0,24),xlocator=0:4:24,ylim=(maximum(p),minimum(p)))
 	axs[ii+1].colorbar(c,loc="r")
 
 end

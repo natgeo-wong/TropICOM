@@ -40,10 +40,10 @@ end
 
 function calcrh(QV,TAIR,P)
 
-	RH = zeros(size(RH)); np = size(RH,1); nt = size(RH,2)
+	RH = zeros(size(QV)); np = size(RH,1); nt = size(RH,2)
 
 	for it = 1 : nt, ip = 1 : np
-		RH[ip,it] = QV[ip,it] / tair2qsat(TAIR[ip,it],p[ip]*100)
+		RH[ip,it] = QV[ip,it] / tair2qsat(TAIR[ip,it],P[ip]*100)
 	end
 
 	return RH
@@ -60,7 +60,7 @@ function tair2qsat(T,P)
 	end
 
 
-	r = 0.622 * esat / max(esat,p-esat)
+	r = 0.622 * esat / max(esat,P-esat)
 	return r / (1+r)
 
 end
