@@ -1,9 +1,9 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-WTGamExp1',
+caseid ='TroPrecLS-3DWTGamExp1',
 
-dx = 500.,
-dy = 500.,
+dx = 2000.,
+dy = 2000.,
 dt = 10.,
 
 nrestart     = 0,
@@ -62,7 +62,7 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 1728000,
+nstop    = 1036800,
 nprint   = 3600,
 nstat    = 360,    ! Calculate statistics every hour!
 nstatfrq = 60,     ! Collect 60 samples per statistical calculation (every 1 minute)
@@ -70,14 +70,14 @@ nstatfrq = 60,     ! Collect 60 samples per statistical calculation (every 1 min
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 30,
-nsave2Dstart = 1598400,
+nsave2D      = 180,
+nsave2Dstart = 9999999,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
 
-nsave3D      = 30,
-nsave3Dstart = 1598400,
+nsave3D      = 180,
+nsave3Dstart = 9999999,
 nsave3Dend   = 999999999,
 save3Dbin    = .true.,
 rad3Dout     = .true.,
@@ -88,7 +88,7 @@ rad3Dout     = .true.,
 
 compute_advection_everywhere = .true.,
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-am_wtg  = 32.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
+am_wtg  = 256.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 1.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 650.e3,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
 

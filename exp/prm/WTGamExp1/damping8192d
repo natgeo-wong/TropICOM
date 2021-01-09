@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-WTGSndMean',
+caseid ='TroPrecLS-WTGamExp1',
 
 dx = 500.,
 dy = 500.,
