@@ -1,5 +1,5 @@
 using DrWatson
-@quickactivate "TropicalRCE"
+@quickactivate "TroPrecLS"
 
 include(srcdir("reanalysis.jl"))
 include(srcdir("diurnal.jl"))

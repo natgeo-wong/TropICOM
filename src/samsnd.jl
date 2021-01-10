@@ -37,6 +37,8 @@ function createsnddiurnal(
     nz = statds.dim["z"]; nt = statds.dim["time"]; p = statds["p"][:]
     dt = (statds["time"][end] - statds["time"][1]) / (nt-1)
     dystep = round(Int,1/dt); beg = ndays*dystep-1
+    dbeg = Int(floor(statds["time"][1]))
+    dend = Int(floor(statds["time"][end]))
 
     snddata = zeros(nz,6,dystep);
     snddata[:,1,:] .= statds["z"][:]; snddata[:,2,:] .= -999.0
@@ -56,7 +58,7 @@ function createsnddiurnal(
 
     close(statds)
 
-    printsnd(fsnd,snddata,psfc,t)
+    printsnd(fsnd,snddata,psfc,t,[dbeg,dend])
 
     if extract; return t,p,snddata end
 
@@ -70,9 +72,9 @@ function printsnd(fsnd::AbstractString, snddata::Array{<:Real,2}, p::Real)
         @printf(io,"      z[m]      p[mb]      tp[K]    q[g/kg]     u[m/s]     v[m/s]\n")
     end
 
-    for t in [1.0,2.0]
-        open(fsnd,"a") do io
-            @printf(io,"%10.2f, %10d, %10.2f\n",10000.00,nz,p)
+    open(fsnd,"a") do io
+        for t in [0.0,10000.0]
+            @printf(io,"%10.2f, %10d, %10.2f\n",t,nz,p)
             for iz = 1 : nz
                 @printf(
                     io,"%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\n",
@@ -87,7 +89,7 @@ end
 
 function printsnd(
     fsnd::AbstractString, snddata::Array{<:Real,3},
-    p::Real, t::AbstractVector
+    p::Real, t::AbstractVector, dvec::AbstractVector
 )
 
     nz = size(snddata,1); nt = length(t)
@@ -96,9 +98,9 @@ function printsnd(
         @printf(io,"      z[m]      p[mb]      tp[K]    q[g/kg]     u[m/s]     v[m/s]\n")
     end
 
-    for it = 1 : nt
-        open(fsnd,"a") do io
-            @printf(io,"%10.4f, %10d, %10.2f\n",t[it],nz,p)
+    open(fsnd,"a") do io
+        for dy in dvec[1] : dvec[2], it = 1 : nt
+            @printf(io,"%10.4f, %10d, %10.2f\n",t[it]+dy,nz,p)
             for iz = 1 : nz
                 @printf(
                     io,"%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\n",
@@ -106,17 +108,6 @@ function printsnd(
                     snddata[iz,4,it],snddata[iz,5,it],snddata[iz,6,it]
                 )
             end
-        end
-    end
-
-    open(fsnd,"a") do io
-        @printf(io,"%10.2f, %10d, %10.2f\n",t[1]+1,nz,p)
-        for iz = 1 : nz
-            @printf(
-                io,"%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\t%16.8f\n",
-                snddata[iz,1,1],snddata[iz,2,1],snddata[iz,3,1],
-                snddata[iz,4,1],snddata[iz,5,1],snddata[iz,6,1]
-            )
         end
     end
 
