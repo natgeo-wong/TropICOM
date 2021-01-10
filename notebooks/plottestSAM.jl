@@ -179,7 +179,7 @@ function plot2Ddiurnal(axs,ii,t,var;subtractm=true)
 	end
 	
 	axs[ii].format(xlim=(0,24))
-	if !subtractm; axs[ii].format(ylim=(0,2)) end
+	if !subtractm; axs[ii].format(ylim=(0,2.5)) end
 	
 end
 
@@ -219,10 +219,12 @@ md"
 
 # ╔═╡ 5ffd515e-5128-11eb-3b11-815af069d22f
 begin
-	exp = "WTGSndMean"; config = "damping32d00"
+	exp = "Control"; config = "3DRCE"
 	z,p,t = retrievedims(exp,config)
 	v2D = retrievevar("PREC",exp,config)
-	v3D = retrievevar("CLD",exp,config)
+	are = retrievevar("AREAPREC",exp,config)
+	prc = v2D ./ are
+	v3D = retrievevar("TABS",exp,config)
 	size(v2D), size(v3D)
 end
 
@@ -260,8 +262,8 @@ begin
 	
 	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=2)
 	
-	plot2Dtimeseries(axsts,1,t,v2D,dbeg=80,dend=120)
-	plot3Dtimeseries(axsts,2,t,p,v3D,dbeg=80,dend=120)
+	plot2Dtimeseries(axsts,1,t,are*100,dbeg=80,dend=280)
+	plot3Dtimeseries(axsts,2,t,p,v3D,dbeg=80,dend=280)
 	
 	fts.savefig("test.png",transparent=false,dpi=200)
 	load("test.png")
@@ -272,8 +274,8 @@ end
 begin
 	
 	td,tstep,tshift,beg = t2d(t,100);
-	v2Dd = diurnal2D(v2D[(end-beg):end],tstep,tshift);
-	v3Dd = diurnal3D(v3D[:,(end-beg):end],tstep,tshift) * 100;
+	v2Dd = diurnal2D(prc[(end-beg):end],tstep,tshift);
+	v3Dd = diurnal3D(v3D[:,(end-beg):end],tstep,tshift);
 	
 	arr = [[0,1,1,1],[2,3,3,3]]
 	pplt.close(); fdh,axsdh = pplt.subplots(arr,nrows=2,aspect=2)
