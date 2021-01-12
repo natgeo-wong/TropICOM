@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.17
 
 using Markdown
 using InteractiveUtils
@@ -46,7 +46,7 @@ function retrievedims(experiment::AbstractString, config::AbstractString)
 	
 	rce = NCDataset(datadir(joinpath(
         experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
+        "RCE_TroPrecLS-$(experiment)-test.nc"
     )))
 	
     z = rce["z"][:]
@@ -68,7 +68,7 @@ function retrievevar(
 	
 	rce = NCDataset(datadir(joinpath(
         experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
+        "RCE_TroPrecLS-$(experiment)-test.nc"
     )))
 	
     var = rce[variable][:]
@@ -219,12 +219,10 @@ md"
 
 # ╔═╡ 5ffd515e-5128-11eb-3b11-815af069d22f
 begin
-	exp = "Control"; config = "3DRCE"
+	exp = "3SWTGamExp0"; config = "damping02d00"
 	z,p,t = retrievedims(exp,config)
 	v2D = retrievevar("PREC",exp,config)
-	are = retrievevar("AREAPREC",exp,config)
-	prc = v2D ./ are
-	v3D = retrievevar("TABS",exp,config)
+	v3D = retrievevar("WWTG",exp,config) * 3600
 	size(v2D), size(v3D)
 end
 
@@ -262,8 +260,10 @@ begin
 	
 	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=2)
 	
-	plot2Dtimeseries(axsts,1,t,are*100,dbeg=80,dend=280)
-	plot3Dtimeseries(axsts,2,t,p,v3D,dbeg=80,dend=280)
+	lvls=vcat(-5:-1,1:5)*20
+	plot2Dtimeseries(axsts,1,t.-80,v2D,dbeg=30,dend=40)
+	plot3Dtimeseries(axsts,2,t.-80,p,v3D,dbeg=30,dend=60,lvl=lvls,cmapname="RdBu_r")
+	axsts[1].format(ylim=(0,2))
 	
 	fts.savefig("test.png",transparent=false,dpi=200)
 	load("test.png")
@@ -273,18 +273,18 @@ end
 # ╔═╡ 9eab2f9c-5129-11eb-07fc-2d9b382f5d49
 begin
 	
-	td,tstep,tshift,beg = t2d(t,100);
-	v2Dd = diurnal2D(prc[(end-beg):end],tstep,tshift);
-	v3Dd = diurnal3D(v3D[:,(end-beg):end],tstep,tshift);
+# 	td,tstep,tshift,beg = t2d(t,100);
+# 	v2Dd = diurnal2D(v2D[(end-beg):end],tstep,tshift);
+# 	v3Dd = diurnal3D(v3D[:,(end-beg):end],tstep,tshift);
 	
-	arr = [[0,1,1,1],[2,3,3,3]]
-	pplt.close(); fdh,axsdh = pplt.subplots(arr,nrows=2,aspect=2)
+# 	arr = [[0,1,1,1],[2,3,3,3]]
+# 	pplt.close(); fdh,axsdh = pplt.subplots(arr,nrows=2,aspect=2)
 	
-	plot2Ddiurnal(axsdh,1,td,v2Dd,subtractm=false)
-	plot3Ddiurnal(axsdh,2,td,p,v3Dd)
+# 	plot2Ddiurnal(axsdh,1,td,v2Dd,subtractm=false)
+# 	plot3Ddiurnal(axsdh,2,td,p,v3Dd)
 	
-	fdh.savefig("test2.png",transparent=false,dpi=200)
-	load("test2.png")
+# 	fdh.savefig("test2.png",transparent=false,dpi=200)
+# 	load("test2.png")
 	
 end
 
