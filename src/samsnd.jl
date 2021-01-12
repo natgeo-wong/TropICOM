@@ -15,7 +15,7 @@ function createsndmean(
     dystep = round(Int,1/dt); beg = ndays*dystep-1
 
     snddata = zeros(nz,6)
-    snddata[:,1] .= statds["z"][:]; snddata[:,2] .= p
+    snddata[:,1] .= -999; snddata[:,2] .= p
     snddata[:,3] .= dropdims(mean(statds["THETA"][:,(end-beg):end],dims=2),dims=2)
     snddata[:,4] .= dropdims(mean(statds["QT"][:,(end-beg):end],dims=2),dims=2)
     close(statds)
