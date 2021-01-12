@@ -34,6 +34,7 @@ disablecloudradiation    = .false.,
 disablecloudradiation_sw = .false.,
 
 tauls = 3600.,
+timelargescale = 2160000
 
 SFC_FLX_FXD    = .false.,
 SFC_TAU_FXD    = .false.,
