@@ -33,6 +33,7 @@ doDge_SnowAndIce = .true.,
 disablecloudradiation    = .false.,
 disablecloudradiation_sw = .false.,
 
+timelargescale = 2160000
 tauls = 3600.,
 
 SFC_FLX_FXD    = .false.,

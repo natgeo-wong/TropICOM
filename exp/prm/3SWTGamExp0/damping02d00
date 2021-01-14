@@ -33,6 +33,7 @@ doDge_SnowAndIce = .true.,
 disablecloudradiation    = .false.,
 disablecloudradiation_sw = .false.,
 
+timelargescale = 2160000
 tauls = 3600.,
 
 SFC_FLX_FXD    = .false.,
@@ -45,8 +46,6 @@ tabs_s     = 301.70,
 Szero      = 0,
 
 depth_slab_ocean = 1.,
-
-timelargescale = 2160000
 
 nrad = 12,
 
