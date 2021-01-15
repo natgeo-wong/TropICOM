@@ -4,7 +4,7 @@ caseid ='TroPrecLS-Control',
 
 dx = 2000.,
 dy = 2000.,
-dt = 30.,
+dt = 20.,
 
 nrestart     = 0,
 perturb_type = 0,
@@ -62,16 +62,16 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 576000,
-nprint   = 2880,
-nstat    = 120,    ! Calculate statistics every hour!
+nstop    = 864000,
+nprint   = 1800,
+nstat    = 180,    ! Calculate statistics every hour!
 nstatfrq = 30,     ! Collect 60 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
 nsave2D      = 30,
-nsave2Dstart = 518400,
+nsave2Dstart = 777600,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
