@@ -1,0 +1,6 @@
+# (1)ID,(2)pID,(3)N,(4)W,(5)S,(6)E,(7)Description,(8)Notes
+DTP,TRP,15,0,-15,360,Deep Tropics,Defined for TroPrecLS Project
+TRA,TRP,10,-15,-10,40,Tropical Rainforest Africa,Defined for TroPrecLS Project
+AMZ,TRP,10,285,-10,315,Amazon Rainforest,Defined for TroPrecLS Project
+CRB,TRP,25,270,15,300,Caribbean Islands,Defined for TroPrecLS Project
+SMT,SEA,6,95,-6,107,Sumatra,Defined for TroPrecLS Project
