@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.17
 
 using Markdown
 using InteractiveUtils
@@ -15,6 +15,7 @@ end
 begin
 	@quickactivate "TroPrecLS"
 	using DelimitedFiles
+	using GeoRegions
 	using NCDatasets
 	
 	using ImageShow, PNGFiles
@@ -38,7 +39,6 @@ md"
 We consider the following domains / regions to be of interest in our study with the Tropics:
 * Deep Tropics (DTP)
 * Southeast Asia / Maritime Continent (SEA)
-* Equatorial Africa (EQA)
 * Tropical Rainforest Africa (TRA)
 * Amazon Rainforest (AMZ)
 * Caribbean Islands (CRB)
@@ -49,10 +49,9 @@ prect(N::Real,S::Real,W::Real,E::Real) = [W,E,E,W,W],[S,S,N,N,S]
 
 # ╔═╡ d9101792-51f6-11eb-055c-051e9c48c5b3
 begin
-	DTP = prect(15,-15,-150,210)
-	SEA = prect(15,-15,90,165)
-	EQA = prect(12,-15,-20,40)
-	TRA = prect(5,-5,5,40)
+	DTP = prect(10,-10,-150,210)
+	SEA = prect(20,-15,90,165)
+	TRA = prect(10,-10,-15,40)
 	AMZ = prect(10,-10,-75,-45)
 	CRB = prect(25,15,-90,-60)
 	
@@ -97,14 +96,12 @@ begin
 	axs[1].plot(DTP[1],DTP[2],c="k",lw=1,linestyle="--")
 	axs[1].plot(SEA[1],SEA[2],c="b",lw=1,linestyle="--")
 	axs[1].plot(TRA[1],TRA[2],c="r",lw=1,linestyle="--")
-	axs[1].plot(EQA[1],EQA[2],c="orange",lw=1,linestyle="--")
 	axs[1].plot(AMZ[1],AMZ[2],c="g",lw=1,linestyle="--")
 	axs[1].plot(CRB[1],CRB[2],c="blue3",lw=1,linestyle="--")
 	
 	axs[1].text(-144,5,"DTP",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-100,10,"CRB",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-80,-15,"AMZ",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(35,15,"EQA",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-10,-5,"TRA",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(150,5,"SEA",verticalalignment="center",backgroundcolor="gray2")
 	
@@ -122,6 +119,16 @@ md"
 Red shades are tropical regions, yellow colours denote dry/arid regions, green denotes temperature regions, blue denotes temperature regions that are dry in winter.
 "
 
+# ╔═╡ f8ee207c-5700-11eb-1a7a-0b7f629d74b9
+md"
+### B. Define Regions as GeoRegions
+
+These regions are defined in the `gregionsadd.txt` in the `src` directory, and have been added as custom GeoRegions that can be called by the `GeoRegions.jl` package.
+"
+
+# ╔═╡ 2f20e814-5701-11eb-342d-51eae68d652c
+gregioninfoadd(srcdir("gregionsadd.txt"))
+
 # ╔═╡ Cell order:
 # ╟─f9606c7e-51f4-11eb-2e24-d998e4a91b9a
 # ╟─bcfd5bd8-51f5-11eb-1d79-ab69c65febaf
@@ -133,3 +140,5 @@ Red shades are tropical regions, yellow colours denote dry/arid regions, green d
 # ╟─a4458db2-5248-11eb-3ecf-b9bcdde2ec37
 # ╟─170ae0f0-51f6-11eb-153c-e59511b6a82d
 # ╟─ce969b7e-5248-11eb-36c2-dd1900221e34
+# ╟─f8ee207c-5700-11eb-1a7a-0b7f629d74b9
+# ╠═2f20e814-5701-11eb-342d-51eae68d652c

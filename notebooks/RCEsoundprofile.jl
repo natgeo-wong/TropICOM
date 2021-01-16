@@ -42,23 +42,15 @@ We create the sounding profiles based on the `Control/sst301d70` simulation.
 
 # ╔═╡ bd914aaa-5056-11eb-0070-438d7c3ff9c2
 begin
+	p3D,snd3D = createsndmean(
+		"initsnd3D",exp="Control",config="3DRCE",
+		psfc=1009.32,extract=true
+	)
 	p3S,snd3S = createsndmean(
 		"initsnd3S",exp="Control",config="3SRCE",
 		psfc=1009.32,extract=true
 	)
-	p3P,snd3P = createsndmean(
-		"initsnd3P",exp="Control",config="3PRCE",
-		psfc=1009.32,extract=true
-	)
-	# p3D,snd3D = createsndmean(
-	# 	"initsnd3D",exp="Control",config="3DRCE",
-	# 	psfc=1009.32,extract=true
-	# )
-	p2D,snd2D = createsndmean(
-		"initsnd2D",exp="Control",config="2DRCE",
-		psfc=1009.32,extract=true
-	)
-	p2D .- p3S
+	length(p3D)
 end
 
 # ╔═╡ 4f4f3016-506f-11eb-1206-391a46bd6579
@@ -74,18 +66,14 @@ begin
 	f,axs = pplt.subplots(ncols=2,aspect=1/3,axwidth=0.75,sharex=0,wspace=0.1)
 	
 	lgd = Dict("ncols"=>1,"frame"=>false)
-	axs[1].plot(snd2D[:,3] .* (p2D/p2D[1]).^0.287,p2D,lw=1)
-	# axs[1].plot(snd3D[:,3] .* (p3D/p3D[1]).^0.287,p3D,lw=1)
-	axs[1].plot(snd3P[:,3] .* (p3P/p3P[1]).^0.287,p3P,lw=1)
+	axs[1].plot(snd3D[:,3] .* (p3D/p3D[1]).^0.287,p3D,lw=1)
 	axs[1].plot(snd3S[:,3] .* (p3S/p3S[1]).^0.287,p3S,lw=1)
 	axs[1].format(
 		xlim=(180,320),xlabel="T / K",
 		ylim=(1010,50),ylabel="Pressure / hPa"
 	)
 
-	axs[2].plot(snd2D[:,3],p2D,lw=1,label="2D",legend="r",legend_kw=lgd)
-	# axs[2].plot(snd3D[:,3],p3D,lw=1,label="3D",legend="r")
-	axs[2].plot(snd3P[:,3],p3P,lw=1,label="3P",legend="r")
+	axs[2].plot(snd3D[:,3],p3D,lw=1,label="3D",legend="r",legend_kw=lgd)
 	axs[2].plot(snd3S[:,3],p3S,lw=1,label="3S",legend="r")
 	axs[2].format(xlabel=L"$\theta$ / K",xlim=(270,500))
 	
@@ -93,36 +81,8 @@ begin
 	PNGFiles.load(plotsdir("soundmean.png"))
 end
 
-# ╔═╡ cfcba23e-505f-11eb-22a3-5d50a50e7002
-begin
-	# wtgds = NCDataset(datadir("3PWTGamExp0/damping04d00/OUT_STAT/RCE_TroPrecLS-3PWTGamExp0.nc"))
-	wtgds = NCDataset(datadir("3SWTGamExp0/damping02d00/OUT_STAT/RCE_TroPrecLS-3SWTGamExp0-test.nc"))
-	sp = wtgds["Ps"][1]
-	pres_WTG = wtgds["PRES"][:]
-	tobs_WTG = wtgds["TABSOBS"][:]
-	t = wtgds["time"][:] .- 80
-	close(wtgds)
-	
-	rceds = NCDataset(datadir("Control/3SRCE/OUT_STAT/RCE_TroPrecLS-Control.nc"))
-	p = rceds["p"][:]
-	close(rceds)
-	
-	pres_diff = pres_WTG .- p
-	tobs_diff = tobs_WTG .- snd3S[:,3]
-	
-	lvls = vcat(-5:-1,-0.5,0.5,1:5)
-	
-	f1,axs1 = pplt.subplots([[1],[1],[2],[2],[3]],aspect=2,axwidth=4)
-	axs1[1].contourf(t,p,pres_diff,cmap="RdBu_r",levels=lvls,extend="both")
-	c = axs1[2].contourf(
-		t,p,tobs_WTG.-tobs_WTG[:,1],cmap="RdBu_r",
-		extend="both"
-	)
-	axs1[3].format(xlim=(0,70))
-	f1.colorbar(c,loc="r")
-	f1.savefig("testtobs.png",transparent=false,dpi=200)
-	PNGFiles.load("testtobs.png")
-end
+# ╔═╡ 6df6ec7c-554a-11eb-270d-bbd5e661e954
+
 
 # ╔═╡ Cell order:
 # ╟─2b1aec94-5051-11eb-04e6-379d1a4cfa3f
@@ -132,4 +92,4 @@ end
 # ╠═bd914aaa-5056-11eb-0070-438d7c3ff9c2
 # ╟─4f4f3016-506f-11eb-1206-391a46bd6579
 # ╠═17986926-505b-11eb-172c-b93d26450f0b
-# ╠═cfcba23e-505f-11eb-22a3-5d50a50e7002
+# ╠═6df6ec7c-554a-11eb-270d-bbd5e661e954

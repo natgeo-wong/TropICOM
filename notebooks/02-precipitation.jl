@@ -99,6 +99,11 @@ md"
 ### B. Retrieving GPM Precipitation Data
 "
 
+# ╔═╡ bb90be66-554c-11eb-05de-a5db553ad4b1
+md"
+We fit the model to GPM IMERGv6 data from 2001 to 2018 for each individual spatial point (i.e. at 0.1º resolution).  Our results are plotted below:
+"
+
 # ╔═╡ a116023a-53ad-11eb-25e0-d5dfa8338a1b
 function savediurnalphase(regID,rlon,rlat,μt,μ,A,θ)
 	
@@ -187,14 +192,14 @@ sroot = "/n/kuangdss01/lab/"; regID = "TRP"
 # ╔═╡ e8141e20-53af-11eb-1a23-81d34293c5eb
 if isfile(datadir("gpmimerg-prcp_rate-$regID.nc"))
 	ds = NCDataset(datadir("gpmimerg-prcp_rate-$regID.nc"))
-	rlon = ds["longitude"][:]
-	rlat = ds["latitude"][:]
+	lon = ds["longitude"][:]
+	lat = ds["latitude"][:]
 	μ  = ds["modelmean"][:]
 	A  = ds["modelamplitude"][:]
 	θ  = ds["modelphase"][:]
 	μt = ds["rawmean"][:]
 	close(ds)
-else rlon,rlat,μt,μ,A,θ = retrievegpm(sroot,regID=regID,timeID=[2001,2018])
+else lon,lat,μt,μ,A,θ = retrievegpm(sroot,regID=regID,timeID=[2001,2018])
 end
 
 # ╔═╡ d82366b0-53b1-11eb-26c1-ff1bb6ccb027
@@ -209,35 +214,132 @@ begin
 	pplt.close(); f,axs = pplt.subplots(nrows=3,axwidth=5,aspect=6)
 	
 	c = axs[1].contourf(
-		rlon,rlat,μ'*24*365,
+		lon,lat,μ',
 		cmap="Blues",cmap_kw=Dict("left"=>0.1),
-		levels=vcat((1:10)*500),extend="max"
+		levels=vcat((1:5)/10),extend="max"
 	)
 	axs[1].plot(x,y,c="k",lw=0.5)
 	axs[1].format(rtitle="Yearly Mean Precipitation / mm")
 	axs[1].colorbar(c,loc="r")
 	
 	c = axs[2].contourf(
-		rlon,rlat,A',
+		lon,lat,A',
 		cmap="Blues",cmap_kw=Dict("left"=>0.1),
-		levels=vcat((1:5)/5,1.5,2),extend="max"
+		levels=vcat(0.05,0.1,0.2,0.5,1),extend="max"
 	)
 	axs[2].plot(x,y,c="k",lw=0.5)
-	axs[2].format(rtitle=L"Amplitude of Diurnal Cycle / mm hr$^{-1}$")
+	axs[2].format(rtitle=L"A / mm hr$^{-1}$")
 	axs[2].colorbar(c,loc="r")
 	
-	c = axs[3].contourf(rlon,rlat,θ',cmap="romaO",levels=0:0.5:24)
+	c = axs[3].pcolormesh(lon,lat,θ',cmap="romaO",levels=0:0.5:24)
 	axs[3].plot(x,y,c="k",lw=0.5)
-	axs[3].format(rtitle="Hour of Peak Precipitation")
+	axs[3].format(rtitle=L"$\theta$ / Hour of Day")
 	axs[3].colorbar(c,loc="r")
 	
 	for ax in axs
 		ax.format(xlim=(0,360),ylim=(-30,30),xlocator=0:60:360)
 	end
 	
-	f.savefig(plotsdir("diurnalphase.png"),transparent=false,dpi=200)
-	load(plotsdir("diurnalphase.png"))
+	f.savefig(plotsdir("precipmodel_TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("precipmodel_TRP.png"))
 end
+
+# ╔═╡ 5c0e5bae-554e-11eb-3f83-a364ae0a2485
+md"
+The precipitation band is concentrated along a narrow band in the tropical oceans that represents the ITCZ and SPCZ, except around the Indo-Pacific warmpool, where we see that regions of high precipitation extend farther in latitude about the equator.
+
+We see that the presence of land also serves to extend the distribution of precipitation over latitude.  Furthermore, the amplitude $A$ of the diurnal cycle is enhanced over land as compared to over the ocean for similar values of mean precipitation rate.
+
+Lastly, we also see that the peak of precipitation rainfall is drastically different over land compared to the ocean.  Over land, the precipitation rate generally peaks from 1800 hours to midnight, while over the tropical ocean the rainfall peaks in the early morning.  We also see that over the tropical ocean the peak is relatively uniform, whereas the phase $\theta$ becomes much noisier in the extratropical regions, perhaps because $A$ is so much smaller that it becomes harder to distinguish $A$ from the background noise.
+"
+
+# ╔═╡ a96bfb80-5554-11eb-1fab-21f167010eea
+md"We also compared $\mu_t$ and $\mu$, or the raw mean precipitation rate against the model-derived mean precipitation rate, and found that there was no difference between the two."
+
+# ╔═╡ caa8956a-5554-11eb-250e-931b02fae447
+begin
+	pplt.close(); f1,axs1 = pplt.subplots(axwidth=5,aspect=6)
+	
+	c1 = axs1[1].contourf(
+		lon,lat,(μ-μt)',cmap="RdBu_r",
+		levels=vcat(-5:-1,1:5)/100,extend="both"
+	)
+	axs1[1].plot(x,y,c="k",lw=0.5)
+	axs1[1].format(rtitle=L"$\mu - \mu_t$ / mm hr$^{-1}$")
+	axs1[1].colorbar(c1,loc="b")
+	
+	for ax in axs1
+		ax.format(xlim=(0,360),ylim=(-30,30),xlocator=0:60:360)
+	end
+	
+	f1.savefig(plotsdir("muvmut.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("muvmut.png"))
+end
+
+# ╔═╡ 68cfc46c-5755-11eb-1702-373942539652
+md"
+### C. Regional Analysis
+
+Let's get a quick snapshot of the results by region.
+"
+
+# ╔═╡ ea7f0956-575b-11eb-3e3f-a1ba3e08b771
+begin
+	rlon,rlat,rinfo = gregiongridvec("SEA",lon,lat)
+	if maximum(rlon) > 360; rlon .= rlon .- 360 end
+	rμ = regionextractgrid(μ,rinfo)
+	rA = regionextractgrid(A,rinfo)
+	rθ = regionextractgrid(θ,rinfo)
+end
+
+# ╔═╡ 5714c13c-575c-11eb-06d4-838b4e8dbcd7
+begin
+	asp = (maximum(rlon)-minimum(rlon))/(maximum(rlat)-minimum(rlat))
+	pplt.close(); freg,areg = pplt.subplots(nrows=3,axwidth=4,aspect=asp)
+	
+	creg = areg[1].contourf(
+		rlon,rlat,rμ',
+		cmap="Blues",cmap_kw=Dict("left"=>0.1),
+		levels=vcat((1:7)/10),extend="max"
+	)
+	areg[1].plot(x,y,c="k",lw=0.5)
+	areg[1].format(rtitle="Yearly Mean Precipitation / mm")
+	areg[1].colorbar(creg,loc="r")
+	
+	creg = areg[2].contourf(
+		rlon,rlat,rA',
+		cmap="Blues",cmap_kw=Dict("left"=>0.1),
+		levels=vcat(0.05,0.1,0.2,0.3,0.4,0.5,1),extend="max"
+	)
+	areg[2].plot(x,y,c="k",lw=0.5)
+	areg[2].format(rtitle=L"A / mm hr$^{-1}$")
+	areg[2].colorbar(creg,loc="r")
+	
+	creg = areg[3].pcolormesh(rlon,rlat,rθ',cmap="romaO",levels=0:0.5:24)
+	areg[3].plot(x,y,c="k",lw=0.5)
+	areg[3].format(rtitle=L"$\theta$ / Hour of Day")
+	areg[3].colorbar(creg,loc="r")
+	
+	for ax in areg
+		ax.format(
+			xlim=(minimum(rlon),maximum(rlon)),
+			ylim=(minimum(rlat),maximum(rlat))
+		)
+	end
+	
+	freg.savefig(plotsdir("precipmodel_reg.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("precipmodel_reg.png"))
+end
+
+# ╔═╡ c4792bf2-5552-11eb-3b52-997f59fd42f3
+md"
+### D. Binning of Precipitation Data
+
+We now wish to bin the modelled precipitation data in order to determine the relationship between precipitation rate and the diurnal cycle over land and sea.  Is it different?
+"
+
+# ╔═╡ 1fadf4ca-5755-11eb-1ece-a99313019785
+
 
 # ╔═╡ Cell order:
 # ╟─90fffbc8-524d-11eb-232a-1bada28d5505
@@ -249,9 +351,18 @@ end
 # ╠═577a59d8-5311-11eb-2e2e-53bbeff12648
 # ╠═a6a688ca-53ab-11eb-2776-b5380ffb26c1
 # ╟─aa05317e-530b-11eb-2ec1-93aff65659dd
+# ╟─bb90be66-554c-11eb-05de-a5db553ad4b1
 # ╟─103f85e8-530c-11eb-047d-a537aa60075d
 # ╟─a116023a-53ad-11eb-25e0-d5dfa8338a1b
 # ╠═49d13e5c-53af-11eb-29ca-c994a7acd377
 # ╠═e8141e20-53af-11eb-1a23-81d34293c5eb
-# ╟─d82366b0-53b1-11eb-26c1-ff1bb6ccb027
+# ╠═d82366b0-53b1-11eb-26c1-ff1bb6ccb027
 # ╟─bb59b8d6-53b1-11eb-3631-87ef61219c4c
+# ╟─5c0e5bae-554e-11eb-3f83-a364ae0a2485
+# ╟─a96bfb80-5554-11eb-1fab-21f167010eea
+# ╟─caa8956a-5554-11eb-250e-931b02fae447
+# ╟─68cfc46c-5755-11eb-1702-373942539652
+# ╠═ea7f0956-575b-11eb-3e3f-a1ba3e08b771
+# ╟─5714c13c-575c-11eb-06d4-838b4e8dbcd7
+# ╟─c4792bf2-5552-11eb-3b52-997f59fd42f3
+# ╠═1fadf4ca-5755-11eb-1ece-a99313019785
