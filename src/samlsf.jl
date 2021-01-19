@@ -14,7 +14,7 @@ function lsfprint(flsf::AbstractString,lsf::Array{<:Real,2},p::Real)
     open(flsf,"a") do io
         for iz = 1 : nz
             @printf(
-                io,"%16.8f, %16.0f, %16.8e, %16.8e, %16.8f, %16.8f, %16.8f\n",
+                io,"%16.8f, %16.8f, %16.8e, %16.8e, %16.8f, %16.8f, %16.8f\n",
                 lsf[iz,1],lsf[iz,2],lsf[iz,3],
                 lsf[iz,4],lsf[iz,5],lsf[iz,6],lsf[iz,7]
             )
@@ -28,7 +28,7 @@ function lsfprint(flsf::AbstractString,lsf::Array{<:Real,2},p::Real)
     open(flsf,"a") do io
         for iz = 1 : nz
             @printf(
-                io,"%16.8f, %16.0f, %16.8e, %16.8e, %16.8f, %16.8f, %16.8f\n",
+                io,"%16.8f, %16.8f, %16.8e, %16.8e, %16.8f, %16.8f, %16.8f\n",
                 lsf[iz,1],lsf[iz,2],lsf[iz,3],
                 lsf[iz,4],lsf[iz,5],lsf[iz,6],lsf[iz,7]
             )
