@@ -27,6 +27,8 @@ begin
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
 	
+	include(srcdir("common.jl"))
+	
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -219,16 +221,16 @@ begin
 		levels=vcat((1:5)/10),extend="max"
 	)
 	axs[1].plot(x,y,c="k",lw=0.5)
-	axs[1].format(rtitle="Yearly Mean Precipitation / mm")
+	axs[1].format(rtitle=L"$\mu$ / mm hr$^{-1}$")
 	axs[1].colorbar(c,loc="r")
 	
 	c = axs[2].contourf(
-		lon,lat,A',
+		lon,lat,(A./μ)',
 		cmap="Blues",cmap_kw=Dict("left"=>0.1),
-		levels=vcat(0.05,0.1,0.2,0.5,1),extend="max"
+		levels=(0:10)./5
 	)
 	axs[2].plot(x,y,c="k",lw=0.5)
-	axs[2].format(rtitle=L"A / mm hr$^{-1}$")
+	axs[2].format(rtitle=L"A/$\mu$")
 	axs[2].colorbar(c,loc="r")
 	
 	c = axs[3].pcolormesh(lon,lat,θ',cmap="romaO",levels=0:0.5:24)
@@ -280,12 +282,12 @@ end
 md"
 ### C. Regional Analysis
 
-Let's get a quick snapshot of the results by region.
+We can get quick snapshots of the results for different GeoRegions specified in this project.
 "
 
 # ╔═╡ ea7f0956-575b-11eb-3e3f-a1ba3e08b771
 begin
-	rlon,rlat,rinfo = gregiongridvec("SEA",lon,lat)
+	rlon,rlat,rinfo = regiongridvec([20,0,130,110],lon,lat)
 	if maximum(rlon) > 360; rlon .= rlon .- 360 end
 	rμ = regionextractgrid(μ,rinfo)
 	rA = regionextractgrid(A,rinfo)
@@ -307,15 +309,16 @@ begin
 	areg[1].colorbar(creg,loc="r")
 	
 	creg = areg[2].contourf(
-		rlon,rlat,rA',
+		rlon,rlat,(rA./rμ)',
 		cmap="Blues",cmap_kw=Dict("left"=>0.1),
-		levels=vcat(0.05,0.1,0.2,0.3,0.4,0.5,1),extend="max"
+		levels=(0:10)./5
 	)
 	areg[2].plot(x,y,c="k",lw=0.5)
 	areg[2].format(rtitle=L"A / mm hr$^{-1}$")
 	areg[2].colorbar(creg,loc="r")
 	
 	creg = areg[3].pcolormesh(rlon,rlat,rθ',cmap="romaO",levels=0:0.5:24)
+	# areg[3].contour(rlon,rlat,rθ',levels=8:12,colors="k",linestyle="--",lw=0.2)
 	areg[3].plot(x,y,c="k",lw=0.5)
 	areg[3].format(rtitle=L"$\theta$ / Hour of Day")
 	areg[3].colorbar(creg,loc="r")
@@ -339,7 +342,186 @@ We now wish to bin the modelled precipitation data in order to determine the rel
 "
 
 # ╔═╡ 1fadf4ca-5755-11eb-1ece-a99313019785
+begin
+	lds = NCDataset(datadir("GPM_IMERG_LandSeaMask-TRP.nc"))
+	lsm = lds["landseamask"][:]*1
+	close(lds)
+	
+md"Loading Land-Sea Mask for GPM data ..."
+end
 
+# ╔═╡ f752b054-57c1-11eb-117c-ed52464aa25f
+md"
+#### i. Mean Precipitation Rate $\mu$ (Hourly)
+"
+
+# ╔═╡ 4b289fa8-57b9-11eb-0923-116c3d9444bb
+begin
+	lvec = collect(-1.5:0.02:0);
+	lbins = 10 .^lvec; lpbin = 10 .^((lvec[2:end].+lvec[1:(end-1)])/2)
+	
+	lbin_SEA,lavg_SEA = bindatasfclnd([20,-15,165,90],lbins,μ,lon,lat,lsm)
+	lbin_TRA,lavg_TRA = bindatasfclnd([10,-10,40,-10],lbins,μ,lon,lat,lsm)
+	lbin_CRB,lavg_CRB = bindatasfclnd([25,15,-60,-90],lbins,μ,lon,lat,lsm)
+	lbin_AMZ,lavg_AMZ = bindatasfclnd([10,-10,-45,-75],lbins,μ,lon,lat,lsm)
+	
+	svec = collect(-3:0.02:0);
+	sbins = 10 .^svec; spbin = 10 .^((svec[2:end].+svec[1:(end-1)])/2)
+	
+	sbin_SEA,savg_SEA = bindatasfcsea([20,-15,165,90],sbins,μ,lon,lat,lsm)
+	sbin_TRA,savg_TRA = bindatasfcsea([10,-10,40,-10],sbins,μ,lon,lat,lsm)
+	sbin_CRB,savg_CRB = bindatasfcsea([25,15,-60,-90],sbins,μ,lon,lat,lsm)
+	sbin_DTP,savg_DTP = bindatasfcsea([10,-10,360,0],sbins,μ,lon,lat,lsm)
+end
+
+# ╔═╡ e7ff7ec8-57b9-11eb-0115-abbe4aa9a1a9
+begin
+	pplt.close(); fbin,abin = pplt.subplots(ncols=2,aspect=2);
+	
+	abin[1].plot(lpbin,lbin_SEA,c="b",lw=0.5)
+	abin[1].plot(lpbin,lbin_TRA,c="r",lw=0.5)
+	abin[1].plot(lpbin,lbin_CRB,c="blue3",lw=0.5)
+	abin[1].plot(lpbin,lbin_AMZ,c="g",lw=0.5)
+	
+	abin[1].plot([1,1]*lavg_SEA,[0.1,50],c="b")
+	abin[1].plot([1,1]*lavg_TRA,[0.1,50],c="r")
+	abin[1].plot([1,1]*lavg_CRB,[0.1,50],c="blue3")
+	abin[1].plot([1,1]*lavg_AMZ,[0.1,50],c="g")
+	
+	abin[2].plot(spbin,sbin_SEA,c="b",lw=0.5);
+	abin[2].plot(spbin,sbin_TRA,c="r",lw=0.5);
+	abin[2].plot(spbin,sbin_CRB,c="blue3",lw=0.5);
+	abin[2].plot(spbin,sbin_DTP,c="k",lw=0.5);
+	
+	abin[2].plot([1,1]*savg_SEA,[0.1,50],c="b")
+	abin[2].plot([1,1]*savg_TRA,[0.1,50],c="r")
+	abin[2].plot([1,1]*savg_CRB,[0.1,50],c="blue3")
+	abin[2].plot([1,1]*savg_DTP,[0.1,50],c="k")
+	
+	abin[1].format(
+		xlim=(minimum(lbins),maximum(lbins)),xscale="log",
+		ylim=(0,20),#yscale="log",
+		ylabel="Density",
+		ultitle="Land"
+	)
+	
+	abin[2].format(
+		xlim=(minimum(sbins),maximum(sbins)),xscale="log",
+		ylim=(0,20),#yscale="log",
+		xlabel=L"Precipitation Rate / mm hr$^{-1}$",
+		ultitle="Ocean"
+	)
+	
+	fbin.savefig(plotsdir("gpmdiurnalmean.png"),transparent=false,dpi=200)
+	load(plotsdir("gpmdiurnalmean.png"))
+end
+
+# ╔═╡ 0fbb0b46-57c2-11eb-365a-a73a2ebda8e4
+md"
+#### ii. Diurnal Amplitude $A$ vs $\mu$
+"
+
+# ╔═╡ 252508a8-57c2-11eb-08b5-8fa673b1ac8a
+begin
+	Avec = collect(0:0.02:2); pAbin = (Avec[2:end].+Avec[1:(end-1)])/2
+	
+	lAbin_SEA,lAavg_SEA = bindatasfclnd([20,-15,165,90],Avec,A./μ,lon,lat,lsm)
+	lAbin_TRA,lAavg_TRA = bindatasfclnd([10,-10,40,-10],Avec,A./μ,lon,lat,lsm)
+	lAbin_CRB,lAavg_CRB = bindatasfclnd([25,15,-60,-90],Avec,A./μ,lon,lat,lsm)
+	lAbin_AMZ,lAavg_AMZ = bindatasfclnd([10,-10,-45,-75],Avec,A./μ,lon,lat,lsm)
+	
+	sAbin_SEA,sAavg_SEA = bindatasfcsea([20,-15,165,90],Avec,A./μ,lon,lat,lsm)
+	sAbin_TRA,sAavg_TRA = bindatasfcsea([10,-10,40,-10],Avec,A./μ,lon,lat,lsm)
+	sAbin_CRB,sAavg_CRB = bindatasfcsea([25,15,-60,-90],Avec,A./μ,lon,lat,lsm)
+	sAbin_DTP,sAavg_DTP = bindatasfcsea([10,-10,360,0],Avec,A./μ,lon,lat,lsm)
+end
+
+# ╔═╡ 5f58ae9c-57c2-11eb-1f04-2ddbaf2b4f1b
+begin
+	pplt.close(); fA,aA = pplt.subplots(ncols=2,aspect=2);
+	
+	aA[1].plot(pAbin,lAbin_SEA,c="b",lw=0.5)
+	aA[1].plot(pAbin,lAbin_TRA,c="r",lw=0.5)
+	aA[1].plot(pAbin,lAbin_CRB,c="blue3",lw=0.5)
+	aA[1].plot(pAbin,lAbin_AMZ,c="g",lw=0.5)
+	
+	aA[1].plot([1,1]*lAavg_SEA,[0.1,50],c="b")
+	aA[1].plot([1,1]*lAavg_TRA,[0.1,50],c="r")
+	aA[1].plot([1,1]*lAavg_CRB,[0.1,50],c="blue3")
+	aA[1].plot([1,1]*lAavg_AMZ,[0.1,50],c="g")
+	
+	aA[2].plot(pAbin,sAbin_SEA,c="b",lw=0.5);
+	aA[2].plot(pAbin,sAbin_TRA,c="r",lw=0.5);
+	aA[2].plot(pAbin,sAbin_CRB,c="blue3",lw=0.5);
+	aA[2].plot(pAbin,sAbin_DTP,c="k",lw=0.5);
+	
+	aA[2].plot([1,1]*sAavg_SEA,[0.1,50],c="b")
+	aA[2].plot([1,1]*sAavg_TRA,[0.1,50],c="r")
+	aA[2].plot([1,1]*sAavg_CRB,[0.1,50],c="blue3")
+	aA[2].plot([1,1]*sAavg_DTP,[0.1,50],c="k")
+	
+	aA[1].format(
+		xlim=(minimum(Avec),maximum(Avec)),#xscale="log",
+		ylim=(0,10),#yscale="log",
+		ylabel="Density",
+		urtitle="Land"
+	)
+	
+	aA[2].format(
+		xlim=(minimum(Avec),maximum(Avec)),
+		ylim=(0,10),#yscale="log",
+		xlabel=L"A/$\mu$",
+		urtitle="Ocean"
+	)
+	
+	fA.savefig(plotsdir("gpmdiurnalamplitude.png"),transparent=false,dpi=200)
+	load(plotsdir("gpmdiurnalamplitude.png"))
+end
+
+# ╔═╡ 1432fa12-57c7-11eb-0606-7be0389e8fb3
+md"
+#### iii. Phase Shift $\theta$
+"
+
+# ╔═╡ 76627730-57c7-11eb-2037-3f608e085a04
+begin
+	θvec = collect(0:0.5:24); pθbin = (θvec[2:end].+θvec[1:(end-1)])/24*pi
+	pθbin = vcat(pθbin,pθbin[1]+2*pi)
+	
+	lθbin_SEA,lθavg_SEA = bindatasfclnd([20,-15,165,90],θvec,θ,lon,lat,lsm)
+	lθbin_JAV,lθavg_JAV = bindatasfclnd([-2,-12,120,100],θvec,θ,lon,lat,lsm)
+	lθbin_TRA,lθavg_TRA = bindatasfclnd([10,-10,40,-10],θvec,θ,lon,lat,lsm)
+	lθbin_CRB,lθavg_CRB = bindatasfclnd([25,15,-60,-90],θvec,θ,lon,lat,lsm)
+	lθbin_AMZ,lθavg_AMZ = bindatasfclnd([10,-10,-45,-75],θvec,θ,lon,lat,lsm)
+	
+	sθbin_SEA,sθavg_SEA = bindatasfcsea([20,-15,165,90],θvec,θ,lon,lat,lsm)
+	sθbin_JAV,sθavg_JAV = bindatasfcsea([-2,-12,120,100],θvec,θ,lon,lat,lsm)
+	sθbin_TRA,sθavg_TRA = bindatasfcsea([10,-10,40,-10],θvec,θ,lon,lat,lsm)
+	sθbin_CRB,sθavg_CRB = bindatasfcsea([25,15,-60,-90],θvec,θ,lon,lat,lsm)
+	sθbin_DTP,sθavg_DTP = bindatasfcsea([10,-10,360,0],θvec,θ,lon,lat,lsm)
+end
+
+# ╔═╡ 8d739d0a-57c7-11eb-16b6-736f595e329e
+begin
+	pplt.close(); fθ,aθ = pplt.subplots(ncols=2,aspect=2,proj="polar");
+	
+	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_SEA,lθbin_SEA[1])),c="b")
+	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_TRA,lθbin_TRA[1])),c="r")
+	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_CRB,lθbin_CRB[1])),c="blue3")
+	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_AMZ,lθbin_AMZ[1])),c="g")
+	
+	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_SEA,sθbin_SEA[1])),c="b");
+	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_TRA,sθbin_TRA[1])),c="r");
+	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_CRB,sθbin_CRB[1])),c="blue3");
+	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_DTP,sθbin_DTP[1])),c="k");
+	
+	aθ[1].format(theta0="N",rlim=(0,3),thetaformatter="tau",ltitle="Land")
+	aθ[2].format(theta0="N",rlim=(0,3),thetaformatter="tau",ltitle="Ocean")
+	aθ[1].format(suptitle=L"$\theta$ / Fraction of Day")
+	
+	fθ.savefig(plotsdir("gpmdiurnalphase.png"),transparent=false,dpi=200)
+	load(plotsdir("gpmdiurnalphase.png"))
+end
 
 # ╔═╡ Cell order:
 # ╟─90fffbc8-524d-11eb-232a-1bada28d5505
@@ -352,11 +534,11 @@ We now wish to bin the modelled precipitation data in order to determine the rel
 # ╠═a6a688ca-53ab-11eb-2776-b5380ffb26c1
 # ╟─aa05317e-530b-11eb-2ec1-93aff65659dd
 # ╟─bb90be66-554c-11eb-05de-a5db553ad4b1
-# ╟─103f85e8-530c-11eb-047d-a537aa60075d
+# ╠═103f85e8-530c-11eb-047d-a537aa60075d
 # ╟─a116023a-53ad-11eb-25e0-d5dfa8338a1b
-# ╠═49d13e5c-53af-11eb-29ca-c994a7acd377
+# ╟─49d13e5c-53af-11eb-29ca-c994a7acd377
 # ╠═e8141e20-53af-11eb-1a23-81d34293c5eb
-# ╠═d82366b0-53b1-11eb-26c1-ff1bb6ccb027
+# ╟─d82366b0-53b1-11eb-26c1-ff1bb6ccb027
 # ╟─bb59b8d6-53b1-11eb-3631-87ef61219c4c
 # ╟─5c0e5bae-554e-11eb-3f83-a364ae0a2485
 # ╟─a96bfb80-5554-11eb-1fab-21f167010eea
@@ -366,3 +548,12 @@ We now wish to bin the modelled precipitation data in order to determine the rel
 # ╟─5714c13c-575c-11eb-06d4-838b4e8dbcd7
 # ╟─c4792bf2-5552-11eb-3b52-997f59fd42f3
 # ╠═1fadf4ca-5755-11eb-1ece-a99313019785
+# ╟─f752b054-57c1-11eb-117c-ed52464aa25f
+# ╠═4b289fa8-57b9-11eb-0923-116c3d9444bb
+# ╠═e7ff7ec8-57b9-11eb-0115-abbe4aa9a1a9
+# ╟─0fbb0b46-57c2-11eb-365a-a73a2ebda8e4
+# ╠═252508a8-57c2-11eb-08b5-8fa673b1ac8a
+# ╟─5f58ae9c-57c2-11eb-1f04-2ddbaf2b4f1b
+# ╟─1432fa12-57c7-11eb-0606-7be0389e8fb3
+# ╠═76627730-57c7-11eb-2037-3f608e085a04
+# ╟─8d739d0a-57c7-11eb-16b6-736f595e329e

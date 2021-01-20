@@ -127,18 +127,21 @@ These regions are defined in the `gregionsadd.txt` in the `src` directory, and h
 "
 
 # ╔═╡ 2f20e814-5701-11eb-342d-51eae68d652c
-gregioninfoadd(srcdir("gregionsadd.txt"))
+begin
+	gregioncopy(;overwrite=true)
+	gregioninfoadd(srcdir("gregionsadd.txt"))
+end
 
 # ╔═╡ Cell order:
 # ╟─f9606c7e-51f4-11eb-2e24-d998e4a91b9a
 # ╟─bcfd5bd8-51f5-11eb-1d79-ab69c65febaf
 # ╟─c1fdcad0-51f5-11eb-2df9-b1f4c8dca09d
 # ╟─e58cf4ca-51f8-11eb-218d-8d3141dc8289
-# ╟─d9101792-51f6-11eb-055c-051e9c48c5b3
+# ╠═d9101792-51f6-11eb-055c-051e9c48c5b3
 # ╟─5afacbc6-524c-11eb-08fb-8b6116cc35de
 # ╟─f3c8ffe6-51f5-11eb-362d-293e727b14c7
 # ╟─a4458db2-5248-11eb-3ecf-b9bcdde2ec37
-# ╟─170ae0f0-51f6-11eb-153c-e59511b6a82d
+# ╠═170ae0f0-51f6-11eb-153c-e59511b6a82d
 # ╟─ce969b7e-5248-11eb-36c2-dd1900221e34
 # ╟─f8ee207c-5700-11eb-1a7a-0b7f629d74b9
-# ╠═2f20e814-5701-11eb-342d-51eae68d652c
+# ╟─2f20e814-5701-11eb-342d-51eae68d652c

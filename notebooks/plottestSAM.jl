@@ -219,12 +219,13 @@ md"
 
 # ╔═╡ 5ffd515e-5128-11eb-3b11-815af069d22f
 begin
-	exp = "3PWTGamExp1"; config = "damping2048d"
+	exp = "Control"; config = "3SRCE"
 	z,p,t = retrievedims(exp,config)
 	v2D = retrievevar("PREC",exp,config)
 	tem = retrievevar("TABS",exp,config)
-	v3D = retrievevar("TABSOBS",exp,config)
-	size(v2D), size(v3D)
+	tob = retrievevar("TABSOBS",exp,config)
+	# v3D = retrievevar("WWTG",exp,config) * 3600
+	# size(v2D), size(v3D)
 end
 
 # ╔═╡ 6b0b697c-5117-11eb-1c0f-13c2840a65d2
@@ -259,47 +260,43 @@ end
 # ╔═╡ f440d5ca-5128-11eb-2574-d58f2f7d8fc3
 begin
 	
-	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=2)
+	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=1.5,axwidth=3)
 	
 	lvls=vcat(-5:-1,1:5)*20
 	plot2Dtimeseries(axsts,1,t.-80,v2D,dbeg=0,dend=200)
+	# plot3Dtimeseries(
+	# 	axsts,2,t.-80,p,v3D,
+	# 	dbeg=0,dend=40,cmapname="RdBu_r",
+	# 	lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/100
+	# )
 	plot3Dtimeseries(
-		axsts,2,t.-80,p,tem.-v3D[:,1],
-		dbeg=0,dend=40,cmapname="RdBu_r",lvl=(-5:5)/10
+		axsts,2,t.-80,p,tem.-tob[:,1],
+		dbeg=0,dend=40,cmapname="RdBu_r",
+		lvl=vcat(-5:-1,-0.5,0.5,1:5)/5
+		# lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/10
 	)
-	axsts[1].format(ylim=(0,25),xlim=(0,40))
+	axsts[1].format(ylim=(0,20),xlim=(100,150))
+	axsts[2].format(yscale="log")
 	
 	fts.savefig("test.png",transparent=false,dpi=200)
 	load("test.png")
 	
 end
 
-# ╔═╡ 935264d0-56ab-11eb-27ca-9bf13518874c
-sum(iszero.(v3D.-v3D[:,1])), length(v3D)
-
-# ╔═╡ 20bf0f12-56ca-11eb-391d-8df37ec27e56
-begin
-	exp1 = "Control"; config1 = "3PRCE"
-	tem1 = retrievevar("TABS",exp1,config1)
-	size(tem1)
-end
-
 # ╔═╡ a5c073d8-56af-11eb-1b0d-b9152daec781
 begin
 	
-	pplt.close(); f1,axs1 = pplt.subplots(aspect=0.5,axwidth=2)
-	axs1[1].plot(dropdims(mean(tem[:,241:600],dims=2),dims=2).-v3D[:,1],z/1000,label="RCE (WTG) - TABSOBS",legend="t")
-	axs1[1].scatter(dropdims(mean(tem[:,241:600],dims=2),dims=2).-v3D[:,1],z/1000)
-	axs1[1].plot(dropdims(mean(tem1[:,2401:4800],dims=2),dims=2).-v3D[:,1],z/1000,label="RCE (ORIG) - TABSOBS",legend="t",legend_kw=Dict("ncols"=>1,"frame"=>false))
-	axs1[1].scatter(dropdims(mean(tem1[:,2401:4800],dims=2),dims=2).-v3D[:,1],z/1000)
-	axs1[1].format(xlim=(-1.5,1.5),ylim=(0,30),xlabel="T Diff / K",ylabel="Height / km")
+	pplt.close(); f1,axs1 = pplt.subplots(aspect=0.75,axwidth=2)
+	axs1[1].plot(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000,label="RCE (WTG) - TABSOBS",legend="t")
+	axs1[1].scatter(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000)
+	axs1[1].format(
+		xlim=(-0.2,0.2),ylim=(0,30),#yscale="log",
+		xlabel="T Diff / K",ylabel="Height / km"
+	)
 	f1.savefig("testprofile2.png",transparent=false,dpi=200)
 	load("testprofile2.png")
 	
 end
-
-# ╔═╡ a0b29668-56cb-11eb-19b4-eb29bff00ecd
-
 
 # ╔═╡ 9625ecea-56b0-11eb-161c-059e398eab70
 argmin(abs.(p.-100))
@@ -307,11 +304,11 @@ argmin(abs.(p.-100))
 # ╔═╡ 73871862-56b0-11eb-123a-0b0cb5f8263c
 begin
 	
-	pplt.close(); f2,axs2 = pplt.subplots(aspect=2)
-	axs2[1].plot(t.-80,tem[47,:].-v3D[47,1])
-	axs2[1].format(xlim=(0,40),ylim=(-3,3))
-	f2.savefig("testts.png",transparent=false,dpi=200)
-	load("testts.png")
+	# pplt.close(); f2,axs2 = pplt.subplots(aspect=2)
+	# axs2[1].plot(t.-80,tem[47,:].-v3D[47,1])
+	# axs2[1].format(xlim=(0,40),ylim=(-3,3))
+	# f2.savefig("testts.png",transparent=false,dpi=200)
+	# load("testts.png")
 	
 end
 
@@ -336,7 +333,7 @@ end
 # ╔═╡ Cell order:
 # ╟─addc35d6-50b3-11eb-02dc-452ced2a45ef
 # ╟─8102297a-50b7-11eb-0430-f79371a66174
-# ╠═9340fa4e-50b4-11eb-253e-ab01deb80456
+# ╟─9340fa4e-50b4-11eb-253e-ab01deb80456
 # ╟─19174960-50cf-11eb-12a3-cf977e483262
 # ╠═c1489ae0-5114-11eb-3a56-5b75d263ae63
 # ╠═891e5992-50cf-11eb-208e-71e78380caf7
@@ -358,10 +355,7 @@ end
 # ╟─504cbace-5128-11eb-1d27-879bffb48098
 # ╠═5ffd515e-5128-11eb-3b11-815af069d22f
 # ╠═f440d5ca-5128-11eb-2574-d58f2f7d8fc3
-# ╠═935264d0-56ab-11eb-27ca-9bf13518874c
-# ╠═20bf0f12-56ca-11eb-391d-8df37ec27e56
 # ╠═a5c073d8-56af-11eb-1b0d-b9152daec781
-# ╠═a0b29668-56cb-11eb-19b4-eb29bff00ecd
 # ╠═9625ecea-56b0-11eb-161c-059e398eab70
 # ╠═73871862-56b0-11eb-123a-0b0cb5f8263c
 # ╠═9eab2f9c-5129-11eb-07fc-2d9b382f5d49

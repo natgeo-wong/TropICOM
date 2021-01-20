@@ -42,15 +42,19 @@ We create the sounding profiles based on the `Control/sst301d70` simulation.
 
 # ╔═╡ bd914aaa-5056-11eb-0070-438d7c3ff9c2
 begin
-	p3D,snd3D = createsndmean(
-		"initsnd3D",exp="Control",config="3DRCE",
-		psfc=1009.32,extract=true
-	)
 	p3S,snd3S = createsndmean(
 		"initsnd3S",exp="Control",config="3SRCE",
 		psfc=1009.32,extract=true
 	)
-	length(p3D)
+	p2D,snd2D = createsndmean(
+		"initsnd2D",exp="Control",config="2DRCE",
+		psfc=1009.32,extract=true
+	)
+	# p3P,snd3P = createsndmean(
+	# 	"initsnd3P",exp="Control",config="3PRCE",
+	# 	psfc=1009.32,ndays=50,extract=true
+	# )
+	length(p2D)
 end
 
 # ╔═╡ 4f4f3016-506f-11eb-1206-391a46bd6579
@@ -66,30 +70,24 @@ begin
 	f,axs = pplt.subplots(ncols=2,aspect=1/3,axwidth=0.75,sharex=0,wspace=0.1)
 	
 	lgd = Dict("ncols"=>1,"frame"=>false)
-	axs[1].plot(snd3D[:,3] .* (p3D/p3D[1]).^0.287,p3D,lw=1)
-	axs[1].plot(snd3S[:,3] .* (p3S/p3S[1]).^0.287,p3S,lw=1)
+	axs[1].plot(snd2D[:,3] .* (p2D/p2D[1]).^0.287,p2D,lw=1)
 	axs[1].format(
 		xlim=(180,320),xlabel="T / K",
 		ylim=(1010,50),ylabel="Pressure / hPa"
 	)
 
-	axs[2].plot(snd3D[:,3],p3D,lw=1,label="3D",legend="r",legend_kw=lgd)
-	axs[2].plot(snd3S[:,3],p3S,lw=1,label="3S",legend="r")
+	axs[2].plot(snd2D[:,3],p2D,lw=1,label="2D",legend="r")
 	axs[2].format(xlabel=L"$\theta$ / K",xlim=(270,500))
 	
 	f.savefig(plotsdir("soundmean.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("soundmean.png"))
 end
 
-# ╔═╡ 6df6ec7c-554a-11eb-270d-bbd5e661e954
-
-
 # ╔═╡ Cell order:
 # ╟─2b1aec94-5051-11eb-04e6-379d1a4cfa3f
-# ╟─cadb2d1c-5055-11eb-1f40-edf74c826843
+# ╠═cadb2d1c-5055-11eb-1f40-edf74c826843
 # ╠═f05f7958-5055-11eb-3b7d-4723da6d65a1
 # ╟─4fae4bc0-5059-11eb-124b-e121399c73e5
 # ╠═bd914aaa-5056-11eb-0070-438d7c3ff9c2
 # ╟─4f4f3016-506f-11eb-1206-391a46bd6579
 # ╠═17986926-505b-11eb-172c-b93d26450f0b
-# ╠═6df6ec7c-554a-11eb-270d-bbd5e661e954
