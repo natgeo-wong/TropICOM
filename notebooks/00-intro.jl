@@ -14,13 +14,29 @@ I have created several different notebooks to help better illustrate my thought 
 
 The general outline of this project is:
 1. Defining domains within the tropical region to be explored
+
 2. Download and exploratory analysis of reanalysis and satellite data in the tropical domain and subdomains
 * Analysis of mean, diurnal cycle in domains
 * Analysis of vertical profiles for pressure-level data
-3. Investigating the relationship between column saturation fraction $r$ and precipitation rate $P$
+
+3. Investigating the relationship between column saturation fraction $r$ and precipitation rate $P$ in reanalysis data
 * What is the difference between land and sea
 * Is there a difference in this landmass over different land areas
-4. Investigate the relationship between the amplitude of the diurnal cycle and the $P$-$r$ relationship using the System for Atmospheric Modelling
+
+4. *Anything else here to do with reanalysis?*
+* *Things to do here*
+
+5. Basic Setup of the System of Atmospheric Model
+* SAM RCE runs in 2D and 3D
+* Finding domain-averaged moisture flux convergence for large-scale forcing input
+
+6. Implementing the Weak-Temperature Gradient Approximation in SAM
+* Finding an equilibrium RCE sounding profile
+* Transitioning the model from RCE/pseudo-RCE to WTG state
+* Investigating the senstivity of WTG momentum damping parameter $a_m$
+
+7. The Impact of the Diurnal Cycle on P-r
+* Investigate slab-depth and the diurnal amplitude of SST
 "
 
 # ╔═╡ Cell order:

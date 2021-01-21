@@ -54,7 +54,7 @@ First, we extract the temperature and observed temperature (`TABS` and `TABSOBS`
 "
 
 # ╔═╡ ac8b9d4c-5ade-11eb-06f4-33bff063bbde
-config = "3S"
+config = "3P"
 
 # ╔═╡ ab0909d0-5ade-11eb-2622-0fee6450004b
 begin
@@ -62,12 +62,14 @@ begin
 	v2D = retrievevar("PREC","Control","$(config)RCE")
 	tem = retrievevar("TABS","Control","$(config)RCE")
 	tob = retrievevar("TABSOBS","Control","$(config)RCE")
+md"Loading data from $(config)RCE run ..."
 end
 
 # ╔═╡ e82cd648-5ade-11eb-2739-ad93c0b6d3af
 begin
 	tdiff = dropdims(mean(tem[:,2401:3600],dims=2),dims=2).-tob[:,1]
 	tdts  = tem .- tob[:,1]
+md"Calculating difference between `TABS` and `TABSOBS` ..."
 end
 
 # ╔═╡ 0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
@@ -86,7 +88,7 @@ begin
 	axs[1].plot(tdiff,p)
 	axs[1].scatter(tdiff,p)
 	axs[1].format(
-		xlim=(-0.2,0.4),ylim=(1010,30),yscale="log",
+		xlim=(-0.15,0.15),ylim=(1010,30),yscale="log",
 		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
 		urtitle="TRMS = $(trms) K"
 	)
@@ -106,7 +108,7 @@ begin
 	)
 	ats[1].colorbar(c,loc="r")
 	ats[1].format(
-		xlim=(100,150),ylim=(1010,30),yscale="log",
+		xlim=(120,150),ylim=(1010,30),yscale="log",
 		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
 	)
 	fts.savefig("rcetdts.png",transparent=false,dpi=200)
@@ -139,10 +141,10 @@ end
 # ╔═╡ Cell order:
 # ╟─9dd4cd7e-5adb-11eb-2735-a7a4a2bb23b1
 # ╟─417ee688-5ade-11eb-2e95-91a301119e88
-# ╠═46faa412-5ade-11eb-3c37-23a7e59037a0
+# ╟─46faa412-5ade-11eb-3c37-23a7e59037a0
 # ╟─86f0a60a-5ae5-11eb-0b1a-935e8703b842
 # ╠═ac8b9d4c-5ade-11eb-06f4-33bff063bbde
-# ╠═ab0909d0-5ade-11eb-2622-0fee6450004b
+# ╟─ab0909d0-5ade-11eb-2622-0fee6450004b
 # ╠═e82cd648-5ade-11eb-2739-ad93c0b6d3af
 # ╟─0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
 # ╟─cb5fc41c-5ade-11eb-03ff-e58b88e5223a

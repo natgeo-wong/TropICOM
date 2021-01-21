@@ -62,6 +62,23 @@ wtgstrength(am::Real) = 1/am
 # ╔═╡ 75ed9ab0-5af7-11eb-1cba-ad51d005bd0d
 md"
 ### B. Implementing a smooth transition
+
+Implementing the Weak-Temperature Gradient approximation suddenly can cause a \"shock\" to the model, which will then transfer into a different regime state.  Therefore, we implement a smooth transition from a pseudo-RCE state ($a_m\gg1$) to a WTG state ($a_m = a_{m.0}$).  This was by varying $a_m$ in the form of an error function.  This will allow the increase in the strength of the WTG approximation to taper off gently, instead of increasing more and more rapidly, as it approaches $a_{m.0}$.
+
+The error function is given by
+
+$$\text{erf}\> t = \frac{2}{\sqrt{t}} \int_0^t e^{-x^2} \>\text{d}{x}$$
+
+We use the error function to vary the momentum damping parameter $a_m$, or more specifically, the parameter $x$ where $x = \log_2a_m$.
+
+The formula for $x$ as a function of time $t$, is given by
+
+$$x(t) = \left( \frac{10-\log_2a_{m.0}}{2} \right)
+\text{erf}\> \left( \frac{t_\text{max}/2-t}{t_\text{max}/5} \right)
++ 5 + \frac{1}{2}\log_2a_{m.0}$$
+$$a_m(t) = 2^{x(t)}$$
+
+Where $t_\text{max}$ is a scaling parameter, that defines the time when $a_m \approx a_{m.0}$ as a fraction of the total time that the WTG approximation is applied.  So if the WTG approximation is applied over 100 days, then if $t_\text{max} = 0.25$, $a_m \approx a_{m.0}$ occurs at day 25.
 "
 
 # ╔═╡ e7bd22f2-5ae9-11eb-1f82-09333889a5b2
@@ -89,8 +106,7 @@ begin
 	
 	axs[1].format(ylim=(0,10),ylabel=L"$\log_2 (a_m)$")
 	axs[2].format(ylim=(0,1024),ylabel=L"a_m")
-	axs[3].format(ylim=(0.001,1),ylabel=L"WTG $\propto$ $a_m^{-1}$",yscale="log",
-		ylocator=[0.001,0.01,0.1,1],
+	axs[3].format(ylim=(0,1),ylabel=L"WTG $\propto$ $a_m^{-1}$",#yscale="log",
 		xlim=(0,1),xlabel="Nondimensionalized time",
 		suptitle="twtg_scale = $(twtg_scale)")
 	
@@ -119,6 +135,7 @@ begin
 		"damping512d0"
 	]
 	ncon = length(configvec)
+	colors = pplt.Colors("Blues",(ncon+2))
 	lgd = Dict("frame"=>false,"ncols"=>1)
 md"Loading time dimension and defining the damping experiments ..."
 end
@@ -135,7 +152,7 @@ begin
 		prcp = retrievevar("PREC","$(exp)WTGamExp$(am_wtg)",configvec[icon])
 		prcp = dropdims(mean(reshape(prcp,24,:),dims=1),dims=1)
 		ats[1].plot(
-			1:200,prcp,c="Blue$(icon)",
+			1:200,prcp,color=colors[icon+2],
 			label=(L"$a_m =$" * " $config"),
 			legend="r",legend_kw=lgd
 		)
@@ -201,7 +218,7 @@ end
 # ╟─2cc46a1a-5b35-11eb-2b84-d536d6f7f7d0
 # ╠═d3b025e0-5b35-11eb-330a-5fbb2204da63
 # ╠═bdfa9872-5b35-11eb-059e-ad1ac171d295
-# ╠═a63de98c-5b35-11eb-0a8f-b7a1ebd441b6
+# ╟─a63de98c-5b35-11eb-0a8f-b7a1ebd441b6
 # ╟─49ad8588-5b62-11eb-2e9d-a357ab55bc2a
 # ╠═7c9cc168-5b6a-11eb-332a-3bfcfe9453fb
 # ╟─048e5a08-5b3b-11eb-0b13-efe1a204e66a

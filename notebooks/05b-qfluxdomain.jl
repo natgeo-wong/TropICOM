@@ -15,8 +15,9 @@ end
 begin
 	@quickactivate "TroPrecLS"
 	using GeoRegions
-	using Statistics
 	using NCDatasets
+	using Printf
+	using Statistics
 	
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
@@ -30,7 +31,7 @@ end
 
 # ╔═╡ 582bcb26-5a22-11eb-3b52-09e3ec08b3f9
 md"
-# 5. Reanalysis Moisture-Fluxes
+# 5b. Reanalysis Moisture-Fluxes
 
 In this notebook, we calculate and find the vertical profile of mean moisture-fluxes into our predefined domains.  These will then be used to force the mean-state of our SAM models into wetter/drier states, such that we can reconstruct the P-r curve in Bretherton et al. [2006].
 
@@ -304,15 +305,29 @@ end
 
 # ╔═╡ 0f6c5ccc-5aa5-11eb-001f-75a4b37304d6
 begin
-	lsf = lsfinit(length(zlvl)); lsf[:,2] .= -999.0
 	
-	lsf[:,1] .= reverse(lzair_SEA)
-	lsf[:,4] .= reverse(lqfc_SEA)
-	lsfprint(projectdir("exp/lsf/SEA-land"),lsf,1009.32)
+	lsfl = lsfinit(length(zlvl)); lsfl[:,2] .= -999.0; lsfl[:,1] .= reverse(lzair_SEA)
+	lsfs = lsfinit(length(zlvl)); lsfs[:,2] .= -999.0; lsfs[:,1] .= reverse(szair_SEA)
+	mvec = vcat(-20:-1,1:20)
 	
-	lsf[:,1] .= reverse(szair_SEA)
-	lsf[:,4] .= reverse(sqfc_SEA)
-	lsfprint(projectdir("exp/lsf/SEA-ocean"),lsf,1009.32)
+	if !isdir(projectdir("exp/lsf/land/")); mkpath(projectdir("exp/lsf/land/")) end
+	if !isdir(projectdir("exp/lsf/ocean/")); mkpath(projectdir("exp/lsf/ocean/")) end
+	
+	for mul in mvec
+		
+		lsfl[:,4] .= reverse(lqfc_SEA) * mul
+		lsfs[:,4] .= reverse(sqfc_SEA) * mul
+		
+		if mul > 0
+			  mstr = @sprintf("p%02d",abs(mul))
+		else; mstr = @sprintf("n%02d",abs(mul))
+		end
+
+		lsfprint(projectdir("exp/lsf/land/$(mstr)"),lsfl,1009.32)
+		lsfprint(projectdir("exp/lsf/ocean/$(mstr)"),lsfs,1009.32)
+		
+	end
+	
 end
 
 # ╔═╡ Cell order:
@@ -333,5 +348,5 @@ end
 # ╟─8774c3bc-5aa0-11eb-2dd9-d1f3daf9d815
 # ╠═06eebd8c-5aa1-11eb-12d9-7314d15a98c9
 # ╠═c4795296-5aa0-11eb-2038-1be17d8ce5cd
-# ╠═f3bd1c4a-5aa0-11eb-049c-8d6783190671
-# ╟─0f6c5ccc-5aa5-11eb-001f-75a4b37304d6
+# ╟─f3bd1c4a-5aa0-11eb-049c-8d6783190671
+# ╠═0f6c5ccc-5aa5-11eb-001f-75a4b37304d6

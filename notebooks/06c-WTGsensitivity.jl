@@ -59,11 +59,14 @@ md"
 "
 
 # ╔═╡ f50703e2-5369-11eb-1c4f-a1bd28acce48
-configs = [
-	"damping02d00","damping04d00","damping08d00",
-	"damping16d00","damping32d00","damping64d00",
-	"damping128d0","damping256d0","damping512d0",
-]
+begin
+	configs = [
+		"damping02d00","damping04d00","damping08d00",
+		"damping16d00","damping32d00","damping64d00",
+		"damping128d0","damping256d0","damping512d0",
+	]
+	colors = pplt.Colors("blues",length(configs))
+end
 
 # ╔═╡ 1c9964be-536e-11eb-3da4-77b94fb34bf0
 md"### Comparison of WTG Simulations against RCE"
@@ -84,7 +87,7 @@ function retrieveprcp(experiment,configlist,beg,tstep,tshift)
 end
 
 # ╔═╡ 86f914a0-536c-11eb-0563-b1e67e8c85fc
-function plotprcpWTG(axs,axsii,td,prcp,configlist)
+function plotprcpWTG(axs,axsii,td,prcp,configlist,colors)
 	
 	nconfig = length(configlist)
 	
@@ -93,7 +96,10 @@ function plotprcpWTG(axs,axsii,td,prcp,configlist)
 		config = replace(config,"damping"=>"")
 		config = replace(config,"d"=>".")
 		config = parse(Float64,config)
-		axs[axsii].plot(td,prcp[:,iconfig],c="blue$iconfig",label=config,legend="r")
+		axs[axsii].plot(
+			td,prcp[:,iconfig],color=colors[iconfig],
+			label=config,legend="r"
+		)
 	end
 	
 end
@@ -107,7 +113,8 @@ begin
 	lgd = Dict("ncols"=>1,"frame"=>false)
 	pplt.close(); fcmp1,acmp1 = pplt.subplots(axwidth=4,aspect=2)
 	acmp1[1].plot(td,prcp_RCE_d,c="k",label="RCE",legend="r",legend_kw=lgd)
-	plotprcpWTG(acmp1,1,td,prcp_WTG,configs)
+	plotprcpWTG(acmp1,1,td,prcp_WTG,configs,colors)
+	
 	acmp1[1].format(
 		ylim=(0,6),ylabel=L"Rainfall Rate / mm day$^{-1}$",
 		xlim=(0,24),xlabel="Hour of Day",
@@ -151,7 +158,7 @@ function retrieveWTGrhum(experiment,configlist,beg,tstep,tshift,p)
 end
 
 # ╔═╡ 4d8f365c-5b6b-11eb-23db-f7f9b9abc489
-function plotWTG3D(axs,axsii,p,data,configlist;islegend=false)
+function plotWTG3D(axs,axsii,p,data,configlist,colors;islegend=false)
 	
 	nconfig = length(configlist)
 	lgd = Dict("ncols"=>4,"frame"=>false)
@@ -163,10 +170,10 @@ function plotWTG3D(axs,axsii,p,data,configlist;islegend=false)
 		config = parse(Float64,config)
 		if islegend
 			  axs[axsii].plot(
-				data[:,icon],p,c="blue$icon",
+				data[:,icon],p,color=colors[icon],
 				label=config,legend="b",legend_kw=lgd
 			  )
-		else; axs[axsii].plot(data[:,icon],p,c="blue$icon")
+		else; axs[axsii].plot(data[:,icon],p,color=colors[icon])
 		end
 	end
 	
@@ -198,26 +205,30 @@ begin
 		axwidth=1,aspect=0.5,sharex=0,
 	)
 	
-	plotWTG3D(awtg,1,p,tair_WTG,configs)
-	awtg[1].format(
-		ylim=(1010,10),xlim=(-25,25),ylabel="Pressure / hPa",
-		ultitle="T / K",suptitle="WTG - RCE | $exper"
-	)
+	plotWTG3D(awtg,1,p,tair_WTG,configs,colors)
+	awtg[1].format(xlim=(-25,25),ultitle="T / K")
 	
-	plotWTG3D(awtg,2,p,cldf_WTG,configs)
+	plotWTG3D(awtg,2,p,cldf_WTG,configs,colors)
 	awtg[2].format(xlim=(-100,100),ultitle="CLD / %")
 	
-	plotWTG3D(awtg,3,p,rhum_WTG,configs)
+	plotWTG3D(awtg,3,p,rhum_WTG,configs,colors)
 	awtg[3].format(xlim=(-100,100),ultitle="RH / %")
 	
-	plotWTG3D(awtg,4,p,wtgw_WTG,configs)
-	awtg[4].format(ylim=(1010,10),xlim=(-0.2,0.2),ultitle=L"W$_{WTG}$ / m s$^{-1}$")
+	plotWTG3D(awtg,4,p,wtgw_WTG,configs,colors)
+	awtg[4].format(xlim=(-0.2,0.2),ultitle=L"W$_{WTG}$ / m s$^{-1}$")
 	
-	plotWTG3D(awtg,5,p,dqdt_WTG,configs,islegend=true)
+	plotWTG3D(awtg,5,p,dqdt_WTG,configs,colors,islegend=true)
 	awtg[5].format(xlim=(-15,15),ultitle=L"$\frac{dq}{dt}$ / g kg$^{-1}$ s$^{-1}$")
 	
-	plotWTG3D(awtg,6,p,dTdt_WTG,configs)
+	plotWTG3D(awtg,6,p,dTdt_WTG,configs,colors)
 	awtg[6].format(xlim=(-50,50),ultitle=L"$\frac{dT}{dt}$ / K s$^{-1}$")
+	
+	for ax in awtg
+		ax.format(
+			ylim=(1010,10),ylabel="Pressure / hPa",yscale="log",
+			suptitle="WTG - RCE | $exper"
+		)
+	end
 	
 	fwtg.savefig(plotsdir("var3D_$exper.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("var3D_$exper.png"))
@@ -239,5 +250,5 @@ end
 # ╠═3d052842-5124-11eb-16a4-fd5f78742794
 # ╟─2cc1a5d4-5370-11eb-20fb-5d988fc02718
 # ╟─0976bfa4-5372-11eb-367e-a7b8374c3604
-# ╟─4d8f365c-5b6b-11eb-23db-f7f9b9abc489
-# ╟─97e914de-5373-11eb-0495-77717bf39bd1
+# ╠═4d8f365c-5b6b-11eb-23db-f7f9b9abc489
+# ╠═97e914de-5373-11eb-0495-77717bf39bd1
