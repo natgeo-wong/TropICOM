@@ -33,7 +33,7 @@ doDge_SnowAndIce = .true.,
 disablecloudradiation    = .false.,
 disablecloudradiation_sw = .false.,
 
-timelargescale = 8640000
+timelargescale = 12960000
 tauls = 3600.,
 
 SFC_FLX_FXD    = .false.,
@@ -65,8 +65,8 @@ domisr  = .false.,
 
 nstop    = 864000,
 nprint   = 4320,
-nstat    = 180,    ! Calculate statistics every hour!
-nstatfrq = 30,     ! Collect 60 samples per statistical calculation (every 1 minute)
+nstat    = 4320,    ! Calculate statistics every hour!
+nstatfrq = 240,     ! Collect 60 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
