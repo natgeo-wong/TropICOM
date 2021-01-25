@@ -14,7 +14,7 @@ OCEAN = .true.,
 
 dosgs            = .true.,
 dodamping        = .true.,
-doupperbound     = .false.,
+doupperbound     = .true.,
 docloud          = .true.,
 doprecip         = .true.,
 dolongwave       = .true.,
