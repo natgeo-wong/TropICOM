@@ -15,19 +15,19 @@ I have created several different notebooks to help better illustrate my thought 
 The general outline of this project is:
 1. Defining domains within the tropical region to be explored
 
-2. Download and exploratory analysis of reanalysis and satellite data in the tropical domain and subdomains
+2. Download and exploratory analysis of satellte rainfall data in the tropical domain and subdomains
+* Analysis of mean, diurnal cycle in domains
+
+3. Download and exploratory analysis of reanalysis ERA5 data in the tropical domain and subdomains
 * Analysis of mean, diurnal cycle in domains
 * Analysis of vertical profiles for pressure-level data
 
-3. Investigating the relationship between column saturation fraction $r$ and precipitation rate $P$ in reanalysis data
+4. Investigating the relationship between column saturation fraction $r$ and precipitation rate $P$ in reanalysis data
 * What is the difference between land and sea
 * Is there a difference in this landmass over different land areas
 
-4. *Anything else here to do with reanalysis?*
-* *Things to do here*
-
-5. Basic Setup of the System of Atmospheric Model
-* SAM RCE runs in 2D and 3D
+5. Extracting Large-Scale Forcing for SAM
+* Quick exploratory analysis of moisture flux convergence
 * Finding domain-averaged moisture flux convergence for large-scale forcing input
 
 6. Implementing the Weak-Temperature Gradient Approximation in SAM
@@ -40,4 +40,4 @@ The general outline of this project is:
 "
 
 # ╔═╡ Cell order:
-# ╟─d20942a4-51f2-11eb-0977-33f2082de974
+# ╠═d20942a4-51f2-11eb-0977-33f2082de974

@@ -4,6 +4,15 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
+
 # ╔═╡ 36a4e004-5a26-11eb-1ba4-db83d18c7845
 begin
 	using DrWatson
@@ -14,8 +23,8 @@ end
 # ╔═╡ 3a8bbab2-5a26-11eb-20e0-d551c2a68858
 begin
 	@quickactivate "TroPrecLS"
-	using GeoRegions
 	using NCDatasets
+	using PlutoUI
 	using Printf
 	using Statistics
 	
@@ -31,7 +40,7 @@ end
 
 # ╔═╡ 582bcb26-5a22-11eb-3b52-09e3ec08b3f9
 md"
-# 5b. Reanalysis Moisture-Fluxes
+# 5b. Moisture-Flux Profiles
 
 In this notebook, we calculate and find the vertical profile of mean moisture-fluxes into our predefined domains.  These will then be used to force the mean-state of our SAM models into wetter/drier states, such that we can reconstruct the P-r curve in Bretherton et al. [2006].
 
@@ -44,169 +53,20 @@ $$\overline{qv}
 i.e., that $\overline{q'}\overline{v'} \ll \overline{q}\overline{v}$.
 "
 
-# ╔═╡ 2b736522-5a33-11eb-0eea-473a5b8566f3
-md"
-### A. Calculating Moisture Flux Convergence
-
-We calculate the gradients and divergence using finite difference.  Then, we calculate the moisture flux convergence via the following:
-
-$$\text{MFC} = - \vec{u}\cdot\nabla q - q\nabla\cdot\vec{u}$$
-"
-
-# ╔═╡ 28ffa404-5a33-11eb-3dc7-7d716d6cf06f
-function ddx(
-	data::AbstractArray{<:Real,3},
-	lon::AbstractVector{<:Real},
-	lat::AbstractVector{<:Real}
-)
-	
-	nx = length(lon); ny = length(lat); nlvl = size(data,3)
-	rx = 6378e3; dx = rx * (lon[2]-lon[1]) * pi / 180 * cosd.(lat)
-	ddatadx = zeros(nx,ny,nlvl)
-	
-	for ilvl = 1 : nlvl, iy = 1 : ny, ix = 2 : (nx-1)
-
-        ddatadx[ix,iy,ilvl] = (data[ix+1,iy,ilvl] - data[ix-1,iy,ilvl]) / (2 * dx[iy])
-
-    end
-
-    for iy = 1 : ny, ilvl = 1 : nlvl
-
-        ddatadx[1,iy,ilvl] = (data[2,iy,ilvl] - data[1,iy,ilvl]) / dx[iy]
-        ddatadx[nx,iy,ilvl] = (data[nx,iy,ilvl] - data[nx-1,iy,ilvl]) / dx[iy]
-
-    end
-	
-	return ddatadx
-	
-end
-
-# ╔═╡ 9e01c7ea-5a34-11eb-1c41-8b991a399584
-function ddy(
-	data::AbstractArray{<:Real,3},
-	lat::AbstractVector{<:Real}
-)
-	
-	nx = size(data,1); ny = length(lat); nlvl = size(data,3)
-	ry = 6357e3; dy = ry * (lat[2]-lat[1]) * pi / 180
-	ddatady = zeros(nx,ny,nlvl)
-	
-	for ilvl = 1 : nlvl, iy = 2 : (ny-1), ix = 1 : nx
-
-        ddatady[ix,iy,ilvl] = (data[ix,iy+1,ilvl] - data[ix,iy-1,ilvl]) / (2 * dy)
-
-    end
-
-    for ilvl = 1 : nlvl, ix = 1 : nx
-
-        ddatady[ix,1,ilvl] = (data[ix,1,ilvl] - data[ix,2,ilvl]) / dy
-        ddatady[ix,ny,ilvl] = (data[ix,ny-1,ilvl] - data[ix,ny,ilvl]) / dy
-
-    end
-	
-	return ddatady
-	
-end
-
 # ╔═╡ abde634c-5a83-11eb-00d6-69b233e0c00f
 md"
-### B. Extracting Moisture Fluxes for Tropical REgion
+### A. Extracting Moisture Fluxes for Tropical Domains
 "
 
-# ╔═╡ 4927b4c2-5a8a-11eb-37e4-53efb9445b23
-function saveqfc(qfc,rlon,rlat,lvl,regID)
-	
-	fnc = datadir("reanalysis/era5-$(regID)x0.25-qfc_air.nc")
-	if isfile(fnc); rm(fnc) end
-	ds = NCDataset(fnc,"c",attrib = Dict("Conventions"=>"CF-1.6"));
-	
-	ds.dim["longitude"] = length(rlon)
-    ds.dim["latitude"]  = length(rlat)
-    ds.dim["level"]  = length(lvl)
-	
-	scale,offset = ncoffsetscale(qfc)
-	
-	nclongitude = defVar(ds,"longitude",Float32,("longitude",),attrib = Dict(
-        "units"     => "degrees_east",
-        "long_name" => "longitude",
-    ))
-
-    nclatitude = defVar(ds,"latitude",Float32,("latitude",),attrib = Dict(
-        "units"     => "degrees_north",
-        "long_name" => "latitude",
-    ))
-	
-	nclevel = defVar(ds,"level",Int32,("level",),attrib = Dict(
-        "units"     => "millibars",
-        "long_name" => "pressure_level",
-    ))
-	
-	ncqfc = defVar(ds,"qfc_air",Int16,("longitude","latitude","level"),attrib = Dict(
-        "scale_factor"  => scale,
-        "add_offset"    => offset,
-        "_FillValue"    => Int16(-32767),
-        "missing_value" => Int16(-32767),
-        "units" 	    => "kg kg**-1 s**-1",
-		"long_name"     => "moisture_flux_convergence",
-    ))
-	
-	nclongitude[:] = rlon
-	nclatitude[:]  = rlat
-	nclevel[:]     = lvl
-	ncqfc[:]       = qfc
-	
-	close(ds)
-	
-end
-
-# ╔═╡ 87a146d4-5a29-11eb-1571-b9d9266ee54b
-function calcqfc(regID::AbstractString)
-	
-	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-q_air.nc"))
-    lon = ds["longitude"][:]; nlon = length(lon)
-    lat = ds["latitude"][:];  nlat = length(lat)
-	lvl = ds["level"][:];	  nlvl = length(lvl)
-    q_air = ds["q_air"][:]*1
-    close(ds)
-	
-	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-u_air.nc"))
-    u_air = ds["u_air"][:]*1
-    close(ds)
-	
-	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-v_air.nc"))
-    v_air = ds["v_air"][:]*1
-    close(ds)
-	
-	tmp = zeros(nlon,nlat,nlvl)
-	rlon,rlat,rinfo = gregiongridvec(regID,lon,lat)
-	
-	ru = regionextractgrid!(u_air,rinfo,tmp)
-	rv = regionextractgrid!(v_air,rinfo,tmp)
-	rq = regionextractgrid!(q_air,rinfo,tmp)
-	
-	ru_x = ddx(ru,rlon,rlat); rv_y = ddy(rv,rlat)
-	rq_x = ddx(rq,rlon,rlat); rq_y = ddy(rq,rlat)
-	
-	qfc = -((ru_x + rv_y) .* rq .+ ru .* rq_x .+ rv .* rq_y)
-	
-	saveqfc(qfc,rlon,rlat,lvl,regID)
-	
-	return rlon,rlat,lvl,qfc
-	
-end
-
-# ╔═╡ 795a822a-5a29-11eb-37bb-3b6d62cec6be
-regID = "TRP"
-
 # ╔═╡ e3c519fc-5a35-11eb-0d34-cd4ca8b50bf9
-if isfile(datadir("reanalysis/era5-$(regID)x0.25-qfc_air.nc"))
-	qfcds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-qfc_air.nc"))
+begin
+	qfcds = NCDataset(datadir("reanalysis/era5-TRPx0.25-qfc_air.nc"))
 	lon = qfcds["longitude"][:]
 	lat = qfcds["latitude"][:]
 	lvl = qfcds["level"][:]
 	qfc = qfcds["qfc_air"][:] * 1
 	close(qfcds)
-else lon,lat,lvl,qfc = calcqfc(regID)
+md"Retrieving calculated MFC for the Tropical Region ..."
 end
 
 # ╔═╡ e0251f16-5a91-11eb-1bc8-a70691df76e2
@@ -260,7 +120,7 @@ md"We then proceed to replot this by height"
 
 # ╔═╡ 06eebd8c-5aa1-11eb-12d9-7314d15a98c9
 begin
-	zds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-z_air.nc"))
+	zds = NCDataset(datadir("reanalysis/era5-TRPx0.25-z_air.nc"))
 	zlon = zds["longitude"][:]
 	zlat = zds["latitude"][:]
 	zlvl = zds["level"][8:end]
@@ -303,8 +163,11 @@ begin
 	load(plotsdir("zair.png"))
 end
 
-# ╔═╡ 0f6c5ccc-5aa5-11eb-001f-75a4b37304d6
-begin
+# ╔═╡ 13d785a6-5d03-11eb-290b-0dec1275019e
+md"Create LSF files? $(@bind dolsf PlutoUI.Slider(0:1))"
+
+# ╔═╡ eae6df2a-5d02-11eb-3d49-1b2b62d806d2
+if isone(dolsf)
 	
 	lsfl = lsfinit(length(zlvl)); lsfl[:,2] .= -999.0; lsfl[:,1] .= reverse(lzair_SEA)
 	lsfs = lsfinit(length(zlvl)); lsfs[:,2] .= -999.0; lsfs[:,1] .= reverse(szair_SEA)
@@ -328,20 +191,17 @@ begin
 		
 	end
 	
+md"Based on these profiles, we create large-scale forcing profiles for moisture flux convergence to be used in our WTG simulations ..."
+else
+md"We have decided not to override any preexisting large-scale forcing profiles for moisture flux convergence."
 end
 
 # ╔═╡ Cell order:
 # ╟─582bcb26-5a22-11eb-3b52-09e3ec08b3f9
 # ╟─36a4e004-5a26-11eb-1ba4-db83d18c7845
-# ╟─3a8bbab2-5a26-11eb-20e0-d551c2a68858
-# ╟─2b736522-5a33-11eb-0eea-473a5b8566f3
-# ╠═28ffa404-5a33-11eb-3dc7-7d716d6cf06f
-# ╠═9e01c7ea-5a34-11eb-1c41-8b991a399584
-# ╠═87a146d4-5a29-11eb-1571-b9d9266ee54b
+# ╠═3a8bbab2-5a26-11eb-20e0-d551c2a68858
 # ╟─abde634c-5a83-11eb-00d6-69b233e0c00f
-# ╟─4927b4c2-5a8a-11eb-37e4-53efb9445b23
-# ╠═795a822a-5a29-11eb-37bb-3b6d62cec6be
-# ╠═e3c519fc-5a35-11eb-0d34-cd4ca8b50bf9
+# ╟─e3c519fc-5a35-11eb-0d34-cd4ca8b50bf9
 # ╟─e0251f16-5a91-11eb-1bc8-a70691df76e2
 # ╠═05f8a0be-5a92-11eb-0187-e19a897d9bf9
 # ╟─46671d58-5a92-11eb-2a04-975238148a1b
@@ -349,4 +209,5 @@ end
 # ╠═06eebd8c-5aa1-11eb-12d9-7314d15a98c9
 # ╠═c4795296-5aa0-11eb-2038-1be17d8ce5cd
 # ╟─f3bd1c4a-5aa0-11eb-049c-8d6783190671
-# ╠═0f6c5ccc-5aa5-11eb-001f-75a4b37304d6
+# ╠═13d785a6-5d03-11eb-290b-0dec1275019e
+# ╟─eae6df2a-5d02-11eb-3d49-1b2b62d806d2

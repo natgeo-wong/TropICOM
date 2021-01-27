@@ -46,15 +46,15 @@ begin
 		"initsnd3S",exp="Control",config="3SRCE",
 		psfc=1009.32,extract=true
 	)
-	p2D,snd2D = createsndmean(
-		"initsnd2D",exp="Control",config="2DRCE",
+	p3P,snd3P = createsndmean(
+		"initsnd3P",exp="Control",config="3PRCE",
 		psfc=1009.32,extract=true
 	)
 	# p3P,snd3P = createsndmean(
 	# 	"initsnd3P",exp="Control",config="3PRCE",
 	# 	psfc=1009.32,ndays=50,extract=true
 	# )
-	length(p2D)
+	length(p3P)
 end
 
 # ╔═╡ 4f4f3016-506f-11eb-1206-391a46bd6579
@@ -69,14 +69,19 @@ begin
 	pplt.close()
 	f,axs = pplt.subplots(ncols=2,aspect=1/3,axwidth=0.75,sharex=0,wspace=0.1)
 	
+	tem3S = snd3S[:,3] .* (p3S/p3S[1]).^0.287
+	tem3P = snd3P[:,3] .* (p3P/p3P[1]).^0.287
+	
 	lgd = Dict("ncols"=>1,"frame"=>false)
-	axs[1].plot(snd2D[:,3] .* (p2D/p2D[1]).^0.287,p2D,lw=1)
+	axs[1].plot(tem3S-tem3P,p3S,lw=1)
+	# axs[1].plot(snd3P[:,3] .* (p3P/p3P[1]).^0.287,p3S,lw=1)
 	axs[1].format(
-		xlim=(180,320),xlabel="T / K",
+		#xlim=(180,320),xlabel="T / K",
 		ylim=(1010,50),ylabel="Pressure / hPa"
 	)
 
-	axs[2].plot(snd2D[:,3],p2D,lw=1,label="2D",legend="r")
+	axs[2].plot(snd3S[:,3],p3S,lw=1,label="3S",legend="r",legend_kw=lgd)
+	axs[2].plot(snd3P[:,3],p3P,lw=1,label="3P",legend="r")
 	axs[2].format(xlabel=L"$\theta$ / K",xlim=(270,500))
 	
 	f.savefig(plotsdir("soundmean.png"),transparent=false,dpi=200)

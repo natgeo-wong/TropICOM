@@ -85,10 +85,10 @@ end
 begin
 	
 	pplt.close(); f,axs = pplt.subplots(aspect=2/3,axwidth=1.5)
-	axs[1].plot(tdiff,p)
-	axs[1].scatter(tdiff,p)
+	axs[1].plot(tdiff,p,lw=0.5)
+	axs[1].scatter(tdiff,p,s=3)
 	axs[1].format(
-		xlim=(-0.15,0.15),ylim=(1010,30),yscale="log",
+		xlim=(-0.25,0.25),ylim=(1010,10),yscale="log",
 		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
 		urtitle="TRMS = $(trms) K"
 	)
@@ -108,7 +108,8 @@ begin
 	)
 	ats[1].colorbar(c,loc="r")
 	ats[1].format(
-		xlim=(120,150),ylim=(1010,30),yscale="log",
+		xlim=(130,150),xlocator=0:5:150,
+		ylim=(1010,10),yscale="log",
 		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
 	)
 	fts.savefig("rcetdts.png",transparent=false,dpi=200)
@@ -145,10 +146,10 @@ end
 # ╟─86f0a60a-5ae5-11eb-0b1a-935e8703b842
 # ╠═ac8b9d4c-5ade-11eb-06f4-33bff063bbde
 # ╟─ab0909d0-5ade-11eb-2622-0fee6450004b
-# ╠═e82cd648-5ade-11eb-2739-ad93c0b6d3af
+# ╟─e82cd648-5ade-11eb-2739-ad93c0b6d3af
 # ╟─0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
-# ╟─cb5fc41c-5ade-11eb-03ff-e58b88e5223a
+# ╠═cb5fc41c-5ade-11eb-03ff-e58b88e5223a
 # ╠═978d0442-5b33-11eb-39e5-cdea9c6efa4c
 # ╟─39868b46-5ae5-11eb-0bf5-274642855e12
 # ╟─4fd6e272-5b32-11eb-2f60-bbd4f8b9fc12
-# ╟─094999c8-5ae5-11eb-1526-f38c604184cb
+# ╠═094999c8-5ae5-11eb-1526-f38c604184cb

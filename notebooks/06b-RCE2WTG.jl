@@ -127,11 +127,17 @@ am_wtg = 1
 
 # ╔═╡ a63de98c-5b35-11eb-0a8f-b7a1ebd441b6
 begin
-	_,_,t = retrievedims("$(exp)WTGamExp$(am_wtg)","damping02d00")
+	_,_,t = retrievedims("$(exp)WTGamExp$(am_wtg)","dampingInfd0")
 	t = t .- 80
 	configvec = [
-		"damping02d00","damping04d00","damping08d00","damping16d00",
-		"damping32d00","damping64d00","damping128d0","damping256d0",
+		"damping02d00",
+		"damping04d00",
+		"damping08d00",
+		"damping16d00",
+		"damping32d00",
+		"damping64d00",
+		"damping128d0",
+		"damping256d0",
 		"damping512d0"
 	]
 	ncon = length(configvec)
@@ -152,15 +158,15 @@ begin
 		prcp = retrievevar("PREC","$(exp)WTGamExp$(am_wtg)",configvec[icon])
 		prcp = dropdims(mean(reshape(prcp,24,:),dims=1),dims=1)
 		ats[1].plot(
-			1:200,prcp,color=colors[icon+2],
+			1:300,prcp,color=colors[icon+1],
 			label=(L"$a_m =$" * " $config"),
 			legend="r",legend_kw=lgd
 		)
 	end
 	
 	ats[1].format(
-		xlim=(100,200),xlabel="Time / Days",
-		ylim=(0.1,100),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
+		xlim=(100,300),xlabel="Time / Days",
+		ylim=(1,200),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
 		suptitle="$(exp)WTGamExp$(am_wtg)"
 	)
 	fts.savefig(plotsdir(
@@ -171,7 +177,7 @@ begin
 end
 
 # ╔═╡ 7c9cc168-5b6a-11eb-332a-3bfcfe9453fb
-expvec = ["3P"]; nexp = length(expvec)
+expvec = ["3P","3S"]; nexp = length(expvec)
 
 # ╔═╡ 048e5a08-5b3b-11eb-0b13-efe1a204e66a
 begin
@@ -184,7 +190,7 @@ begin
 		for icon in 1 : ncon
 			prcp[icon] = mean(retrievevar(
 				"PREC","$(expvec[iexp])WTGamExp$(amvec[iam])",configvec[icon]
-			)[3601:4800])
+					)[(end-1199):end])
 		end
 		ap[1].plot(
 			2 .^(1:9),prcp,
@@ -197,7 +203,7 @@ begin
 	
 	ap[1].format(
 		xlim=(1,1000),xscale="log",xlabel=L"$a_m$",
-		ylim=(0.1,100),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
+		ylim=(0.1,200),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
 	)
 	fp.savefig(plotsdir(
 		"rce2wtg-$(exp)WTG-prcp.png"),
@@ -218,7 +224,7 @@ end
 # ╟─2cc46a1a-5b35-11eb-2b84-d536d6f7f7d0
 # ╠═d3b025e0-5b35-11eb-330a-5fbb2204da63
 # ╠═bdfa9872-5b35-11eb-059e-ad1ac171d295
-# ╟─a63de98c-5b35-11eb-0a8f-b7a1ebd441b6
-# ╟─49ad8588-5b62-11eb-2e9d-a357ab55bc2a
+# ╠═a63de98c-5b35-11eb-0a8f-b7a1ebd441b6
+# ╠═49ad8588-5b62-11eb-2e9d-a357ab55bc2a
 # ╠═7c9cc168-5b6a-11eb-332a-3bfcfe9453fb
 # ╟─048e5a08-5b3b-11eb-0b13-efe1a204e66a

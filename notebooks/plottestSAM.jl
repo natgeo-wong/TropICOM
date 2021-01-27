@@ -42,12 +42,23 @@ We first create the function `retrievedims` to extract the dimensional data: (1)
 "
 
 # ╔═╡ c1489ae0-5114-11eb-3a56-5b75d263ae63
-function retrievedims(experiment::AbstractString, config::AbstractString)
+function retrievedims(
+	experiment::AbstractString,
+	config::AbstractString;
+	istest::Bool=false
+)
 	
-	rce = NCDataset(datadir(joinpath(
-        experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
-    )))
+	if istest
+		rce = NCDataset(datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(experiment)-test.nc"
+		)))
+	else
+		rce = NCDataset(datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(experiment).nc"
+		)))
+	end
 	
     z = rce["z"][:]
     p = rce["p"][:]
@@ -63,13 +74,21 @@ end
 function retrievevar(
     variable::AbstractString,
 	experiment::AbstractString,
-	config::AbstractString
+	config::AbstractString;
+	istest::Bool=false
 )
 	
-	rce = NCDataset(datadir(joinpath(
-        experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
-    )))
+	if istest
+		rce = NCDataset(datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(experiment)-test.nc"
+		)))
+	else
+		rce = NCDataset(datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(experiment).nc"
+		)))
+	end
 	
     var = rce[variable][:]
 	
@@ -219,11 +238,12 @@ md"
 
 # ╔═╡ 5ffd515e-5128-11eb-3b11-815af069d22f
 begin
-	exp = "Control"; config = "3SRCE"
+	exp = "DiurnalAmp"; config = "slab20d0"; test = true
 	z,p,t = retrievedims(exp,config)
-	v2D = retrievevar("PREC",exp,config)
-	tem = retrievevar("TABS",exp,config)
-	tob = retrievevar("TABSOBS",exp,config)
+	sst = retrievevar("SST",exp,config)
+	prc = retrievevar("PREC",exp,config)
+	# tem = retrievevar("TABS",exp,config,istest=test)
+	# tob = retrievevar("TABSOBS",exp,config,istest=test)
 	# v3D = retrievevar("WWTG",exp,config) * 3600
 	# size(v2D), size(v3D)
 end
@@ -260,23 +280,24 @@ end
 # ╔═╡ f440d5ca-5128-11eb-2574-d58f2f7d8fc3
 begin
 	
-	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=1.5,axwidth=3)
+	pplt.close(); fts,axsts = pplt.subplots(nrows=2,aspect=3,axwidth=3)
 	
 	lvls=vcat(-5:-1,1:5)*20
-	plot2Dtimeseries(axsts,1,t.-80,v2D,dbeg=0,dend=200)
+	plot2Dtimeseries(axsts,1,t.-80,sst,dbeg=0,dend=200)
+	plot2Dtimeseries(axsts,2,t.-80,prc,dbeg=0,dend=200)
 	# plot3Dtimeseries(
 	# 	axsts,2,t.-80,p,v3D,
 	# 	dbeg=0,dend=40,cmapname="RdBu_r",
 	# 	lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/100
 	# )
-	plot3Dtimeseries(
-		axsts,2,t.-80,p,tem.-tob[:,1],
-		dbeg=0,dend=40,cmapname="RdBu_r",
-		lvl=vcat(-5:-1,-0.5,0.5,1:5)/5
-		# lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/10
-	)
-	axsts[1].format(ylim=(0,20),xlim=(100,150))
-	axsts[2].format(yscale="log")
+	# plot3Dtimeseries(
+	# 	axsts,2,t.-80,p,tem.-tob[:,1],
+	# 	dbeg=0,dend=40,cmapname="RdBu_r",
+	# 	lvl=vcat(-5:-1,-0.5,0.5,1:5)/10
+	# 	# lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/10
+	# )
+	axsts[1].format(xlim=(100,110))
+	axsts[2].format(ylim=(0,40))
 	
 	fts.savefig("test.png",transparent=false,dpi=200)
 	load("test.png")
@@ -286,15 +307,15 @@ end
 # ╔═╡ a5c073d8-56af-11eb-1b0d-b9152daec781
 begin
 	
-	pplt.close(); f1,axs1 = pplt.subplots(aspect=0.75,axwidth=2)
-	axs1[1].plot(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000,label="RCE (WTG) - TABSOBS",legend="t")
-	axs1[1].scatter(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000)
-	axs1[1].format(
-		xlim=(-0.2,0.2),ylim=(0,30),#yscale="log",
-		xlabel="T Diff / K",ylabel="Height / km"
-	)
-	f1.savefig("testprofile2.png",transparent=false,dpi=200)
-	load("testprofile2.png")
+	# pplt.close(); f1,axs1 = pplt.subplots(aspect=0.75,axwidth=2)
+	# axs1[1].plot(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000,label="RCE (WTG) - TABSOBS",legend="t")
+	# axs1[1].scatter(dropdims(mean(tem[:,2400:3600],dims=2),dims=2).-tob[:,1],z/1000)
+	# axs1[1].format(
+	# 	xlim=(-0.2,0.2),ylim=(0,30),#yscale="log",
+	# 	xlabel="T Diff / K",ylabel="Height / km"
+	# )
+	# f1.savefig("testprofile2.png",transparent=false,dpi=200)
+	# load("testprofile2.png")
 	
 end
 
