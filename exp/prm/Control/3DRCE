@@ -70,8 +70,8 @@ nstatfrq = 288,     ! Collect 60 samples per statistical calculation (every 1 mi
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 30,
-nsave2Dstart = 777600,
+nsave2D      = 45,
+nsave2Dstart = 1080000,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
