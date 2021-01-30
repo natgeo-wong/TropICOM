@@ -62,7 +62,7 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 2592000,
+nstop    = 1728000,
 nprint   = 4320,
 nstat    = 4320,    ! Calculate statistics every hour!
 nstatfrq = 288,     ! Collect 60 samples per statistical calculation (every 1 minute)
