@@ -62,7 +62,7 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 1728000,
+nstop    = 4320000,
 nprint   = 4320,
 nstat    = 4320,    ! Calculate statistics every hour!
 nstatfrq = 288,     ! Collect 60 samples per statistical calculation (every 1 minute)
@@ -70,8 +70,8 @@ nstatfrq = 288,     ! Collect 60 samples per statistical calculation (every 1 mi
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 45,
-nsave2Dstart = 2376000,
+nsave2D      = 90,
+nsave2Dstart = 3888000,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
