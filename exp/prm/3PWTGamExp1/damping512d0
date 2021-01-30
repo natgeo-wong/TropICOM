@@ -33,7 +33,7 @@ doDge_SnowAndIce = .true.,
 disablecloudradiation    = .false.,
 disablecloudradiation_sw = .false.,
 
-timelargescale = 8640000
+timelargescale = 0
 tauls = 3600.,
 
 SFC_FLX_FXD    = .false.,
@@ -63,10 +63,10 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 1296000,
+nstop    = 1728000,
 nprint   = 4320,
-nstat    = 180,    ! Calculate statistics every hour!
-nstatfrq = 30,     ! Collect 60 samples per statistical calculation (every 1 minute)
+nstat    = 4320,    ! Calculate statistics every hour!
+nstatfrq = 288,     ! Collect 60 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
@@ -89,7 +89,7 @@ rad3Dout     = .true.,
 
 compute_advection_everywhere = .true.,
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-twtg_scale = 0.25, ! If WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG from pseudo-RCE occurs over 25 days.
+twtg_scale = 0.125, ! If WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG from pseudo-RCE occurs over 25 days.
 
 am_wtg  = 512.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 1.,                        ! exponent of p/p0 in momentum damping rate.
