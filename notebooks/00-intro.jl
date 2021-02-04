@@ -36,8 +36,9 @@ The general outline of this project is:
 * Investigating the senstivity of WTG momentum damping parameter $a_m$
 
 7. The Impact of the Diurnal Cycle on P-r
+* Calculate energy imbalance when slab depth is infinity
 * Investigate slab-depth and the diurnal amplitude of SST
 "
 
 # ╔═╡ Cell order:
-# ╠═d20942a4-51f2-11eb-0977-33f2082de974
+# ╟─d20942a4-51f2-11eb-0977-33f2082de974

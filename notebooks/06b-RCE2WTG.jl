@@ -120,7 +120,7 @@ md"
 "
 
 # ╔═╡ d3b025e0-5b35-11eb-330a-5fbb2204da63
-exp = "3P"
+exp = "3S"
 
 # ╔═╡ bdfa9872-5b35-11eb-059e-ad1ac171d295
 am_wtg = 1
@@ -137,7 +137,7 @@ begin
 		"damping32d00",
 		"damping64d00",
 		"damping128d0",
-		"damping256d0",
+		#"damping256d0",
 		"damping512d0"
 	]
 	ncon = length(configvec)
@@ -156,17 +156,19 @@ begin
 		config = replace(config,"d"=>".")
 		config = parse(Float64,config)
 		prcp = retrievevar("PREC","$(exp)WTGamExp$(am_wtg)",configvec[icon])
-		prcp = dropdims(mean(reshape(prcp,24,:),dims=1),dims=1)
 		ats[1].plot(
-			1:300,prcp,color=colors[icon+1],
+			t,prcp,lw=1,color=colors[icon+1],
 			label=(L"$a_m =$" * " $config"),
 			legend="r",legend_kw=lgd
 		)
 	end
 	
+	prcpRCE = retrievevar("PREC","$(exp)WTGamExp$(am_wtg)","dampingInfd0")
+	ats[1].plot(t,prcpRCE,lw=1,color="k",label="RCE",legend="r")
+	
 	ats[1].format(
-		xlim=(100,300),xlabel="Time / Days",
-		ylim=(1,200),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
+		xlim=(0,400),xlabel="Time / Days",
+		ylim=(0.1,200),yscale="log",ylabel=L"Precipitation Rate / mm day$^{-1}$",
 		suptitle="$(exp)WTGamExp$(am_wtg)"
 	)
 	fts.savefig(plotsdir(

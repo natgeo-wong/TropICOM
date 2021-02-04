@@ -43,18 +43,21 @@ md"
 
 This notebook will be used to help find an equilibrium RCE state that roughly returns the initial sounding profile used to initialize the model.
 
-SAM reads in \"snd\" (sounding profiles of humidity and potential temperature) files to initialize the model upon spinup.  We run models in RCE mode over 150 day periods and obtain the profile of absolute temperature for the last 50 days.  We then compare it to the `TABSOBS` that was fed into the model, and find the temperature difference.  If the difference is too large, then we extract the vertical sounding profile, override the old \"snd\" file and rerun the model.
+SAM reads in \"snd\" (sounding profiles of humidity and potential temperature) files to initialize the model upon spinup.  We run models in RCE mode over 400 day periods and obtain the profile of absolute temperature for the last 50 days.  We then compare it to the `TABSOBS` that was fed into the model, and find the temperature difference.  If the difference is too large, then we extract the vertical sounding profile, override the old \"snd\" file and rerun the model.
 "
 
 # ╔═╡ 86f0a60a-5ae5-11eb-0b1a-935e8703b842
 md"
 ### A. Extracting Temperature Data
 
-First, we extract the temperature and observed temperature (`TABS` and `TABSOBS` respectively) data from the statistical output.  We have modified the SAM code such that `TABSOBS` is invariant in height and time.  Thus, we plot the difference between the two variables for the last 50 days of the RCE model run, after a 100 day spinup.
+First, we extract the temperature and observed temperature (`TABS` and `TABSOBS` respectively) data from the statistical output.  We have modified the SAM code such that `TABSOBS` is invariant in height and time.  Thus, we plot the difference between the two variables for the last 50 days of the RCE model run, after a 350 day spinup.
 "
 
 # ╔═╡ ac8b9d4c-5ade-11eb-06f4-33bff063bbde
 config = "3P"
+
+# ╔═╡ 32acc944-624b-11eb-14df-556c55bd89e4
+ndys = 200
 
 # ╔═╡ ab0909d0-5ade-11eb-2622-0fee6450004b
 begin
@@ -67,53 +70,50 @@ end
 
 # ╔═╡ e82cd648-5ade-11eb-2739-ad93c0b6d3af
 begin
-	tdiff = dropdims(mean(tem[:,2401:3600],dims=2),dims=2).-tob[:,1]
+	tdiff = dropdims(mean(tem[:,(end-ndys+1):end],dims=2),dims=2).-tob[:,1]
 	tdts  = tem .- tob[:,1]
 md"Calculating difference between `TABS` and `TABSOBS` ..."
 end
 
 # ╔═╡ 0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
 begin
-	trms = tdiff[p.>100]
-	trms = sqrt(mean(trms.^2))
+	trms = sqrt(mean(tdiff.^2))
 	trms = @sprintf("%.3f",trms)
 	
 md"Assuming that the tropopause is at 100 hPa, the root-mean-square of the temperature difference between the model temperature `TABS` and the observed temperature `TABSOBS` is $(trms) K.  The profile of the temperature difference is shown below:"
 end
 
-# ╔═╡ cb5fc41c-5ade-11eb-03ff-e58b88e5223a
-begin
-	
-	pplt.close(); f,axs = pplt.subplots(aspect=2/3,axwidth=1.5)
-	axs[1].plot(tdiff,p,lw=0.5)
-	axs[1].scatter(tdiff,p,s=3)
-	axs[1].format(
-		xlim=(-0.25,0.25),ylim=(1010,10),yscale="log",
-		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
-		urtitle="TRMS = $(trms) K"
-	)
-	f.savefig("rcetdiff.png",transparent=false,dpi=200)
-	load("rcetdiff.png")
-	
-end
-
 # ╔═╡ 978d0442-5b33-11eb-39e5-cdea9c6efa4c
 begin
 	
-	pplt.close(); fts,ats = pplt.subplots(aspect=2,axwidth=4)
-	c = ats[1].contourf(
-		t.-80,p,tdts,
-		cmap="RdBu_r",extend="both",
-		levels=vcat(-5:-1,-0.5,0.5,1:5)/10
+	pplt.close(); fts,ats = pplt.subplots(
+		[1,2,2,2],aspect=1/3,axwidth=0.5,
+		sharex=0
 	)
-	ats[1].colorbar(c,loc="r")
+	
+	ats[1].plot(tdiff,p,lw=0.5)
+	ats[1].scatter(tdiff,p,s=3)
 	ats[1].format(
-		xlim=(130,150),xlocator=0:5:150,
-		ylim=(1010,10),yscale="log",
-		xlabel="TABS - TABSOBS / K",ylabel="Pressure / hPa",
+		xlim=(-0.15,0.15),ylim=(1010,15),yscale="log",
+		xlabel=L"T - T$_{OBS}$ / K",ylabel="Pressure / hPa",
 	)
-	fts.savefig("rcetdts.png",transparent=false,dpi=200)
-	load("rcetdts.png")
+	
+	c = ats[2].contourf(
+		t.-80,p,tdts,
+		cmap="RdBu_r",cmap_kw=Dict("alpha"=>(1,1,1,1,1,1,0,1,1,1,1,1,1)),
+		extend="both",
+		levels=vcat(-10,-7.07,-5,-3.16,-2,-1.41,-1,-0.5,0.5,1,1.41,2,3.16,5,7.07,10)/10
+	)
+	ats[2].format(
+		xlim=(800,1000),
+		ylim=(1010,15),yscale="log",
+		xlabel="time / days",ylabel="Pressure / hPa",
+		urtitle=L"T$_{RMS}$" * " = $(trms) K"
+	)
+	
+	fts.colorbar(c,loc="r",width=0.2)
+	fts.savefig("rcetdts-$(config).png",transparent=false,dpi=200)
+	load("rcetdts-$(config).png")
 	
 end
 
@@ -145,11 +145,11 @@ end
 # ╟─46faa412-5ade-11eb-3c37-23a7e59037a0
 # ╟─86f0a60a-5ae5-11eb-0b1a-935e8703b842
 # ╠═ac8b9d4c-5ade-11eb-06f4-33bff063bbde
-# ╟─ab0909d0-5ade-11eb-2622-0fee6450004b
-# ╟─e82cd648-5ade-11eb-2739-ad93c0b6d3af
-# ╟─0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
-# ╠═cb5fc41c-5ade-11eb-03ff-e58b88e5223a
+# ╠═32acc944-624b-11eb-14df-556c55bd89e4
+# ╠═ab0909d0-5ade-11eb-2622-0fee6450004b
+# ╠═e82cd648-5ade-11eb-2739-ad93c0b6d3af
+# ╠═0c8cc7ec-5ae3-11eb-1c52-0fecbb575c43
 # ╠═978d0442-5b33-11eb-39e5-cdea9c6efa4c
 # ╟─39868b46-5ae5-11eb-0bf5-274642855e12
 # ╟─4fd6e272-5b32-11eb-2f60-bbd4f8b9fc12
-# ╠═094999c8-5ae5-11eb-1526-f38c604184cb
+# ╟─094999c8-5ae5-11eb-1526-f38c604184cb

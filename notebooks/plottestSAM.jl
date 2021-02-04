@@ -238,10 +238,10 @@ md"
 
 # ╔═╡ 5ffd515e-5128-11eb-3b11-815af069d22f
 begin
-	exp = "DiurnalAmp"; config = "slab20d0"; test = true
-	z,p,t = retrievedims(exp,config)
-	sst = retrievevar("SST",exp,config)
-	prc = retrievevar("PREC",exp,config)
+	exp = "DiurnalAmp"; config = "slabInfd"; test = false
+	z,p,t = retrievedims(exp,config,istest=test)
+	sst = retrievevar("SST",exp,config,istest=test)
+	prc = retrievevar("PREC",exp,config,istest=test)
 	# tem = retrievevar("TABS",exp,config,istest=test)
 	# tob = retrievevar("TABSOBS",exp,config,istest=test)
 	# v3D = retrievevar("WWTG",exp,config) * 3600
@@ -296,8 +296,8 @@ begin
 	# 	lvl=vcat(-5:-1,-0.5,0.5,1:5)/10
 	# 	# lvl=vcat(-50,-20,-10,-5,-2,-1,1,2,5,10,20,50)/10
 	# )
-	axsts[1].format(xlim=(100,110))
-	axsts[2].format(ylim=(0,40))
+	axsts[1].format(xlim=(0,400))
+	axsts[2].format(ylim=(0.1,100),yscale="log",ylocator=[0.1,1,10,100])
 	
 	fts.savefig("test.png",transparent=false,dpi=200)
 	load("test.png")
