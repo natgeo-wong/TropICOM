@@ -56,7 +56,7 @@ nrad = 12,
 doperpetual     = .true.,
 doseasons       = .false.,
 dosolarconstant = .true.,
-zenith_angle    = 51.7,
+zenith_angle    = 0.0,
 solar_constant  = 431.06,
 
 doisccp = .false.,
