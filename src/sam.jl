@@ -1,18 +1,45 @@
 using NCDatasets
 using NumericalIntegration
+using Printf
 using Statistics
 
-function retrievedims(experiment::AbstractString, config::AbstractString)
+function outstatname(
+	experiment::AbstractString, config::AbstractString,
+	istest::Bool=false,
+	isensemble::Bool=false, member::Integer=0
+)
 
-	rce = NCDataset(datadir(joinpath(
-        experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
-    )))
+	if isensemble
+		  expname = "$(experiment)-nensemble$(@sprintf("%02d",member))"
+	else; expname = experiment
+	end
 
+	if istest
+		fnc = datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(expname)-test.nc"
+		))
+	else
+		fnc = NCDataset(datadir(joinpath(
+			experiment,config,"OUT_STAT",
+			"RCE_TroPrecLS-$(expname).nc"
+		)))
+	end
+
+	return fnc
+
+end
+
+function retrievedims(
+	experiment::AbstractString, config::AbstractString;
+	istest::Bool=false,
+	isensemble::Bool=false, member::Integer=0
+)
+
+	rce = NCDataset(outstatname(experiment,config,istest,isensemble,member))
     z = rce["z"][:]
     p = rce["p"][:]
 	t = rce["time"][:]
-
     close(rce)
 
     return z,p,t
@@ -21,17 +48,13 @@ end
 
 function retrievevar(
     variable::AbstractString,
-	experiment::AbstractString,
-	config::AbstractString
+	experiment::AbstractString, config::AbstractString;
+	istest::Bool=false,
+	isensemble::Bool=false, member::Integer=0
 )
 
-	rce = NCDataset(datadir(joinpath(
-        experiment,config,"OUT_STAT",
-        "RCE_TroPrecLS-$(experiment).nc"
-    )))
-
+	rce = NCDataset(outstatname(experiment,config,istest,isensemble,member))
     var = rce[variable][:]
-
     close(rce)
 
     return var
