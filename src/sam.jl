@@ -46,7 +46,7 @@ function retrievedims(
 
 end
 
-function retrievedims(variable::AbstractString, fnc::AbstractString)
+function retrievedims(fnc::AbstractString)
 
     rce = NCDataset(fnc)
     z = rce["z"][:]
