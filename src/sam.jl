@@ -20,7 +20,7 @@ function outstatname(
 			"RCE_TroPrecLS-$(expname)-test.nc"
 		))
 	else
-		fnc = NCDataset(datadir(joinpath(
+		fnc = datadir(joinpath(
 			experiment,config,"OUT_STAT",
 			"RCE_TroPrecLS-$(expname).nc"
 		)))
