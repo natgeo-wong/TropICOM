@@ -23,7 +23,7 @@ function outstatname(
 		fnc = datadir(joinpath(
 			experiment,config,"OUT_STAT",
 			"RCE_TroPrecLS-$(expname).nc"
-		)))
+		))
 	end
 
 	return fnc
