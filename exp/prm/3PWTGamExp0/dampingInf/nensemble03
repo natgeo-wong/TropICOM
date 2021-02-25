@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-3PWTGamExp0-nensemble01',
+caseid ='TroPrecLS-3PWTGamExp0-nensemble03',
 
 dx = 1000.,
 dy = 1000.,
