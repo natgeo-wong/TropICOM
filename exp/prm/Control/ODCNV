@@ -4,10 +4,11 @@ caseid ='TroPrecLS-Control',
 
 dx = 2000.,
 dy = 2000.,
-dt = 30.,
+dt = 10.,
 
-nrestart     = 0,
-perturb_type = 0,
+nrestart      = 0,
+nrestart_skip = 23,
+perturb_type  = 0,
 
 CEM   = .true.,
 OCEAN = .true.,
@@ -20,7 +21,6 @@ doprecip         = .true.,
 dolongwave       = .true.,
 doshortwave      = .true.,
 dosurface        = .true.,
-doseawater       = .true.,
 dodynamicocean   = .false.,
 dolargescale     = .false.,
 doradforcing     = .false.,
@@ -28,10 +28,6 @@ dosfcforcing     = .false.,
 docoriolis       = .false.,
 donudging_uv     = .false.,
 donudging_tq     = .false.,
-doDge_SnowAndIce = .true.,
-
-disablecloudradiation    = .false.,
-disablecloudradiation_sw = .false.,
 
 tauls = 3600.,
 
@@ -62,15 +58,15 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 288000,
-nprint   = 2880,
-nstat    = 120,    ! Calculate statistics every hour!
+nstop    = 864000,
+nprint   = 8640,
+nstat    = 360,    ! Calculate statistics every hour!
 nstatfrq = 60,     ! Collect 60 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 120,
+nsave2D      = 360,
 nsave2Dstart = 0,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
