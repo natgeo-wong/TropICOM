@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.0
+# v0.14.7
 
 using Markdown
 using InteractiveUtils
@@ -22,7 +22,7 @@ The general outline of this project is:
 * Analysis of mean, diurnal cycle in domains
 * Analysis of vertical profiles for pressure-level data
 
-4. Investigating the relationship between column saturation fraction $r$ and precipitation rate $P$ in reanalysis data
+4. Analysis of the seasonal and intraseasonal variability of the satellite and reanalysis data in the tropical domain and subdomains
 * What is the difference between land and sea
 * Is there a difference in this landmass over different land areas
 
@@ -38,11 +38,17 @@ The general outline of this project is:
 7. Explore the equilibrium RCE states in SAM
 * Plot the 2D rain/PWV fields ... is there convective aggregation?
 
-
 8. Explore the statistics of the diurnal cycle under WTG
 * Calculate energy imbalance when slab depth is infinity
 * Investigate slab-depth and the diurnal amplitude of SST
 * What happens when you add ocean-heat transport?
+
+9. Investigating the relationship between column saturation fraction (r) and precipitation rate (P) in reanalysis data
+* What is the difference between land and sea
+* Is there a difference in this landmass over different land areas
+* Having a preliminary look at the P-r relationship in SAM
+
+10.
 "
 
 # ╔═╡ Cell order:
