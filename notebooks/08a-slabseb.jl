@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 24abbe3a-5bb7-11eb-160b-1323efad463b
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -16,13 +17,13 @@ begin
 	@quickactivate "TroPrecLS"
 	using NCDatasets
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -67,15 +68,15 @@ mean(sw[(end-ndy+1):end]), mean(lw[(end-ndy+1):end]), mean(sh[(end-ndy+1):end]),
 
 # ╔═╡ 6eae440a-6740-11eb-0591-bda6fc58fc6d
 begin
-	
+
 	pplt.close(); fts,axsts = pplt.subplots(aspect=3,axwidth=3)
-	
+
 	axsts[1].plot(t,seb)
 	axsts[1].format(ylim=(-100,200))
-	
+
 	fts.savefig("test2.png",transparent=false,dpi=200)
 	load("test2.png")
-	
+
 end
 
 # ╔═╡ Cell order:

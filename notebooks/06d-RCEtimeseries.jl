@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ a0c2a92e-666a-11eb-3ad7-fd1b55d90d85
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -16,13 +17,13 @@ begin
 	@quickactivate "TroPrecLS"
 	using Statistics
 	using Printf
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -72,47 +73,47 @@ end
 
 # ╔═╡ 33de6d6c-666b-11eb-0165-cf89e3117f57
 begin
-	
+
 	pplt.close(); fts,ats = pplt.subplots(nrows=2,aspect=3,axwidth=5,sharex=3)
-	
+
 	lvls = [-10,-7.07,-5,-3.16,-2,-1.41,-1,-0.5,0.5,1,1.41,2,3.16,5,7.07,10]/10
-	
+
 	c = ats[1].contourf(
 		t3P.-80,p3P,tdts3P,
 		cmap="RdBu_r",cmap_kw=Dict("alpha"=>(1,1,1,1,1,1,0,1,1,1,1,1,1)),
 		extend="both",levels=lvls,
 	)
 	ats[1].format(urtitle=L"T$_{RMS}$" * " = $(trms3P) K",ultitle="3PRCE")
-	
+
 	ats[2].contourf(
 		t3S.-80,p3S,tdts3S,
 		cmap="RdBu_r",cmap_kw=Dict("alpha"=>(1,1,1,1,1,1,0,1,1,1,1,1,1)),
 		extend="both",levels=lvls,
 	)
 	ats[2].format(urtitle=L"T$_{RMS}$" * " = $(trms3S) K",ultitle="3SRCE")
-	
+
 	for ax in ats
 		ax.format(
 			xlim=(600,1000),xlabel="time / days",
 			ylim=(1010,20),ylabel="Pressure / hPa",yscale="log",
 		)
 	end
-	
+
 	paxs = ats[1].panel("l",width="4em")
 	paxs.plot(tdiff3P,p3P,lw=0.5)
 	paxs.scatter(tdiff3P,p3P,s=3)
     paxs.format(xlim=(-0.2,0.2))
-	
+
 	paxs = ats[2].panel("l",width="4em")
 	paxs.plot(tdiff3S,p3S,lw=0.5)
 	paxs.scatter(tdiff3S,p3S,s=3)
     paxs.format(xlim=(-0.2,0.2))
 
-	
+
 	fts.colorbar(c,loc="r",width=0.2,label=L"T - T$_{OBS}$ / K")
 	fts.savefig(plotsdir("rcetdts.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("rcetdts.png"))
-	
+
 end
 
 # ╔═╡ Cell order:

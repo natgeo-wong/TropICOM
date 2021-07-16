@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ bcfd5bd8-51f5-11eb-1d79-ab69c65febaf
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -17,11 +18,11 @@ begin
 	using DelimitedFiles
 	using GeoRegions
 	using NCDatasets
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -50,7 +51,7 @@ These regions were defined as new `GeoRegions` in the files \"src/addgeorect.txt
 begin
 	addGeoRegions(srcdir("addgeorect.txt"))
 	addGeoRegions(srcdir("addgeopoly.txt"))
-	
+
 md"Adding new custom GeoRegions of interest from text files ..."
 end
 
@@ -90,7 +91,7 @@ begin
 	kctemps = ds["koppenclass_temperatedrysummer"][:]
 	kctempw = ds["koppenclass_temperatedrywinter"][:]
 	close(ds)
-	
+
 md"
 We also load the Koeppen Climate classification (transformed into gridded data), and plot it along with the domains shown below.
 "
@@ -99,13 +100,13 @@ end
 # ╔═╡ 170ae0f0-51f6-11eb-153c-e59511b6a82d
 begin
 	pplt.close(); f,axs = pplt.subplots(aspect=6,axwidth=6);
-	
+
 	axs[1].pcolormesh(lon,lat,kctrop',levels=0:6,cmap="Reds_r")
 	axs[1].pcolormesh(lon,lat,kcarid',levels=5:9,cmap="Yellow3_r")
 	axs[1].pcolormesh(lon,lat,kctemph',levels=6:12,cmap="Green2_r")
 	axs[1].pcolormesh(lon,lat,kctemps',levels=11:15,cmap="Brown1_r")
 	axs[1].pcolormesh(lon,lat,kctempw',levels=12:18,cmap="Blue3_r")
-	
+
 	axs[1].plot(x,y,c="k",lw=0.2)
 	axs[1].plot([-150,210,210,-150,-150],[-10,-10,10,10,-10],c="k",lw=1,linestyle="--")
 	axs[1].plot(slnEPO.-360,sltEPO,c=lsc[13],lw=1,linestyle="--")
@@ -116,7 +117,7 @@ begin
 	axs[1].plot(slnSEA,sltSEA,c=lsc[5],lw=1,linestyle="--")
 	axs[1].plot(slnAMZ,sltAMZ,c=lsc[4],lw=1,linestyle="--")
 	axs[1].plot(slnTRA,sltTRA,c=lsc[3],lw=1,linestyle="--")
-	
+
 	axs[1].text(-144,10,"DTP",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-100,10,"CRB",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-80,-12,"AMZ",verticalalignment="center",backgroundcolor="gray2")
@@ -126,12 +127,12 @@ begin
 	axs[1].text(170,10,"AR6_EPO",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(60,-12,"AR6_EIO",verticalalignment="center",backgroundcolor="gray2")
 	axs[1].text(-30,-12,"AR6_EAO",verticalalignment="center",backgroundcolor="gray2")
-	
+
 	axs[1].format(
 		xlim=(-150,210),xlocator=-180:60:180,xlabel=L"Longitude / $\degree$",
 		ylim=(-30,30),ylocator=-30:10:30,ylabel=L"Latitude / $\degree$",grid=true
 	)
-	
+
 	f.savefig(plotsdir("domain.png"),transparent=false,dpi=200)
 	load(plotsdir("domain.png"))
 end
@@ -211,7 +212,7 @@ end
 begin
 	asp = (E-W+2)/(N-S+2)
 	pplt.close(); freg,areg = pplt.subplots(aspect=asp,axwidth=asp*1.5);
-	
+
 	c = areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtrop',levels=0:6,cmap="Reds_r")
 	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrarid',levels=5:9,cmap="Yellow3_r")
 	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtemph',levels=6:12,cmap="Green2_r")
@@ -225,12 +226,12 @@ begin
 	areg[1].plot(slnPNG,sltPNG,lw=1,linestyle="--")
 	areg[1].plot(slnSEA,sltSEA,c="k",lw=1)
 	areg[1].plot(x,y,c="k",lw=0.5)
-	
+
 	areg[1].format(
 		xlim=(W-1,E+1),xlabel=L"Longitude / $\degree$",xlocator=-180:20:360,
 		ylim=(S-1,N+1),ylabel=L"Latitude / $\degree$",grid=true
 	)
-	
+
 	freg.savefig(plotsdir("domain_SEA.png"),transparent=false,dpi=200)
 	load(plotsdir("domain_SEA.png"))
 end

@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 681658b0-5914-11eb-0d65-bbace277d145
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -17,13 +18,13 @@ begin
 	using Printf
 	using SpecialFunctions
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -88,10 +89,10 @@ twtg_scale = 0.25
 # ╔═╡ 310fd792-5914-11eb-0d81-bd1eb22fab05
 begin
 	pplt.close(); f,axs = pplt.subplots(nrows=3,aspect=3,axwidth=3,sharey=0);
-	
+
 	for am in 2 .^(1:9)
 		tmax = 1; twtg_max = twtg_scale * tmax
-		t = 0:0.001:tmax; 
+		t = 0:0.001:tmax;
 		test = erf.((twtg_max/2 .-t)/(twtg_max/5)) * (10-log10(am)/log10(2))/2 .+ 5 .+ log(2,am)/2
 		amc = 2 .^(test)
 		wtg = wtgstrength.(amc)
@@ -100,17 +101,17 @@ begin
 		axs[2].plot(t,amc,c="k")
 		axs[3].plot(t,wtg,c="k")
 	end
-	
+
 	axs[1].plot([1,1]*twtg_scale,[0,10],c="r")
 	axs[2].plot([1,1]*twtg_scale,[0,1024],c="r")
 	axs[3].plot([1,1]*twtg_scale,[0,1],c="r")
-	
+
 	axs[1].format(ylim=(0,10),ylabel=L"$\log_2 (a_m)$")
 	axs[2].format(ylim=(0,1024),ylabel=L"a_m")
 	axs[3].format(ylim=(0,1),ylabel=L"WTG $\propto$ $a_m^{-1}$",#yscale="log",
 		xlim=(0,1),xlabel="Nondimensionalized time",
 		suptitle="twtg_scale = $(twtg_scale)")
-	
+
 	f.savefig(plotsdir("wtgcoeff.png"),transparent=false,dpi=200)
 	load(plotsdir("wtgcoeff.png"))
 end
@@ -154,23 +155,23 @@ end
 
 # ╔═╡ 223b4286-8811-11eb-0e67-4da65e1999a5
 function daymean(data)
-	
+
 	return dropdims(mean(reshape(data,1,:),dims=1),dims=1)
-	
+
 end
 
 # ╔═╡ 55230f4a-7661-11eb-1c37-8b022b95e08e
 begin
 	pplt.close()
 	fts,ats = pplt.subplots(nrows=3,aspect=3,axwidth=4,hspace=0.2,sharey=0)
-	
+
 	for ic in 1 : ncon
 		config = configvec[ic]
 		config = replace(config,"damping"=>"")
 		config = replace(config,"d"=>".")
 		config = parse(Float64,config)
 		imem = 0
-		
+
 		while imem < 100; imem += 1
 			fnc = outstatname(expname,configvec[ic],false,true,imem)
 			if isfile(fnc)
@@ -200,9 +201,9 @@ begin
 				end
 			end
 		end
-		
+
 	end
-	
+
 	ats[1].format(
 		ylabel=L"Rainfall / mm day$^{-1}$",yscale="log",
 		ylocator=10. .^(-3:3),
@@ -210,18 +211,18 @@ begin
 		ylim=(0.005,200),
 		suptitle=expname,ultitle="(a)"
 	)
-	
+
 	ats[2].format(
 		ylim=(0,75),ylabel="PW / mm",
 		suptitle=expname,ultitle="(b)"
 	)
-	
+
 	ats[3].format(
 		xlim=(00,500),xlabel="Time / Days",
 		ylim=(-250,250),ylabel=L"SEB / W m$^{-2}$",ylocator=(-3:3)*100,
 		suptitle=expname,ultitle="(c)"
 	)
-	
+
 	fts.savefig(plotsdir(
 		"rce2wtg-$(expname).png"),
 		transparent=false,dpi=200

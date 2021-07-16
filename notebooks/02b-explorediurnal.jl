@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 712c777e-f782-48d6-87be-ed08a74e333a
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -21,13 +22,13 @@ begin
 	using Interpolations
 	using NCDatasets
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("common.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -48,32 +49,32 @@ longitude2timeshift(longitude::Real) = longitude / 180 * 12
 
 # ╔═╡ 31b2610b-6191-4336-9825-ceeaaaaa8ff0
 function gpm2diurnal(data,longitude)
-	
+
 	nlon,nlat,nt = size(data)
 	drn = zeros(nlon,nlat,nt)
-	
+
 	p0 = [0,0.5,0]; t = ((1:(nt+1)).-0.5)/2
 	ts = longitude2timeshift.(longitude)
 	it = 0:0.5:24; it = it[1:(end-1)]; nit = length(it)
-	
+
 	idat = zeros(nt+1); var  = zeros(nit)
-	
+
 	for ilat = 1 : nlat, ilon = 1 : nlon
 
         tl = t .+ ts[ilon]
-		
+
         idat[1:nt] = data[ilon,ilat,:]
 		idat[end]  = data[ilon,ilat,1]
-		
+
 		itp = interpolate(idat,BSpline(Cubic(Periodic(OnGrid()))))
         stp = scale(itp,tl)
         etp = extrapolate(stp,Periodic())
 		drn[ilon,ilat,:] = etp[it]
 
     end
-	
+
 	return drn
-	
+
 end
 
 # ╔═╡ 2c2e948c-1a2d-45c4-9ef8-3810c669a265
@@ -104,7 +105,7 @@ function retrievegpmdiurnal(
         gpm += rvar[:]*3600; close(rds);
 
     end
-	
+
 	gpm .= gpm / nt
 	drn = gpm2diurnal(gpm,rlon)
 
@@ -124,7 +125,7 @@ begin
 	A  = ds["modelamplitude"][:]
 	θ  = ds["modelphase"][:]
 	close(ds)
-	
+
 	_,_,drn = retrievegpmdiurnal(sroot,regID=regID,timeID=[2001,2018])
 	md"Extracting diurnal information for GPM IMERGv6 precipitation ..."
 end
@@ -148,32 +149,32 @@ end
 # ╔═╡ da5aa5b4-563d-4487-834f-aefd6289b58c
 begin
 	pplt.close(); f,axs = pplt.subplots(nrows=3,axwidth=6,aspect=6)
-	
+
 	μlvls = [0.5,0.707,1,1.41,2,3.16,5]/10
 	Alvls = [0.1,0.2,0.5,0.9,1.11,2,5,10]
-	
+
 	c = axs[1].contourf(lon,lat,μ',cmap="Blues",levels=μlvls,extend="both")
 	axs[1].plot(x,y,c="k",lw=0.5)
 	axs[1].plot(rbox[1],rbox[2],c="k")
 	axs[1].format(urtitle=L"$\mu$ / mm hr$^{-1}$")
 	axs[1].colorbar(c,loc="r",ticks=[0.05,0.1,0.2,0.5])
-	
+
 	c = axs[2].contourf(lon,lat,(A./μ)',cmap="broc_r",levels=Alvls,extend="both")
 	axs[2].plot(x,y,c="k",lw=0.5)
 	axs[2].plot(rbox[1],rbox[2],c="k")
 	axs[2].format(urtitle=L"A/$\mu$")
 	axs[2].colorbar(c,loc="r",ticks=[0.1,0.5,1,2,10])
-	
+
 	c = axs[3].pcolormesh(lon,lat,θ',cmap="romaO",levels=0:24)
 	axs[3].plot(x,y,c="k",lw=0.5)
 	axs[3].plot(rbox[1],rbox[2],c="k")
 	axs[3].format(urtitle=L"$\theta$ / Hour of Day")
 	axs[3].colorbar(c,loc="r",ticks=6)
-	
+
 	for ax in axs
 		ax.format(xlim=(0,360),ylim=(-30,30),xlocator=0:60:360)
 	end
-	
+
 	f.savefig("test.png",transparent=false,dpi=200)
 	PNGFiles.load("test.png")
 end
@@ -183,26 +184,26 @@ begin
 	lds = NCDataset(datadir("GPM_IMERG_LandSeaMask-TRP.nc"))
 	lsm = lds["landseamask"][:]*1
 	close(lds); rm("test.png")
-	
+
 md"Loading Land-Sea Mask for GPM data ..."
 end
 
 # ╔═╡ c75539a9-bfe0-499f-a5dd-3172da4fea04
 function extractdiurnalreg(coords,data,lsm,lon,lat)
-	
+
 	rlon,rlat,rinfo = regiongridvec(coords,lon,lat)
 	if maximum(rlon) > 360; rlon .= rlon .- 360 end
 	rlsm = regionextractgrid(lsm,rinfo)
 	rdrn = regionextractgrid(drn,rinfo)
-	
+
 	ldrn = zeros(48); sdrn = zeros(48)
-	
+
 	for it = 1 : 48
 		rdrnit = @view rdrn[:,:,it]
 		ldrn[it] = mean(rdrnit[rlsm.>0.5])
 		sdrn[it] = mean(rdrnit[rlsm.<0.5])
 	end
-	
+
 	return ldrn,sdrn
 end
 
@@ -219,7 +220,7 @@ end
 # ╔═╡ b1a43930-9ac8-4200-ad47-d8b09fa31d5b
 begin
 	pplt.close(); fts,ats = pplt.subplots(ncols=2,axwidth=2.5,aspect=2)
-	
+
 	ats[1].plot(0:0.5:24,vcat(ldrn_SEA,ldrn_SEA[1]),c="b")
 	ats[1].plot(0:0.5:24,vcat(ldrn_CRB,ldrn_CRB[1]),c="Blue3")
 	ats[1].plot(0:0.5:24,vcat(ldrn_TRA,ldrn_TRA[1]),c="r")
@@ -233,7 +234,7 @@ begin
 	p1.scatter(0.5,mean(ldrn_AMZ),c="g",s=5)
 	p1.scatter(0.5,mean(ldrn_DTP),c="k",s=5)
 	p1.format(xticks=[])
-	
+
 	ats[2].plot(0:0.5:24,vcat(sdrn_SEA,sdrn_SEA[1]),c="b")
 	ats[2].plot(0:0.5:24,vcat(sdrn_CRB,sdrn_CRB[1]),c="Blue3")
 	ats[2].plot(0:0.5:24,vcat(sdrn_TRA,sdrn_TRA[1]),c="r")
@@ -247,7 +248,7 @@ begin
 	p2.scatter(0.5,mean(sdrn_AMZ),c="g",s=5)
 	p2.scatter(0.5,mean(sdrn_DTP),c="k",s=5)
 	p2.format(xticks=[])
-	
+
 	for ax in ats
 		ax.format(
 			xlim=(0,24),ylim=(0,0.75),
@@ -256,7 +257,7 @@ begin
 			suptitle="Diurnal Cycle of Rainfall"
 		)
 	end
-	
+
 	fts.savefig("testdrn.png",transparent=false,dpi=200)
 	PNGFiles.load("testdrn.png")
 end

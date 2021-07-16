@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 858e2874-57e8-4e18-b4cc-7f65621ec1f5
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -18,11 +19,11 @@ begin
 	using GeoRegions
 	using NCDatasets
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -82,7 +83,7 @@ Now, we bin the data into the different sub-regions within the Tropics as was de
 
 # ╔═╡ 38ca34a7-772e-4e8c-b7a9-0ea9cdebae5b
 function extractocnlnd(geo,prc,frq,lon,lat,lsm)
-	
+
 	ggrd = RegionGrid(geo,lon,lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
@@ -106,9 +107,9 @@ function extractocnlnd(geo,prc,frq,lon,lat,lsm)
 		ocsf[icsf] = sum(rprc[rlsm.<0.5]) ./ sum(rfrq[rlsm.<0.5])
 		lcsf[icsf] = sum(rprc[rlsm.>0.5]) ./ sum(rfrq[rlsm.>0.5])
 	end
-	
+
 	return ocsf,lcsf
-	
+
 end
 
 # ╔═╡ 1cd2bee0-0e9a-4c82-afaf-f54dbe4a359a
@@ -148,9 +149,9 @@ end
 # ╔═╡ d0aebfcd-6068-4ff0-9aae-fef936be7a99
 begin
 	pplt.close(); f2,a2 = pplt.subplots(nrows=2,aspect=2,axwidth=3)
-	
+
 	lgd = Dict("ncol"=>1,"frame"=>false)
-	
+
 	# a2[1].plot(csf,ogfrq_TRP,lw=1,c="r")
 	a2[1].plot(csf,ogfrq_DTP,lw=1,c="k")
 	a2[1].plot(csf,ogfrq_EPO,lw=1,c=lsc[13])
@@ -166,7 +167,7 @@ begin
 	a2[1].plot(csf,lgfrq_TRA,lw=1,c=lsc[3],linestyle="--")
 	# a2[1].plot(csf,lgfrq_SAS,lw=1,c="r",linestyle="--")
 	a2[1].format(ltitle="(a) GPM Precipitation")
-	
+
 	# a2[2].plot(csf,oefrq_DTP,label="TRP",legend="r",lw=1,c="r")
 	a2[2].plot(csf,oefrq_DTP,label="DTP",legend="r",lw=1,c="k")
 	a2[2].plot(csf,oefrq_EPO,label="AR6_EPO",legend="r",lw=1,c=lsc[13])
@@ -183,7 +184,7 @@ begin
 	a2[2].plot(csf,lefrq_AMZ,lw=1,c=lsc[4],linestyle="--")
 	a2[2].plot(csf,lefrq_TRA,lw=1,c=lsc[3],linestyle="--")
 	a2[2].format(ltitle="(b) ERA5 Precipitation")
-	
+
 	for ax in a2
 		ax.format(
 			xlim=(0,100),xlabel="Column Relative Humidity",
@@ -191,7 +192,7 @@ begin
 			yscale="log",ylocator=10. .^(-3:1)
 		)
 	end
-	
+
 	f2.savefig(plotsdir("csfvprcp.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("csfvprcp.png"))
 end

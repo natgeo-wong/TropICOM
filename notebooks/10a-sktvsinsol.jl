@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 270f908f-59ed-4a2c-b362-dc644f1220dd
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -22,11 +23,11 @@ begin
 	using Insolation
 	using NCDatasets
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -78,7 +79,7 @@ end
 
 # ╔═╡ a37b6d52-6255-4c05-b9a3-317fbe247a93
 function regioninsol(geo,lon,lat,lsm)
-	
+
 	ggrd = RegionGrid(geo,lon,lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
@@ -107,9 +108,9 @@ function regioninsol(geo,lon,lat,lsm)
 		oins[it+1] = sum(rins[rlsm.<0.5]) ./ sum(rwgt[rlsm.<0.5])
 		lins[it+1] = sum(rins[rlsm.>0.5]) ./ sum(rwgt[rlsm.>0.5])
 	end
-	
+
 	return oins,lins
-	
+
 end
 
 # ╔═╡ 9b2157e0-8b0f-4f8b-9e37-9a8f435527e9
@@ -118,11 +119,11 @@ oinstst,linstst = regioninsol(GeoRegion("SEA"),lon,lat,lsm)
 # ╔═╡ eeb1b9b7-4fea-46f0-a483-c01315c0137f
 begin
 	pplt.close(); f,a = pplt.subplots(aspect=4,axwidth=6)
-	
+
 	a[1].plot((0:14609)/365.25,oinstst)
 	a[1].plot((0:14609)/365.25,linstst)
 	a[1].format(xlim=(0,4))
-	
+
 	f.savefig("testinsol.png",transparent=false,dpi=200)
 	PNGFiles.load("testinsol.png")
 end

@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 858e2874-57e8-4e18-b4cc-7f65621ec1f5
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -18,11 +19,11 @@ begin
 	using GeoRegions
 	using NCDatasets
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -84,27 +85,27 @@ end
 # ╔═╡ 025f1fb5-84dc-4c13-a7c8-a513b56e0ace
 begin
 	pplt.close(); fs,as = pplt.subplots(nrows=4,aspect=6,axwidth=6)
-	
+
 	cs = as[1].contourf(lon,lat,csf',cmap="Blues",levels=20:5:80,extend="both")
 	as[1].plot(x,y,c="k",lw=0.5)
 	as[1].colorbar(cs,loc="r",locator=20:15:80)
 	as[1].format(rtitle=L"$\mu$")
-	
+
 	cs = as[2].contourf(lon,lat,sea',levels=10:10:90,extend="both")
 	as[2].plot(x,y,c="k",lw=0.5)
 	as[2].colorbar(cs,loc="r")
 	as[2].format(rtitle=L"$\Delta_{SEA}$")
-	
+
 	cs = as[3].contourf(lon,lat,itr',levels=10:10:90,extend="both")
 	as[3].plot(x,y,c="k",lw=0.5)
 	as[3].colorbar(cs,loc="r")
 	as[3].format(rtitle=L"$\Delta_{ITR}$")
-	
+
 	cs = as[4].contourf(lon,lat,drn',levels=5:15,extend="both")
 	as[4].plot(x,y,c="k",lw=0.5)
 	as[4].colorbar(cs,loc="r")
 	as[4].format(rtitle=L"$\Delta_{DRN}$")
-	
+
 	for ax in as
 		ax.format(
 			xlim=(0,360),xlabel=L"Longitude / $\degree$",xlocator=0:60:360,
@@ -112,7 +113,7 @@ begin
 			suptitle="Column Relative Humidity / %"
 		)
 	end
-	
+
 	fs.savefig(plotsdir("csfspatial_TRP.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("csfspatial_TRP.png"))
 end
@@ -162,7 +163,7 @@ begin
 	else
 		freg,areg = pplt.subplots(nrows=2,ncols=2,axwidth=2,aspect=asp)
 	end
-	
+
 	creg = areg[1].contourf(
 		ggrd.glon,ggrd.glat,rcsf',
 		cmap="Blues",levels=20:5:80,extend="both"
@@ -170,22 +171,22 @@ begin
 	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].format(rtitle=L"$\mu$")
 	areg[1].colorbar(creg,loc="r")
-	
+
 	creg = areg[2].contourf(ggrd.glon,ggrd.glat,rsea',levels=10:10:90,extend="both")
 	areg[2].plot(x,y,c="k",lw=0.5)
 	areg[2].format(rtitle=L"$\Delta_{SEA}$")
 	areg[2].colorbar(creg,loc="r")
-	
+
 	creg = areg[3].contourf(ggrd.glon,ggrd.glat,ritr',levels=10:10:90,extend="both")
 	areg[3].plot(x,y,c="k",lw=0.5)
 	areg[3].format(rtitle=L"$\Delta_{ITR}$")
 	areg[3].colorbar(creg,loc="r")
-	
+
 	creg = areg[4].contourf(ggrd.glon,ggrd.glat,rdrn',levels=5:15,extend="both")
 	areg[4].plot(x,y,c="k",lw=0.5)
 	areg[4].format(rtitle=L"$\Delta_{DRN}$")
 	areg[4].colorbar(creg,loc="r")
-	
+
 	for ax in areg
 		ax.format(
 			xlim=(ggrd.glon[1].-1,ggrd.glon[end].+1),
@@ -194,7 +195,7 @@ begin
 			grid=true
 		)
 	end
-	
+
 	freg.savefig(plotsdir("csfspatial_$(geo.regID).png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("csfspatial_$(geo.regID).png"))
 end
@@ -208,7 +209,7 @@ Now, we bin the data into the different sub-regions within the Tropics as was de
 
 # ╔═╡ 38ca34a7-772e-4e8c-b7a9-0ea9cdebae5b
 function extractocnlnd(geo,frq,lon,lat,lsm)
-	
+
 	ggrd = RegionGrid(geo,lon,lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
@@ -230,9 +231,9 @@ function extractocnlnd(geo,frq,lon,lat,lsm)
 		ocsf[icsf] = sum(rcsf[rlsm.<0.5])
 		lcsf[icsf] = sum(rcsf[rlsm.>0.5])
 	end
-	
+
 	return ocsf,lcsf
-	
+
 end
 
 # ╔═╡ 1cd2bee0-0e9a-4c82-afaf-f54dbe4a359a
@@ -259,9 +260,9 @@ end
 # ╔═╡ d0aebfcd-6068-4ff0-9aae-fef936be7a99
 begin
 	pplt.close(); f2,a2 = pplt.subplots(ncols=2,aspect=2,axwidth=3)
-	
+
 	lgd = Dict("ncol"=>1,"frame"=>false)
-	
+
 	a2[1].plot(cbn,normbin(ofrq_DTP),c="k")
 	a2[1].plot(cbn,normbin(ofrq_EPO),c=lsc[13])
 	a2[1].plot(cbn,normbin(ofrq_EIO),c=lsc[12])
@@ -269,7 +270,7 @@ begin
 	a2[1].plot(cbn,normbin(ofrq_CRB),c=lsc[10])
 	a2[1].plot(cbn,normbin(ofrq_SEA),c=lsc[5])
 	a2[1].format(ltitle="(a) Ocean")
-	
+
 	a2[2].plot(cbn,normbin(lfrq_DTP),label="DTP",legend="r",c="k")
 	a2[2].plot(cbn,cbn*NaN,label="AR6_EPO",legend="r",c=lsc[13])
 	a2[2].plot(cbn,cbn*NaN,label="AR6_EIO",legend="r",c=lsc[12])
@@ -280,14 +281,14 @@ begin
 	a2[2].plot(cbn,normbin(lfrq_AMZ),label="AMZ",legend="r",c=lsc[4])
 	a2[2].plot(cbn,normbin(lfrq_TRA),label="TRA",legend="r",c=lsc[3],legend_kw=lgd)
 	a2[2].format(ltitle="(b) Land")
-	
+
 	for ax in a2
 		ax.format(
 			xlim=(0,100),xlabel="Column Relative Humidity",
 			ylim=(0,5),ylabel="Normalized Frequency"
 		)
 	end
-	
+
 	f2.savefig(plotsdir("csffreq.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("csffreq.png"))
 end

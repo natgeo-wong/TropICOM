@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 417ee688-5ade-11eb-2e95-91a301119e88
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -26,14 +27,14 @@ begin
 	using Statistics
 	using PlutoUI
 	using Printf
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
 	include(srcdir("samsnd.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -65,12 +66,12 @@ begin
 		  insol = "D"
 	else; insol = "P"
 	end
-	
+
 	if isone(islarge)
 		  domsize = "LARGE"
 	else; domsize = "INSOL"
 	end
-	
+
 	config = "$(insol)$(domsize)"
 end
 
@@ -127,15 +128,15 @@ end
 begin
 	trms = sqrt(mean(tdiff.^2)); trms = @sprintf("%.3f",trms)
 	qrms = sqrt(mean(qdiff.^2)); qrms = @sprintf("%.3f",qrms)
-	
+
 md"Assuming that the tropopause is at 100 hPa, the root-mean-square of the temperature difference between the model temperature `TABS` and the observed temperature `TABSOBS` is $(trms) K.  The profile of the temperature difference is shown below:"
 end
 
 # ╔═╡ 978d0442-5b33-11eb-39e5-cdea9c6efa4c
 begin
-	
+
 	pplt.close(); fts,ats = pplt.subplots(arr,aspect=1/3,axwidth=0.6,sharex=0)
-	
+
 	ats[1].plot(tdiff,p)
 	ats[1].scatter(tdiff,p,s=7)
 	ats[1].format(
@@ -143,7 +144,7 @@ begin
 		ylim=(1010,10),yscale="log",ylabel="Pressure / hPa",
 		suptitle="RCE Initial Spinup | $config"
 	)
-	
+
 	ct = ats[2].contourf(
 		t.-80,p,tdts,
 		# t.-80,p,tem .- mean(tem[:,(end-100+1):end],dims=2),
@@ -158,14 +159,14 @@ begin
 		ylabel="Pressure / hPa",
 		urtitle=L"T$_{RMS}$" * " = $(trms) K"
 	)
-	
+
 	ats[3].plot(qdiff,p)
 	ats[3].scatter(qdiff,p,s=7)
 	ats[3].format(
 		xlim=(-0.75,0.75),xlocator=(-2:2)/2,xlabel=L"qr = $\frac{q - q_{OBS}}{q_{OBS}}$",
 		ylim=(1010,10),yscale="log",ylabel="Pressure / hPa",
 	)
-	
+
 	cq = ats[4].contourf(
 		t.-80,p,qdts,
 		# t.-80,p,qvp .- mean(qvp[:,(end-100+1):end],dims=2),
@@ -179,12 +180,12 @@ begin
 		xlabel="time / days",ylabel="Pressure / hPa",
 		urtitle=L"$qr_{RMS}$" * " = $(qrms)"# * L" g kg$^{-1}$"
 	)
-	
+
 	ats[2].colorbar(ct,loc="r",width=0.2)
 	ats[4].colorbar(cq,loc="r",width=0.2)
 	fts.savefig(plotsdir("rcetdts-$(config).png"),transparent=false,dpi=200)
 	load(plotsdir("rcetdts-$(config).png"))
-	
+
 end
 
 # ╔═╡ 39868b46-5ae5-11eb-0bf5-274642855e12
@@ -245,7 +246,7 @@ begin
 		plevel[:,imem] = retrievevar("p","Control","$(config)",isensemble=true,member=imem)[:,end]
 		prc_en[:,imem] = retrievevar("PREC","Control","$(config)",isensemble=true,member=imem)
 	end
-	
+
 	tob_en = dropdims(mean(tob_en,dims=2),dims=2)
 	qob_en = dropdims(mean(qob_en,dims=2),dims=2)
 	plevel = dropdims(mean(plevel,dims=2),dims=2)
@@ -270,19 +271,19 @@ ip = plevel .> 25
 begin
 	trms_en = sqrt(mean(tdiff_en[ip,:].^2)); trms_en = @sprintf("%.3f",trms_en)
 	qrms_en = sqrt(mean(qdiff_en[ip,:].^2)); qrms_en = @sprintf("%.3f",qrms_en)
-	
+
 md"Assuming that the tropopause is at 100 hPa, the root-mean-square of the temperature difference between the model temperature `TABS` and the observed temperature `TABSOBS` is $(trms_en) K.  The profile of the temperature difference is shown below:"
 end
 
 # ╔═╡ a3650e8a-822b-11eb-29ca-cd01b90e8099
 begin
-	
+
 	pplt.close(); fen,aen = pplt.subplots(arr,aspect=1/3,axwidth=0.6,sharex=0)
-	
+
 	for im = 1 : nen
 		aen[1].scatter(tdiff_en[:,im],pts_en[:,im],s=2,c="gray")
 	end
-	
+
 	aen[1].plot(
 		dropdims(mean(tdiff_en,dims=2),dims=2),
 		dropdims(mean(pts_en,dims=2),dims=2),c="k"
@@ -292,7 +293,7 @@ begin
 		ylim=(1010,25),yscale="log",ylabel="Pressure / hPa",
 		suptitle="Model Ensemble Equilibrium RCE | $config",ultitle="(a)"
 	)
-	
+
 	cten = aen[2].contourf(
 		t_en.-80,plevel,tdts_en,
 		# t.-80,p,tem .- mean(tem[:,(end-100+1):end],dims=2),
@@ -307,11 +308,11 @@ begin
 		ylabel="Pressure / hPa",
 		urtitle=L"T$_{RMS}$" * " = $(trms_en) K",ultitle="(b)"
 	)
-	
+
 	for im = 1 : nen
 		aen[3].scatter(qdiff_en[:,im],pts_en[:,im],s=2,c="gray")
 	end
-	
+
 	aen[3].plot(
 		dropdims(mean(qdiff_en,dims=2),dims=2),
 		dropdims(mean(pts_en,dims=2),dims=2),c="k"
@@ -321,7 +322,7 @@ begin
 		xlabel=L"qr = $\frac{q - q_{OBS}}{q_{OBS}}$ / %",
 		ylim=(1010,25),yscale="log",ylabel="Pressure / hPa",ultitle="(c)"
 	)
-	
+
 	cqen = aen[4].contourf(
 		t_en.-80,plevel,qdts_en,
 		# t.-80,p,qvp .- mean(qvp[:,(end-100+1):end],dims=2),
@@ -335,12 +336,12 @@ begin
 		xlabel="time / days",ylabel="Pressure / hPa",
 		urtitle=L"$qr_{RMS}$" * " = $(qrms_en) %",ultitle="(d)"
 	)
-	
+
 	aen[2].colorbar(cten,loc="r",width=0.2)
 	aen[4].colorbar(cqen,loc="r",width=0.2)
 	fen.savefig(plotsdir("rcetdts-$(config)-ensemble.png"),transparent=false,dpi=200)
 	load(plotsdir("rcetdts-$(config)-ensemble.png"))
-	
+
 end
 
 # ╔═╡ 11913f26-8e7c-11eb-1b37-0f9c8e7b7331
@@ -356,9 +357,9 @@ begin
 	qvp_μ = dropdims(mean(qvp_en[:,(end-nendays+1):end,:],dims=(2,3)),dims=(2,3))
 	tem_μ = dropdims(mean(tem_en[:,(end-nendays+1):end,:],dims=(2,3)),dims=(2,3))
 	pre_μ = dropdims(mean(pre_en[:,(end-nendays+1):end,:],dims=(2,3)),dims=(2,3))
-	
+
 	pot_μ = tem_μ .* (1000 ./pre_μ).^(287/1004)
-	
+
 	snddata = zeros(nz_en,6)
 	snddata[:,1] .= z_en;  snddata[:,2] .= pre_μ
 	snddata[:,3] .= pot_μ; snddata[:,4] .= qvp_μ

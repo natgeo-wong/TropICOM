@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 247edb6d-65a6-4fb7-beab-46604b78cfe9
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -16,13 +17,13 @@ begin
 	@quickactivate "TroPrecLS"
 	using Statistics
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -46,29 +47,29 @@ md"
 
 # ╔═╡ 41ed6c57-c7fc-4bbe-bcb7-08414d9f84b3
 function retrieve2D(variable,configlist)
-	
+
 	nconfig = length(configlist);
 	d2D  = zeros(4800,1,nconfig)
-	
+
 	for ic = 1 : nconfig
 		for ii = 1 : 1
 			fnc = outstatname("Control",configlist[ic],false,true,ii)
 			d2D[:,ii,ic] .= retrievevar(variable,fnc)[9601:end]
 		end
 	end
-	
+
 	d2D = reshape(d2D,4800*1,nconfig)
-	
+
 	return d2D
-	
+
 end
 
 # ╔═╡ eed5fd10-e1c8-448e-80c7-44eea38eca01
 function retrievecsf(exp,configlist)
-	
+
 	nconfig = length(configlist);
 	var  = zeros(4800,1,nconfig)
-	
+
 	for ic = 1 : nconfig
 		for ii = 1
 			fnc = outstatname(exp,configlist[ic],false,true,ii)
@@ -81,11 +82,11 @@ function retrievecsf(exp,configlist)
 			var[:,ii,ic] += tcw ./ swp
 		end
 	end
-	
+
 	var = reshape(var,4800*1,nconfig)
-	
+
 	return var
-	
+
 end
 
 # ╔═╡ 4a1ad4f6-5a83-467f-823e-b3f5d92591b7
@@ -151,11 +152,11 @@ begin
 	cbin = collect(0:0.5:100); cstep = (cbin[2]-cbin[1])/2; nbins = length(cbin)
 	pvec = zeros(nbins,ncon)
 	pfrq = zeros(nbins,ncon)
-	
+
 	for icon = 1 : ncon
 		pvec[:,icon],pfrq[:,icon] = csfvprcpbin(prcp[:,icon],csf[:,icon],cbin,cstep)
 	end
-	
+
 	pvt1,pft1 = csfvprcpbin(pts1,cts1,cbin,cstep)
 	pvt2,pft2 = csfvprcpbin(pts2,cts2,cbin,cstep)
 end
@@ -176,7 +177,7 @@ pnew = (pvec[:,1] .+ pvt1) ./ (pfrq[:,1] .+ pft1)
 # ╔═╡ 5fb1540c-d4bb-46bd-b3a6-a1253e799a79
 begin
 	pplt.close(); f,a = pplt.subplots(aspect=2,axwidth=3)
-	
+
 	for icon = 1 : 1
 		a[1].plot(cbin,pvec[:,icon]./pfrq[:,icon],c=lndocn[icon+2],lw=1)
 	end
@@ -184,7 +185,7 @@ begin
 	a[1].plot(cbin,pnew,c="k",lw=1)
 	a[1].format(xlim=(00,100),ylim=10. .^(-4,2),xlabel="Column Relative Humidity / %")
 	a[1].format(yscale="log",ylocator=10. .^(-4:2),ylabel=L"Precipitation Rate / mm hr$^{-1}$")
-	
+
 	f.savefig("test1.png",transparent=false,dpi=200)
 	PNGFiles.load("test1.png")
 end
@@ -192,14 +193,14 @@ end
 # ╔═╡ 55babf48-524d-42cf-b814-73be9361b727
 begin
 	pplt.close(); ff,af = pplt.subplots(aspect=2,axwidth=5)
-	
+
 	for icon = 1
 		af[1].plot(cbin,pfrq[:,icon]./sum(pfrq[:,icon])*101,c=lndocn[icon+2],lw=1)
 	end
 	af[1].plot(cbin,pft1./sum(pft1)*101,c="k",lw=1,linestyle=":")
 	af[1].plot(cbin,pft2./sum(pft2)*101,c="k",lw=1,linestyle="--")
 	af[1].format(xlabel="Column Relative Humidity",ylabel="Probability Density")
-	
+
 	ff.savefig("test2.png",transparent=false,dpi=200)
 	PNGFiles.load("test2.png")
 end

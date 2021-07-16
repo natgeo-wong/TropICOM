@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 129f73ae-a99d-4fec-9d0a-2db8926c16f7
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -26,10 +27,10 @@ begin
 	using DelimitedFiles
 	using PlutoUI
 	using Printf
-	
+
 	include(srcdir("common.jl"))
 	include(srcdir("samlsf.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -65,22 +66,22 @@ md"Create LSF files? $(@bind dolsf PlutoUI.Slider(0:1))"
 
 # ╔═╡ d6547c85-0ba7-41cf-980e-1a38a889822d
 if isone(dolsf)
-	
+
 	mvec = -1.5 : 0.1 : 1.5
-	
+
 	for mul in mvec
-		
+
 		lsf[:,4] .= qflx * mul
-		
+
 		if mul > 0
 			  mstr = @sprintf("p%03.1f",abs(mul))
 		else; mstr = @sprintf("n%03.1f",abs(mul))
 		end
 		mstr = replace(mstr,"."=>"d")
 		lsfprint(projectdir("exp/lsf/ocean/$(mstr)"),lsf,pre)
-		
+
 	end
-	
+
 	md"Based on these profiles, we create large-scale forcing profiles for moisture flux convergence to be used in our WTG simulations ..."
 else
 	md"We have decided not to override any preexisting large-scale forcing profiles for moisture flux convergence."

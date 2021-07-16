@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 24abbe3a-5bb7-11eb-160b-1323efad463b
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -26,13 +27,13 @@ begin
 	using Statistics
 	using StatsBase
 	using PlutoUI
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -61,17 +62,17 @@ begin
 	t = t[9601:end]; nt = length(t)
 	t_sst = zeros(nt,nmem)
 	prcp  = zeros(nt,nmem)
-	
+
 	for imem = 1 : nmem
 		fnc = outstatname("Control",config,false,true,imem)
 		t_sst[:,imem] = retrievevar("SST",fnc)[9601:end]
 		prcp[:,imem]  = retrievevar("PREC",fnc)[9601:end]/24
 	end
-	
+
 	t = repeat(t,outer=[nmem])
 	t_sst = t_sst[:]
 	prcp  = prcp[:]
-	
+
 	md"Loading sea surface temperature and precipitation data for $(config) configuration ..."
 end
 
@@ -114,7 +115,7 @@ md"Make Figure? $(@bind mkfig PlutoUI.Slider(0:1))"
 begin
 	if isone(mkfig)
 		pplt.close(); f1,a1 = pplt.subplots(ncols=2,aspect=1.5,axwidth=2.5,sharey=0)
-		
+
 		lvls = [0.2,0.5,1,2,5,10,20,50]
 		# lvls = 2:2:18
 

@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 6140aa6f-73f3-4e5d-baf8-6f6adfeaa162
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -30,13 +31,13 @@ begin
 	using PlutoUI
 	using Printf
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("samlsf.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -149,18 +150,18 @@ md"
 # ╔═╡ e28f10d6-31d8-44c0-8ba7-c40a1fddd3ea
 begin
 	pplt.close(); f,a = pplt.subplots(ncols=2,aspect=0.5,axwidth=1.5,sharex=0)
-	
+
 	a[1].plot(qflux,pre)
 	a[1].plot(qflux2,pre2)
 	a[1].format(
 		ylim=(1000,50),xlim=(-1.5,1.5),ylabel="Pressure / hPa",
 		xlabel=L"$\nabla\cdot(q\vec{u})$ / 10$^{-8}$ kg kg$^{-1}$"
 	)
-	
+
 	a[2].plot(mza_DTP/1000,pre)
 	a[2].plot(iza_DTP/1000,pre2)
 	a[2].format(xlim=(0,20))
-	
+
 	f.savefig(plotsdir("qflux-ideal.png"),dpi=150,transparent=false)
 	PNGFiles.load(plotsdir("qflux-ideal.png"))
 end
@@ -170,29 +171,29 @@ md"Create LSF files? $(@bind dolsf PlutoUI.Slider(0:1))"
 
 # ╔═╡ 1ebb803d-fc84-4ced-bff6-dd34d538ec88
 if isone(dolsf)
-	
+
 	lsf = lsfinit(np2); lsf[:,2] .= -999.0; lsf[:,1] .= reverse(iza_DTP)
 	mvec = -5 : 0.5 : 5
-	
+
 	if !isdir(projectdir("exp/lsf/ideal/")); mkpath(projectdir("exp/lsf/ideal/")) end
-	
+
 	for mul in mvec
-		
+
 		lsf[:,4] .= reverse(qflux2) * mul * 1e-8
-		
+
 		if mul > 0
 			mstr = @sprintf("p%03.1f",abs(mul))
 		elseif mul < 0
 			mstr = @sprintf("n%03.1f",abs(mul))
 		end
-		
+
 		if !iszero(mul)
 			mstr = replace(mstr,"."=>"d")
 			lsfprint(projectdir("exp/lsf/ideal/$(mstr)"),lsf,1009.32)
 		end
-		
+
 	end
-	
+
 md"Based on these profiles, we create large-scale forcing profiles for moisture flux convergence to be used in our WTG simulations ..."
 else
 md"We have decided not to override any preexisting large-scale forcing profiles for moisture flux convergence."

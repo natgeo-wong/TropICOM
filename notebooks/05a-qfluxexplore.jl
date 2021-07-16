@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 36a4e004-5a26-11eb-1ba4-db83d18c7845
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -29,14 +30,14 @@ begin
 	using PlutoUI
 	using Printf
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("common.jl"))
 	include(srcdir("samlsf.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -70,11 +71,11 @@ function ddx(
 	lon::AbstractVector{<:Real},
 	lat::AbstractVector{<:Real}
 )
-	
+
 	nx = length(lon); ny = length(lat); nlvl = size(data,3)
 	rx = 6378e3; dx = rx * (lon[2]-lon[1]) * pi / 180 * cosd.(lat)
 	ddatadx = zeros(nx,ny,nlvl)
-	
+
 	for ilvl = 1 : nlvl, iy = 1 : ny, ix = 2 : (nx-1)
 
         ddatadx[ix,iy,ilvl] = (data[ix+1,iy,ilvl] - data[ix-1,iy,ilvl]) / (2 * dx[iy])
@@ -87,9 +88,9 @@ function ddx(
         ddatadx[nx,iy,ilvl] = (data[nx,iy,ilvl] - data[nx-1,iy,ilvl]) / dx[iy]
 
     end
-	
+
 	return ddatadx
-	
+
 end
 
 # ╔═╡ 9e01c7ea-5a34-11eb-1c41-8b991a399584
@@ -97,11 +98,11 @@ function ddy(
 	data::AbstractArray{<:Real,3},
 	lat::AbstractVector{<:Real}
 )
-	
+
 	nx = size(data,1); ny = length(lat); nlvl = size(data,3)
 	ry = 6357e3; dy = ry * (lat[2]-lat[1]) * pi / 180
 	ddatady = zeros(nx,ny,nlvl)
-	
+
 	for ilvl = 1 : nlvl, iy = 2 : (ny-1), ix = 1 : nx
 
         ddatady[ix,iy,ilvl] = (data[ix,iy+1,ilvl] - data[ix,iy-1,ilvl]) / (2 * dy)
@@ -114,9 +115,9 @@ function ddy(
         ddatady[ix,ny,ilvl] = (data[ix,ny-1,ilvl] - data[ix,ny,ilvl]) / dy
 
     end
-	
+
 	return ddatady
-	
+
 end
 
 # ╔═╡ abde634c-5a83-11eb-00d6-69b233e0c00f
@@ -126,17 +127,17 @@ md"
 
 # ╔═╡ 4927b4c2-5a8a-11eb-37e4-53efb9445b23
 function saveqfc(qfc,rlon,rlat,lvl,regID)
-	
+
 	fnc = datadir("reanalysis/era5-$(regID)x0.25-qfc_air.nc")
 	if isfile(fnc); rm(fnc) end
 	ds = NCDataset(fnc,"c",attrib = Dict("Conventions"=>"CF-1.6"));
-	
+
 	ds.dim["longitude"] = length(rlon)
     ds.dim["latitude"]  = length(rlat)
     ds.dim["level"]  = length(lvl)
-	
+
 	scale,offset = ncoffsetscale(qfc)
-	
+
 	nclongitude = defVar(ds,"longitude",Float32,("longitude",),attrib = Dict(
         "units"     => "degrees_east",
         "long_name" => "longitude",
@@ -146,12 +147,12 @@ function saveqfc(qfc,rlon,rlat,lvl,regID)
         "units"     => "degrees_north",
         "long_name" => "latitude",
     ))
-	
+
 	nclevel = defVar(ds,"level",Int32,("level",),attrib = Dict(
         "units"     => "millibars",
         "long_name" => "pressure_level",
     ))
-	
+
 	ncqfc = defVar(ds,"qfc_air",Int16,("longitude","latitude","level"),attrib = Dict(
         "scale_factor"  => scale,
         "add_offset"    => offset,
@@ -160,50 +161,50 @@ function saveqfc(qfc,rlon,rlat,lvl,regID)
         "units" 	    => "kg kg**-1 s**-1",
 		"long_name"     => "moisture_flux_convergence",
     ))
-	
+
 	nclongitude[:] = rlon
 	nclatitude[:]  = rlat
 	nclevel[:]     = lvl
 	ncqfc[:]       = qfc
-	
+
 	close(ds)
-	
+
 end
 
 # ╔═╡ 87a146d4-5a29-11eb-1571-b9d9266ee54b
 function calcqfc(regID::AbstractString)
-	
+
 	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-q_air.nc"))
     lon = ds["longitude"][:]; nlon = length(lon)
     lat = ds["latitude"][:];  nlat = length(lat)
 	lvl = ds["level"][:];	  nlvl = length(lvl)
     q_air = ds["q_air"][:]*1
     close(ds)
-	
+
 	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-u_air.nc"))
     u_air = ds["u_air"][:]*1
     close(ds)
-	
+
 	ds = NCDataset(datadir("reanalysis/era5-$(regID)x0.25-v_air.nc"))
     v_air = ds["v_air"][:]*1
     close(ds)
-	
+
 	tmp = zeros(nlon,nlat,nlvl)
 	rlon,rlat,rinfo = gregiongridvec(regID,lon,lat)
-	
+
 	ru = regionextractgrid!(u_air,rinfo,tmp)
 	rv = regionextractgrid!(v_air,rinfo,tmp)
 	rq = regionextractgrid!(q_air,rinfo,tmp)
-	
+
 	ru_x = ddx(ru,rlon,rlat); rv_y = ddy(rv,rlat)
 	rq_x = ddx(rq,rlon,rlat); rq_y = ddy(rq,rlat)
-	
+
 	qfc = -((ru_x + rv_y) .* rq .+ ru .* rq_x .+ rv .* rq_y)
-	
+
 	saveqfc(qfc,rlon,rlat,lvl,regID)
-	
+
 	return rlon,rlat,lvl,qfc
-	
+
 end
 
 # ╔═╡ 795a822a-5a29-11eb-37bb-3b6d62cec6be
@@ -225,7 +226,7 @@ begin
 	lds = NCDataset(datadir("reanalysis/era5-TRPx0.25-lsm-sfc.nc"))
 	lsm = lds["lsm"][:]*1
 	close(lds)
-	
+
 md"Loading Land-Sea Mask for ERA5 data ..."
 end
 
@@ -263,7 +264,7 @@ begin
 	TR2 = prect(10,-10,345,360)
 	AMZ = prect(10,-10,285,315)
 	CRB = prect(25,15,270,300)
-	
+
 md"Defining bounds of regions of interest ..."
 end
 
@@ -277,7 +278,7 @@ end
 # ╔═╡ 872b3c7c-5d0e-11eb-18be-0dc521676c0d
 begin
 	pplt.close(); f,axs = pplt.subplots(ncols=1,aspect=6,axwidth=6);
-	
+
 	c = axs[1].contourf(
 		lon,lat,qplt',
 		levels=vcat(
@@ -294,7 +295,7 @@ begin
 	axs[1].plot(AMZ[1],AMZ[2],c="g",lw=1,linestyle="--")
 	axs[1].plot(CRB[1],CRB[2],c="blue3",lw=1,linestyle="--")
 	axs[1].format(xlim=(0,360),ylim=(-30,30))
-	
+
 	f.colorbar(c,loc="b",label=L"Moisture Flux Convergence / kg kg$^{-1}$")
 	f.savefig(plotsdir("qfc_spatial-$(lvl[ip])hPa.png"),transparent=false,dpi=200)
 	load(plotsdir("qfc_spatial-$(lvl[ip])hPa.png"))

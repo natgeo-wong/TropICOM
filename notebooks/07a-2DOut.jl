@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ abe749ca-717c-11eb-0f5b-8d4339fd2352
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -17,11 +18,11 @@ begin
 	using NCDatasets
 	using Printf
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -43,7 +44,7 @@ function retrievedim(
         experiment,config,"OUT_2D",
         "RCE_TroPrecLS-$(experiment)_256.2Dbin_1.nc"
     )))
-	
+
 	x   = rce["x"][:]/1000
 	y   = rce["y"][:]/1000
 	t   = rce["time"][:]
@@ -67,7 +68,7 @@ end
 begin
 	pplt.close(); f2D,a2D = pplt.subplots(axwidth=3)
 	hr = @sprintf("%04.1f",mod(t[end],1)*24)
-	
+
 	lvl = vcat(-5,-2,-1,-0.5,-0.2,-0.1,-0.05,0.05,0.1,0.2,0.5,1,2,5)
 	c = a2D[1].pcolormesh(
 		x[1:50],y[1:50],var[1:50,1:50]',
@@ -84,7 +85,7 @@ begin
 		xlabel="X / km",ylabel="Y / km",
 		ltitle="time = Day $(floor(t[end])), Hour $(hr)"
 	)
-	
+
 	f2D.colorbar(c,loc="r",width=0.2)
 	f2D.savefig("test2D/end.png",transparent=false,dpi=120)
 	PNGFiles.load("test2D/end.png")
@@ -95,13 +96,13 @@ sum(var.<0) / (256*256)
 
 # ╔═╡ 309a78f4-717d-11eb-0c95-8947f0ac1288
 # begin
-	
+
 # 	for it = 2161 : 2401; hr = @sprintf("%04.1f",mod(t[it],1)*24)
 # 		swp  = rce["SWVP"][:,:,it]
 # 		tcw  = rce["PW"][:,:,it]
 # 		csf  = tcw ./ swp * 100
 # 		prcp = rce["Prec"][:,:,it] / 24
-		
+
 # 		pplt.close(); f2D,a2D = pplt.subplots(axwidth=3)
 # 		c = a2D[1].contourf(x,y,csf',levels=10:5:90,cmap="drywet",extend="both")
 # 		a2D[1].contour(
@@ -118,7 +119,7 @@ sum(var.<0) / (256*256)
 # 		f2D.colorbar(c,loc="r",width=0.2)
 # 		f2D.savefig("test2D/$(it).png",transparent=false,dpi=120)
 # 	end
-	
+
 # end
 
 # ╔═╡ Cell order:

@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 24abbe3a-5bb7-11eb-160b-1323efad463b
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -16,13 +17,13 @@ begin
 	@quickactivate "TroPrecLS"
 	using Statistics
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("sam.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -48,10 +49,10 @@ We first load the 2D data of surface temperature and precipitation, bin it accor
 
 # ╔═╡ 57f52568-5bb9-11eb-1e7f-c34b6efe0bac
 function retrieve2D(variable,configlist,beg,tstep,tshift)
-	
+
 	nconfig = length(configlist);
 	d2D  = zeros(48,nconfig)
-	
+
 	for ic = 1 : nconfig
 		for ii = 1 : 5
 			fnc = outstatname("Control",configlist[ic],false,true,ii)
@@ -59,17 +60,17 @@ function retrieve2D(variable,configlist,beg,tstep,tshift)
 			d2D[:,ic] += dropdims(mean(reshape(var,48,:),dims=2),dims=2)
 		end
 	end
-	
+
 	return d2D / 5
-	
+
 end
 
 # ╔═╡ c9859e5e-8feb-11eb-0190-79f138ffc1ab
 function retrieve2Dbin(variable,configlist)
-	
+
 	nconfig = length(configlist); pbin = 0:5:250
 	d2D  = zeros(48,length(pbin)-1,nconfig)
-	
+
 	for icon = 1 : nconfig
 		x,y,t = retrievedims2D("DiAmp064km",configlist[icon])
 		nx = length(x); ny = length(y); nt = length(t)
@@ -77,18 +78,18 @@ function retrieve2Dbin(variable,configlist)
 		var = dropdims(mean(var,dims=(1,2)),dims=(1,2))
 		d2D[:,:,icon] += fit(Histogram,(mod.(t.+1/96,1)*24,var),(0:0.5:24,pbin)).weights
 	end
-	
+
 	return d2D
-	
+
 end
 
 # ╔═╡ 4f40bd7e-5bb9-11eb-34f2-91e1f959c59a
 function plot2DWTG(axs,axsii,td,prcp,configlist,colors;islegend::Bool=false)
-	
+
 	nconfig = length(configlist)
-	
+
 	for iconfig = 1 : nconfig
-		
+
 		config = configlist[iconfig]
 		config = replace(config,"slab"=>"")
 		config = replace(config,"d"=>".")
@@ -96,7 +97,7 @@ function plot2DWTG(axs,axsii,td,prcp,configlist,colors;islegend::Bool=false)
 			  config = parse(Float64,config)
 		else; config = L"\infty"
 		end
-		
+
 		if islegend
 			axs[axsii].plot(
 				td,prcp[:,iconfig],color=colors[iconfig+2],lw=1,
@@ -106,9 +107,9 @@ function plot2DWTG(axs,axsii,td,prcp,configlist,colors;islegend::Bool=false)
 		else
 			axs[axsii].plot(td,prcp[:,iconfig],color=colors[iconfig+2],lw=1)
 		end
-		
+
 	end
-	
+
 end
 
 # ╔═╡ 1ab3ad70-5c2a-11eb-187b-75e524a4581f
@@ -140,10 +141,10 @@ Now that we've done the exploratory analysis above, we do some basic statistics 
 
 # ╔═╡ 7b7a5806-8f20-11eb-1e95-3d1834134375
 function retrievecsf(configlist,beg,tstep,tshift)
-	
+
 	nconfig = length(configlist);
 	var  = zeros(nconfig)
-	
+
 	for ic = 1 : nconfig
 		for ii = 1 : 5
 			fnc = outstatname("Control",configlist[ic],false,true,ii)
@@ -156,11 +157,11 @@ function retrievecsf(configlist,beg,tstep,tshift)
 			var[ic] += mean(tcw[(end-beg):end]./swp[(end-beg):end])
 		end
 	end
-	
+
 	var = var / 5
-	
+
 	return var
-	
+
 end
 
 # ╔═╡ 1a31f88e-5c2a-11eb-0c1f-257863a43cf5
@@ -181,10 +182,10 @@ end
 
 # ╔═╡ 7d401cd6-5c2e-11eb-3842-917545e546ef
 begin
-	
+
 	pplt.close()
 	f,axs = pplt.subplots(ncols=3,nrows=3,axwidth=2.5,aspect=1.5,sharey=0)
-	
+
 	plot2DWTG(axs,1,-11.75:0.5:12,sstWTG,configs,colors)
 	plot2DWTG(axs,2,-11.75:0.5:12,prcpWTG/24,configs,colors)
 	plot2DWTG(axs,3,-11.75:0.5:12,cldWTG*100,configs,colors)
@@ -194,7 +195,7 @@ begin
 	plot2DWTG(axs,7,-11.75:0.5:12,sshfWTG,configs,colors)
 	plot2DWTG(axs,8,-11.75:0.5:12,slhfWTG,configs,colors,islegend=true)
 	plot2DWTG(axs,9,-11.75:0.5:12,sshfWTG.+slhfWTG,configs,colors)
-	
+
 	axs[1].format(ylim=(290,315),ultitle="(a) SST / K")
 	axs[2].format(ylim=(0,3.5),ultitle=L"(b) Rainfall Rate / mm hr$^{-1}$")
 	axs[3].format(ylim=(0,100),ultitle="(c) Cloud Cover / %")
@@ -204,14 +205,14 @@ begin
 	axs[7].format(ylim=(0,200),ultitle=L"(g) Sensible Heat Flux / W m$^{-2}$")
 	axs[8].format(ylim=(0,800),ultitle=L"(h) Latent Heat Flux / W m$^{-2}$")
 	axs[9].format(ylim=(0,800),ultitle=L"(i) Surface Fluxes / W m$^{-2}$")
-	
+
 	for ax in axs
 		ax.format(xlim=(-12,12),xlabel="Hour of Day",xlocator=-24:3:24)
 	end
-	
+
 	f.savefig(plotsdir("DiurnalAmp.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("DiurnalAmp.png"))
-	
+
 end
 
 # ╔═╡ d7735d46-5e9a-11eb-0fb3-91be12c3508b
@@ -230,9 +231,9 @@ end
 
 # ╔═╡ bc023fc2-5ebf-11eb-39ad-795365f8b162
 begin
-	
+
 	pplt.close(); f1,a1 = pplt.subplots(ncols=3,nrows=2,sharey=0,axwidth=2)
-	
+
 	slabs = [
 		0.05,0.0707,0.1,0.141,
 		0.2,0.316,0.5,0.707,
@@ -249,7 +250,7 @@ begin
 	a1[1].plot([0,100],[1,1]*300.382,color="blue3",linestyle="--")
 	a1[1].plot([0,100],[1,1]*298.169,color="b",linestyle="-.")
 	a1[1].plot([0,100],[1,1]*298.363,color="blue3",linestyle="-.")
-	
+
 	a1[2].scatter(slabs,prcpWTG_mean/24,s=20)
 	a1[2].plot([0,100],[1,1]*0.126,color="k")
 	a1[2].plot([0,100],[1,1]*0.284,color="b",linestyle="--")
@@ -257,9 +258,9 @@ begin
 	a1[2].plot([0,100],[1,1]*0.133,color="blue3",linestyle="--")
 	a1[2].plot([0,100],[1,1]*0.297,color="b",linestyle="-.")
 	a1[2].plot([0,100],[1,1]*0.183,color="blue3",linestyle="-.")
-	
+
 	a1[3].scatter(slabs,tcwWTG_mean,s=20)
-	
+
 	a1[4].scatter(slabs,sstWTG_dicy,s=20)
 	a1[4].fill_between([0,100],4,5,color="g",alpha=0.3)
 	a1[4].fill_between([0,100],0.15,0.25,color="b",alpha=0.3)
@@ -268,7 +269,7 @@ begin
 	a1[4].plot([0,100],[1,1]*0.160,color="blue3",linestyle="--")
 	a1[4].plot([0,100],[1,1]*4.461,color="b",linestyle="-.")
 	a1[4].plot([0,100],[1,1]*4.659,color="blue3",linestyle="-.")
-	
+
 	a1[5].scatter(slabs,prcpWTG_dicy./prcpWTG_mean,s=20)
 	a1[5].fill_between([0,100],0.3,2,color="g",alpha=0.3)
 	a1[5].fill_between([0,100],0.1,1,color="b",alpha=0.3)
@@ -277,30 +278,30 @@ begin
 	a1[5].plot([0,100],[1,1]*0.350,color="blue3",linestyle="--")
 	a1[5].plot([0,100],[1,1]*0.889,color="b",linestyle="-.")
 	a1[5].plot([0,100],[1,1]*1.240,color="blue3",linestyle="-.")
-	
+
 	a1[6].scatter(slabs,csfWTG,s=20)
-	
+
 	a1[1].format(ylim=(295,305))
 	a1[2].format(ylim=(0,0.8))
 	a1[3].format(ylim=(0,75))
 	a1[4].format(ylim=(0.01,50),yscale="log")
 	a1[5].format(ylim=(0.01,3))
 	a1[6].format(ylim=(0,1))
-	
+
 	a1[1].format(ultitle="(a) SST / K")
 	a1[2].format(ultitle=L"(b) Rain / mm hr$^{-1}$")
 	a1[3].format(ultitle="(c) Precipitable Water / mm")
 	a1[4].format(ultitle="(d) SST (Diurnal) / K")
 	a1[5].format(ultitle="(e) Rain (Diurnal) / Mean Rain")
 	a1[6].format(ultitle="(f) Column Saturation Fraction")
-	
+
 	for ax in a1
 		ax.format(xscale="log",xlabel="Slab Depth / m",xlim=(0.02,100))
 	end
-	
+
 	f1.savefig(plotsdir("DiurnalAmp_slabmeans.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("DiurnalAmp_slabmeans.png"))
-	
+
 end
 
 # ╔═╡ 5e4ebf22-94e0-11eb-3c58-1ff954f15556
@@ -315,11 +316,11 @@ md"
 
 # ╔═╡ 9bb67a0d-8d35-449a-b7a6-d4c5b01cac64
 function retrievemaxtime(variable,configlist)
-	
+
 	nconfig = length(configlist);
 	d2D  = zeros(48,nconfig)
 	vtmp = zeros(48)
-	
+
 	for ic = 1 : nconfig
 		for ii = 1 : 5
 			fnc = outstatname("Control",configlist[ic],false,true,ii)
@@ -334,11 +335,11 @@ function retrievemaxtime(variable,configlist)
 		end
 		d2D[:,ic] .= d2D[:,ic] ./ sum(d2D[:,ic]) * 48
 	end
-	
+
 	d2D = 0.5*d2D .+ 0.25 *(circshift(d2D,(1,0)) .+ circshift(d2D,(-1,0)))
-	
+
 	return d2D
-	
+
 end
 
 # ╔═╡ c9acf590-7c4d-4691-ba10-0ec455acd3e0
@@ -351,11 +352,11 @@ end
 # ╔═╡ b99c20a5-5f88-49c5-94aa-e2e1bedebb5c
 begin
 	pplt.close(); fθ,aθ = pplt.subplots(ncols=2,proj="polar");
-	
+
 	θvec = collect(-12:0.5:12)/24*2*pi
 	θvec = (θvec[1:(end-1)].+θvec[2:end])/2
 	θvec = vcat(θvec,θvec[1]+2*pi)
-	
+
 	for islab = 1 : 8
 		aθ[1].plot(
 			θvec,sqrt.(vcat(prcphr[:,islab],prcphr[1,islab])),
@@ -372,10 +373,10 @@ begin
 			legend="r",legend_kw=Dict("frame"=>false,"ncols"=>1)
 		)
 	end
-	
+
 	aθ[1].format(ltitle="(a) Land Analogue")
 	aθ[2].format(ltitle="(b) Ocean Analogue")
-	
+
 	for ax in aθ
 		ax.format(
 			theta0="N",thetaformatter="tau",
@@ -383,7 +384,7 @@ begin
 			suptitle=L"$\theta$ / Fraction of Day"
 		)
 	end
-	
+
 	fθ.savefig(plotsdir("samdiurnalphase.png"),transparent=false,dpi=200)
 	load(plotsdir("samdiurnalphase.png"))
 end

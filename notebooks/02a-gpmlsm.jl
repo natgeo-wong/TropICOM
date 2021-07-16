@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ abdaeba6-56a5-11eb-222b-a12819fce07c
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -18,11 +19,11 @@ begin
 	using GeoRegions
 	using NCDatasets
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -88,7 +89,7 @@ thr = 70
 begin
 	lsm01 = lsm / 100
 	lsm01 = 1 .- lsm01
-	
+
 md"Binning land-sea mask into 0s and 1s"
 end
 
@@ -110,14 +111,14 @@ end
 begin
 	asp = (maximum(rlon)-minimum(rlon))/(maximum(rlat)-minimum(rlat))
 	pplt.close(); freg,areg = pplt.subplots(aspect=asp,axwidth=asp*2)
-	
+
 	creg = areg[1].contourf(
 		rlon,rlat,rlsm',levels=(0:10)/10,
 		cmap="Delta",extend="both"
 	)
 	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].colorbar(creg,loc="r")
-	
+
 	for ax in areg
 		ax.format(
 			xlim=(90,165),xlocator=90:15:165,xminorlocator=90:5:165,
@@ -126,21 +127,21 @@ begin
 			# ylim=(minimum(rlat),maximum(rlat))
 		)
 	end
-	
+
 	freg.savefig(plotsdir("GPMlsmreg.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("GPMlsmreg.png"))
 end
 
 # ╔═╡ 54903304-57ae-11eb-0654-c7c351bcae9f
 function savelsm(regID,lon,lat,lsm)
-	
+
 	fnc = datadir("GPM_IMERG_LandSeaMask-$regID.nc")
 	if isfile(fnc); rm(fnc) end
 	ds = NCDataset(fnc,"c",attrib = Dict("Conventions"=>"CF-1.6"));
-	
+
 	ds.dim["longitude"] = length(lon)
     ds.dim["latitude"]  = length(lat)
-	
+
 	nclongitude = defVar(ds,"longitude",Float32,("longitude",),attrib = Dict(
         "units"     => "degrees_east",
         "long_name" => "longitude",
@@ -150,17 +151,17 @@ function savelsm(regID,lon,lat,lsm)
         "units"     => "degrees_north",
         "long_name" => "latitude",
     ))
-	
+
 	nclsm = defVar(ds,"landseamask",Float32,("longitude","latitude",),attrib = Dict(
         "units" => "0 - 1"
     ))
-	
+
 	nclongitude[:] = lon
 	nclatitude[:]  = lat
 	nclsm[:] = lsm
-	
+
 	close(ds)
-	
+
 end
 
 # ╔═╡ c6e405de-57ae-11eb-20b5-dbe72ee915fd

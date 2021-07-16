@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ f23d2756-d792-11eb-23dd-ab8bf43c5720
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -17,11 +18,11 @@ begin
 	using GeoRegions
 	using NCDatasets
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -62,7 +63,7 @@ md"
 
 # ╔═╡ 19e09271-e54a-48f2-afac-461cb801cfd1
 function extractocnlnd(geo,frq,lon,lat,lsm)
-	
+
 	ggrd = RegionGrid(geo,lon,lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
@@ -86,9 +87,9 @@ function extractocnlnd(geo,frq,lon,lat,lsm)
 		ofrq[iskt,icsf] = sum(rfrq[rlsm.<0.5])
 		lfrq[iskt,icsf] = sum(rfrq[rlsm.>0.5])
 	end
-	
+
 	return ofrq,lfrq
-	
+
 end
 
 # ╔═╡ 6acdcde3-2190-4cec-8a4f-9bf096602b52
@@ -108,24 +109,24 @@ end
 # ╔═╡ b2acf38d-01ec-4b9c-a8da-ce28a2c4656b
 begin
 	pplt.close(); f,a = pplt.subplots(nrows=2,aspect=3,axwidth=4)
-	
+
 	lvls = [0.1,0.141,0.2,0.316,0.5,0.707,1,1.41,2,3.16,5,7.07,10]
-	
+
 	c = a[1].pcolormesh(csf,skt,nofrq,levels=lvls,extend="both",cmap=geo)
 	a[1].format(grid=true,ylocator=285:5:310,xlocator=0:10:100)
-	
+
 	p1 = a[1].panel("l",space="1em",width="4em")
 	p1.plot(dropdims(tofrq,dims=2)/sum(tofrq)*25,pskt)
 	p1.format(xscale="log")
-	
+
 	a[2].pcolormesh(csf,skt,nlfrq,levels=lvls,extend="both",cmap=geo)
 	a[2].format(grid=true,ylocator=285:5:310,xlocator=0:10:100)
 	f.colorbar(c,loc="r",label=L"Conditional Density f$_{r|T_{sk}}$")
-	
+
 	p2 = a[2].panel("l",space="1em",width="4em")
 	p2.plot(dropdims(tlfrq,dims=2)/sum(tlfrq)*25,pskt)
 	p2.format(xscale="log",xlim=(100,0.001),xlocator=[0.01,1,100])
-	
+
 	for ax in a
 		ax.format(
 			ylabel=L"Skin Temperature (T$_{sk}$) / K",
@@ -133,7 +134,7 @@ begin
 			suptitle="$(GeoRegion(geo).name)"
 		)
 	end
-	
+
 	fimg = "sktvcsf_$(GeoRegion(geo).regID).png"
 	f.savefig(plotsdir(fimg),dpi=200,transparent=false)
 	PNGFiles.load(plotsdir(fimg))

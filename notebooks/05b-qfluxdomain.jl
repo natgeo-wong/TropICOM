@@ -15,8 +15,9 @@ end
 
 # ╔═╡ 36a4e004-5a26-11eb-1ba4-db83d18c7845
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -27,14 +28,14 @@ begin
 	using PlutoUI
 	using Printf
 	using Statistics
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("common.jl"))
 	include(srcdir("samlsf.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -74,7 +75,7 @@ begin
 	lds = NCDataset(datadir("reanalysis/era5-TRPx0.25-lsm-sfc.nc"))
 	lsm = lds["lsm"][:]*1
 	close(lds)
-	
+
 md"Loading Land-Sea Mask for ERA5 data ..."
 end
 
@@ -90,27 +91,27 @@ end
 # ╔═╡ 46671d58-5a92-11eb-2a04-975238148a1b
 begin
 	pplt.close(); fqfc,aqfc = pplt.subplots(ncols=2,aspect=0.5,axwidth=1.5);
-	
+
 	lgd = Dict("frame"=>false,"ncols"=>1)
-	
+
 	aqfc[1].plot(lqfc_SEA*1e8,lvl,c="b")
 	aqfc[1].plot(lqfc_TRA*1e8,lvl,c="r")
 	aqfc[1].plot(lqfc_CRB*1e8,lvl,c="blue3")
 	aqfc[1].plot(lqfc_AMZ*1e8,lvl,c="g")
-	
+
 	aqfc[2].plot(sqfc_DTP*1e8,lvl,c="k",label="DTP",legend="r")
 	aqfc[2].plot(sqfc_SEA*1e8,lvl,c="b",label="SEA",legend="r",legend_kw=lgd)
 	aqfc[2].plot(sqfc_TRA*1e8,lvl,c="r",label="TRA",legend="r")
 	aqfc[2].plot(sqfc_CRB*1e8,lvl,c="blue3",label="CRB",legend="r")
 	aqfc[2].plot(lqfc_AMZ*1e8*NaN,lvl,c="g",label="AMZ",legend="r")
-	
+
 	aqfc[1].format(
 		xlim=(-12.5,12.5),ylim=(1000,50),urtitle="Land",
 		ylabel="Pressure / hPa",
 		xlabel=L"$-\nabla\cdot(q\vec{u})$ / 10$^{-8}$ kg kg$^{-1}$"
 	)
 	aqfc[2].format(xlim=(-4,4),ylim=(1000,50),urtitle="Ocean")
-	
+
 	fqfc.savefig(plotsdir("qfc.png"),transparent=false,dpi=200)
 	load(plotsdir("qfc.png"))
 end
@@ -140,25 +141,25 @@ end
 # ╔═╡ f3bd1c4a-5aa0-11eb-049c-8d6783190671
 begin
 	pplt.close(); fzair,azair = pplt.subplots(ncols=2,aspect=0.5,axwidth=1.5);
-	
+
 	azair[1].plot(lqfc_SEA*1e8,lzair_SEA,c="b")
 	azair[1].plot(lqfc_TRA*1e8,lzair_TRA,c="r")
 	azair[1].plot(lqfc_CRB*1e8,lzair_CRB,c="blue3")
 	azair[1].plot(lqfc_AMZ*1e8,lzair_AMZ,c="g")
-	
+
 	azair[2].plot(sqfc_DTP*1e8,szair_DTP,c="k",label="DTP",legend="r")
 	azair[2].plot(sqfc_SEA*1e8,szair_SEA,c="b",label="SEA",legend="r",legend_kw=lgd)
 	azair[2].plot(sqfc_TRA*1e8,szair_TRA,c="r",label="TRA",legend="r")
 	azair[2].plot(sqfc_CRB*1e8,szair_CRB,c="blue3",label="CRB",legend="r")
 	azair[2].plot(sqfc_AMZ*1e8*NaN,szair_AMZ/1e3,c="g",label="AMZ",legend="r")
-	
+
 	azair[1].format(
 		xlim=(-12.5,12.5),ylim=(0.1,20),urtitle="Land",
 		ylabel="Height / km",
 		xlabel=L"$-\nabla\cdot(q\vec{u})$ / 10$^{-8}$ kg kg$^{-1}$"
 	)
 	azair[2].format(xlim=(-4,4),urtitle="Ocean",)#yscale="log")
-	
+
 	fzair.savefig(plotsdir("zair.png"),transparent=false,dpi=200)
 	load(plotsdir("zair.png"))
 end
@@ -168,19 +169,19 @@ md"Create LSF files? $(@bind dolsf PlutoUI.Slider(0:1))"
 
 # ╔═╡ eae6df2a-5d02-11eb-3d49-1b2b62d806d2
 if isone(dolsf)
-	
+
 	lsfl = lsfinit(length(zlvl)); lsfl[:,2] .= -999.0; lsfl[:,1] .= reverse(lzair_SEA)
 	lsfs = lsfinit(length(zlvl)); lsfs[:,2] .= -999.0; lsfs[:,1] .= reverse(szair_SEA)
 	mvec = vcat(-20:-1,1:20)
-	
+
 	if !isdir(projectdir("exp/lsf/land/")); mkpath(projectdir("exp/lsf/land/")) end
 	if !isdir(projectdir("exp/lsf/ocean/")); mkpath(projectdir("exp/lsf/ocean/")) end
-	
+
 	for mul in mvec
-		
+
 		lsfl[:,4] .= reverse(lqfc_SEA) * mul
 		lsfs[:,4] .= reverse(sqfc_SEA) * mul
-		
+
 		if mul > 0
 			  mstr = @sprintf("p%02d",abs(mul))
 		else; mstr = @sprintf("n%02d",abs(mul))
@@ -188,9 +189,9 @@ if isone(dolsf)
 
 		lsfprint(projectdir("exp/lsf/land/$(mstr)"),lsfl,1009.32)
 		lsfprint(projectdir("exp/lsf/ocean/$(mstr)"),lsfs,1009.32)
-		
+
 	end
-	
+
 md"Based on these profiles, we create large-scale forcing profiles for moisture flux convergence to be used in our WTG simulations ..."
 else
 md"We have decided not to override any preexisting large-scale forcing profiles for moisture flux convergence."

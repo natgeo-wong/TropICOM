@@ -6,8 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 6f00b8fc-530c-11eb-2242-99d8544f6e14
 begin
+	using Pkg; Pkg.activate()
 	using DrWatson
-	
+
 md"Using DrWatson in order to ensure reproducibility between different machines ..."
 end
 
@@ -20,13 +21,13 @@ begin
 	using Interpolations
 	using NCDatasets
 	using StatsBase
-	
+
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
 	pplt = pyimport("proplot")
-	
+
 	include(srcdir("common.jl"))
-	
+
 md"Loading modules for the TroPrecLS project..."
 end
 
@@ -57,37 +58,37 @@ longitude2timeshift(longitude::Real) = longitude / 180 * 12
 
 # ╔═╡ a6a688ca-53ab-11eb-2776-b5380ffb26c1
 function eradiurnal2model(data,longitude)
-	
+
 	nlon,nlat,nt = size(data)
 	θ = zeros(nlon,nlat)
 	A = zeros(nlon,nlat)
 	μ = zeros(nlon,nlat)
-	
+
 	idat = zeros(nt+1)
 	it   = 0:0.1:24; it = it[1:(end-1)]; nit = length(it)
 	ts   = longitude2timeshift.(longitude)
 	var  = zeros(nit)
-	
+
 	for ilat = 1 : nlat, ilon = 1 : nlon
-		
+
 		tl = (0:24) .+ ts[ilon]
-		
+
         idat[1:24] = data[ilon,ilat,:]
 		idat[end]  = data[ilon,ilat,1]
-		
+
 		itp = interpolate(idat,BSpline(Cubic(Periodic(OnGrid()))))
         stp = scale(itp,tl)
         etp = extrapolate(stp,Periodic())
 		var[:] = etp[it]
-		
+
 		μ[ilon,ilat] = mean(@view data[ilon,ilat,:])
 		A[ilon,ilat] = (maximum(idat) .- minimum(idat))/2
 		θ[ilon,ilat] = argmax(var) / nit * 24
 
     end
-	
+
 	return μ,A,θ
-	
+
 end
 
 # ╔═╡ aa05317e-530b-11eb-2ec1-93aff65659dd
@@ -103,7 +104,7 @@ function retrieveera()
 	lat = ds["latitude"][:]
 	var = ds["tcc"][:] * 1
 	close(ds)
-	
+
 	μ,A,θ = eradiurnal2model(var,lon)
 
     return lon,lat,μ,A,θ
@@ -129,22 +130,22 @@ end
 # ╔═╡ bb59b8d6-53b1-11eb-3631-87ef61219c4c
 begin
 	pplt.close(); f,axs = pplt.subplots(nrows=3,axwidth=6,aspect=6)
-	
+
 	c = axs[1].contourf(lon,lat,μ',levels=0.1:0.1:0.9,cmap="Blues",extend="both")
 	axs[1].plot(x,y,c="k",lw=0.5)
 	axs[1].format(urtitle=L"$\mu$")
 	axs[1].colorbar(c,loc="r")
-	
+
 	c = axs[2].contourf(lon,lat,A',levels=10. .^(-2:0.2:0),extend="both")
 	axs[2].plot(x,y,c="k",lw=0.5)
 	axs[2].format(urtitle="A")
 	axs[2].colorbar(c,loc="r",ticks=[0.01,0.1,1])
-	
+
 	c = axs[3].pcolormesh(lon,lat,θ',cmap="romaO",levels=0:0.5:24,extend="both")
 	axs[3].plot(x,y,c="k",lw=0.5)
 	axs[3].format(urtitle=L"$\theta$ / Hour of Day")
 	axs[3].colorbar(c,loc="r")
-	
+
 	for ax in axs
 		ax.format(
 			xlim=(0,360),ylim=(-30,30),xlocator=0:60:360,
@@ -152,7 +153,7 @@ begin
 			ylabel=L"Latitude / $\degree$",
 		)
 	end
-	
+
 	f.savefig(plotsdir("tccspatial_TRP.png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("tccspatial_TRP.png"))
 end
@@ -205,7 +206,7 @@ begin
 	else
 		freg,areg = pplt.subplots(ncols=3,axwidth=2,aspect=asp)
 	end
-	
+
 	creg = areg[1].contourf(
 		ggrd.glon,ggrd.glat,rμ',
 		levels=(1:9)/10,cmap="Blues",extend="both"
@@ -213,7 +214,7 @@ begin
 	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].format(urtitle=L"$\mu$ / K")
 	areg[1].colorbar(creg,loc="r")
-	
+
 	creg = areg[2].contourf(
 		ggrd.glon,ggrd.glat,rA',
 		levels=10. .^(-2:0.2:0),extend="both"
@@ -221,12 +222,12 @@ begin
 	areg[2].plot(x,y,c="k",lw=0.5)
 	areg[2].format(urtitle="A / K")
 	areg[2].colorbar(creg,loc="r",ticks=[0.01,0.1,1,10,100])
-	
+
 	creg = areg[3].pcolormesh(ggrd.glon,ggrd.glat,rθ',cmap="romaO",levels=0:0.5:24)
 	areg[3].plot(x,y,c="k",lw=0.5)
 	areg[3].format(urtitle=L"$\theta$ / Hour of Day")
 	areg[3].colorbar(creg,loc="r",ticks=0:3:24)
-	
+
 	for ax in areg
 		ax.format(
 			xlim=(ggrd.glon[1].-1,ggrd.glon[end].+1),
@@ -235,7 +236,7 @@ begin
 			grid=true
 		)
 	end
-	
+
 	freg.savefig(plotsdir("tccspatial_$(geo.regID).png"),transparent=false,dpi=200)
 	PNGFiles.load(plotsdir("tccspatial_$(geo.regID).png"))
 end
@@ -252,7 +253,7 @@ begin
 	lds = NCDataset(datadir("reanalysis/era5-TRPx0.25-lsm-sfc.nc"))
 	lsm = lds["lsm"][:]*1
 	close(lds)
-	
+
 md"Loading Land-Sea Mask for ERA5 data ..."
 end
 
@@ -275,7 +276,7 @@ begin
 	lbin_CRB,lavg_CRB = bindatasfclnd(GeoRegion("CRB"),lbins,μ,lon,lat,lsm)
 	lbin_TRA,lavg_TRA = bindatasfclnd(GeoRegion("TRA"),lbins,μ,lon,lat,lsm)
 	lbin_AMZ,lavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lbins,μ,lon,lat,lsm)
-	
+
 	sbins = collect(0:0.005:1); spbin = (sbins[2:end].+sbins[1:(end-1)])/2
 	sbin_DTP,savg_DTP = bindatasfcsea(GeoRegion("DTP"),sbins,μ,lon,lat,lsm)
 	sbin_SEA,savg_SEA = bindatasfcsea(GeoRegion("SEA"),sbins,μ,lon,lat,lsm)
@@ -283,34 +284,34 @@ begin
 	sbin_EPO,savg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),sbins,μ,lon,lat,lsm)
 	sbin_EIO,savg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),sbins,μ,lon,lat,lsm)
 	sbin_EAO,savg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),sbins,μ,lon,lat,lsm)
-	
+
 	md"Binning mean skin temperatures for different tropical regions ..."
 end
 
 # ╔═╡ e7ff7ec8-57b9-11eb-0115-abbe4aa9a1a9
 begin
 	pplt.close(); fbin,abin = pplt.subplots(ncols=2,aspect=2,axwidth=3);
-	
+
 	lgd = Dict("ncol"=>1,"frame"=>false)
 	abin[1].plot(lpbin,lbin_DTP,c="k",lw=0.5);
 	abin[1].plot(lpbin,lbin_CRB,c=lsc[10],lw=0.5)
 	abin[1].plot(lpbin,lbin_SEA,c=lsc[5],lw=0.5)
 	abin[1].plot(lpbin,lbin_AMZ,c=lsc[4],lw=0.5)
 	abin[1].plot(lpbin,lbin_TRA,c=lsc[3],lw=0.5)
-	
+
 	abin[1].plot([1,1]*lavg_DTP,[0.1,50],c="k")
 	abin[1].plot([1,1]*lavg_CRB,[0.1,50],c=lsc[10])
 	abin[1].plot([1,1]*lavg_SEA,[0.1,50],c=lsc[5])
 	abin[1].plot([1,1]*lavg_AMZ,[0.1,50],c=lsc[4])
 	abin[1].plot([1,1]*lavg_TRA,[0.1,50],c=lsc[3])
-	
+
 	abin[2].plot(spbin,sbin_DTP,c="k",lw=0.5);
 	abin[2].plot(spbin,sbin_EPO,c=lsc[13],lw=0.5);
 	abin[2].plot(spbin,sbin_EIO,c=lsc[12],lw=0.5);
 	abin[2].plot(spbin,sbin_EAO,c=lsc[11],lw=0.5);
 	abin[2].plot(spbin,sbin_CRB,c=lsc[10],lw=0.5);
 	abin[2].plot(spbin,sbin_SEA,c=lsc[5],lw=0.5);
-	
+
 	abin[2].plot([1,1]*savg_DTP,[0.1,50],c="k",label="DTP",legend="r",legend_kw=lgd)
 	abin[2].plot([1,1]*savg_EPO,[0.1,50],c=lsc[13],label="AR6_EPO",legend="r")
 	abin[2].plot([1,1]*savg_EIO,[0.1,50],c=lsc[12],label="AR6_EIO",legend="r")
@@ -319,21 +320,21 @@ begin
 	abin[2].plot([1,1]*savg_SEA,[0.1,50],c=lsc[5],label="SEA",legend="r")
 	abin[2].plot([1,1]*NaN,[0.1,50],c=lsc[4],label="AMZ",legend="r")
 	abin[2].plot([1,1]*NaN,[0.1,50],c=lsc[3],label="TRA",legend="r")
-	
+
 	abin[1].format(
 		xlim=(minimum(lbins),maximum(lbins)),
 		ylim=(0,25),#yscale="log",
 		ylabel="Density",
 		ltitle="(a) Land"
 	)
-	
+
 	abin[2].format(
 		xlim=(minimum(sbins),maximum(sbins)),
 		# ylim=(0.1,30),yscale="log",
 		xlabel="Total Cloud Cover Fraction",
 		ltitle="(b) Ocean"
 	)
-	
+
 	fbin.savefig(plotsdir("tccmean.png"),transparent=false,dpi=200)
 	load(plotsdir("tccmean.png"))
 end
@@ -351,7 +352,7 @@ begin
 	lAbin_CRB,lAavg_CRB = bindatasfclnd(GeoRegion("CRB"),lvec,A,lon,lat,lsm)
 	lAbin_TRA,lAavg_TRA = bindatasfclnd(GeoRegion("TRA"),lvec,A,lon,lat,lsm)
 	lAbin_AMZ,lAavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lvec,A,lon,lat,lsm)
-	
+
 	svec = collect(0:0.001:0.2); sAbin = (svec[2:end].+svec[1:(end-1)])/2
 	sAbin_DTP,sAavg_DTP = bindatasfcsea(GeoRegion("DTP"),svec,A,lon,lat,lsm)
 	sAbin_SEA,sAavg_SEA = bindatasfcsea(GeoRegion("SEA"),svec,A,lon,lat,lsm)
@@ -359,33 +360,33 @@ begin
 	sAbin_EPO,sAavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),svec,A,lon,lat,lsm)
 	sAbin_EIO,sAavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),svec,A,lon,lat,lsm)
 	sAbin_EAO,sAavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),svec,A,lon,lat,lsm)
-	
+
 	md"Binning amplitude of the diurnal cycle for skin temperatures in different tropical regions ..."
 end
 
 # ╔═╡ 5f58ae9c-57c2-11eb-1f04-2ddbaf2b4f1b
 begin
 	pplt.close(); fA,aA = pplt.subplots(ncols=2,aspect=2,axwidth=3);
-	
+
 	aA[1].plot(lAbin,lAbin_DTP,c="k",lw=0.5)
 	aA[1].plot(lAbin,lAbin_SEA,c=lsc[10],lw=0.5)
 	aA[1].plot(lAbin,lAbin_CRB,c=lsc[5],lw=0.5)
 	aA[1].plot(lAbin,lAbin_AMZ,c=lsc[4],lw=0.5)
 	aA[1].plot(lAbin,lAbin_TRA,c=lsc[3],lw=0.5)
-	
+
 	aA[1].plot([1,1]*lAavg_DTP,[0.1,50],c="k")
 	aA[1].plot([1,1]*lAavg_SEA,[0.1,50],c=lsc[10])
 	aA[1].plot([1,1]*lAavg_CRB,[0.1,50],c=lsc[5])
 	aA[1].plot([1,1]*lAavg_AMZ,[0.1,50],c=lsc[4])
 	aA[1].plot([1,1]*lAavg_TRA,[0.1,50],c=lsc[3])
-	
+
 	aA[2].plot(sAbin,sAbin_DTP,c="k",lw=0.5);
 	aA[2].plot(sAbin,sAbin_EPO,c=lsc[13],lw=0.5);
 	aA[2].plot(sAbin,sAbin_EIO,c=lsc[12],lw=0.5);
 	aA[2].plot(sAbin,sAbin_EAO,c=lsc[11],lw=0.5);
 	aA[2].plot(sAbin,sAbin_CRB,c=lsc[10],lw=0.5);
 	aA[2].plot(sAbin,sAbin_SEA,c=lsc[5],lw=0.5);
-	
+
 	aA[2].plot([1,1]*sAavg_DTP,[0.1,50],c="k",label="DTP",legend="r",legend_kw=lgd)
 	aA[2].plot([1,1]*sAavg_EPO,[0.1,50],c=lsc[13],label="AR6_EPO",legend="r")
 	aA[2].plot([1,1]*sAavg_EIO,[0.1,50],c=lsc[12],label="AR6_EIO",legend="r")
@@ -394,21 +395,21 @@ begin
 	aA[2].plot([1,1]*sAavg_SEA,[0.1,50],c=lsc[5],label="SEA",legend="r")
 	aA[2].plot([1,1]*NaN,[0.1,50],c=lsc[4],label="TRA",legend="r")
 	aA[2].plot([1,1]*NaN,[0.1,50],c=lsc[3],label="AMZ",legend="r")
-	
+
 	aA[1].format(
 		xlim=(minimum(lvec),maximum(lvec)),
 		ylim=(0,10),#yscale="log",
 		ylabel="Density",
 		ltitle="(a) Land"
 	)
-	
+
 	aA[2].format(
 		xlim=(minimum(svec),maximum(svec)),
 		ylim=(0.1,15),#yscale="log",
 		xlabel="A",
 		ltitle="(b) Ocean"
 	)
-	
+
 	fA.savefig(plotsdir("tccdiurnalamplitude.png"),transparent=false,dpi=200)
 	load(plotsdir("tccdiurnalamplitude.png"))
 end
@@ -422,33 +423,33 @@ md"
 begin
 	θvec = collect(0:0.5:24); pθbin = (θvec[2:end].+θvec[1:(end-1)])/24*pi
 	pθbin = vcat(pθbin,pθbin[1]+2*pi)
-	
+
 	lθbin_DTP,lθavg_DTP = bindatasfclnd(GeoRegion("DTP"),θvec,θ,lon,lat,lsm)
 	lθbin_SEA,lθavg_SEA = bindatasfclnd(GeoRegion("SEA"),θvec,θ,lon,lat,lsm)
 	lθbin_CRB,lθavg_CRB = bindatasfclnd(GeoRegion("CRB"),θvec,θ,lon,lat,lsm)
 	lθbin_TRA,lθavg_TRA = bindatasfclnd(GeoRegion("TRA"),θvec,θ,lon,lat,lsm)
 	lθbin_AMZ,lθavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),θvec,θ,lon,lat,lsm)
-	
+
 	sθbin_DTP,sθavg_DTP = bindatasfcsea(GeoRegion("DTP"),θvec,θ,lon,lat,lsm)
 	sθbin_EPO,sθavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),θvec,θ,lon,lat,lsm)
 	sθbin_EIO,sθavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),θvec,θ,lon,lat,lsm)
 	sθbin_EAO,sθavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),θvec,θ,lon,lat,lsm)
 	sθbin_CRB,sθavg_CRB = bindatasfcsea(GeoRegion("CRB"),θvec,θ,lon,lat,lsm)
 	sθbin_SEA,sθavg_SEA = bindatasfcsea(GeoRegion("SEA"),θvec,θ,lon,lat,lsm)
-	
+
 	md"Binning hour of maximum skin temperature for different tropical regions ..."
 end
 
 # ╔═╡ 8d739d0a-57c7-11eb-16b6-736f595e329e
 begin
 	pplt.close(); fθ,aθ = pplt.subplots(ncols=2,aspect=2,proj="polar");
-	
+
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_DTP,lθbin_DTP[1])),c="k")
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_CRB,lθbin_CRB[1])),c=lsc[10])
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_SEA,lθbin_SEA[1])),c=lsc[5])
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_TRA,lθbin_TRA[1])),c=lsc[4])
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_AMZ,lθbin_AMZ[1])),c=lsc[3])
-	
+
 	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_DTP,sθbin_DTP[1])),c="k",label="DTP",legend="r");
 	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_EPO,sθbin_EPO[1])),c=lsc[13],label="AR6_EPO",legend="r");
 	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_EIO,sθbin_EIO[1])),c=lsc[12],label="AR6_EIO",legend="r");
@@ -457,11 +458,11 @@ begin
 	aθ[2].plot(pθbin,sqrt.(vcat(sθbin_SEA,sθbin_SEA[1])),c=lsc[5],label="SEA",legend="r");
 	aθ[2].plot(pθbin,pθbin*NaN,c=lsc[4],label="TRA",legend="r",legend_kw=lgd)
 	aθ[2].plot(pθbin,pθbin*NaN,c=lsc[3],label="AMZ",legend="r")
-	
+
 	aθ[1].format(theta0="N",thetaformatter="tau",ltitle="(a) Land")
 	aθ[2].format(theta0="N",thetaformatter="tau",ltitle="(b) Ocean")
 	aθ[1].format(suptitle=L"$\theta$ / Fraction of Day")
-	
+
 	fθ.savefig(plotsdir("tccdiurnalphase.png"),transparent=false,dpi=200)
 	load(plotsdir("tccdiurnalphase.png"))
 end
