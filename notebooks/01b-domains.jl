@@ -1,8 +1,17 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.15.1
 
 using Markdown
 using InteractiveUtils
+
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
 
 # ╔═╡ bcfd5bd8-51f5-11eb-1d79-ab69c65febaf
 begin
@@ -18,6 +27,7 @@ begin
 	using DelimitedFiles
 	using GeoRegions
 	using NCDatasets
+	using PlutoUI
 
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
@@ -46,6 +56,17 @@ We consider the following domains / regions to be of interest in our study with 
 
 These regions were defined as new `GeoRegions` in the files \"src/addgeorect.txt\" and \"src/addgeopoly.txt\".
 "
+
+# ╔═╡ 8e1187ab-28da-47cc-b523-05a7d77ac3af
+md"Clear GeoRegions? $(@bind cleargeo PlutoUI.Slider(0:1))"
+
+# ╔═╡ 784f7146-1e35-42e7-9a9c-fad75db71201
+if isone(cleargeo)
+	resetGeoRegions()
+	md"Resetting GeoRegions to default list ..."
+else
+	md"List of GeoRegions not touched."
+end
 
 # ╔═╡ 3f3a7695-ce0b-444b-a8b2-29421050d828
 begin
@@ -241,6 +262,8 @@ end
 # ╟─bcfd5bd8-51f5-11eb-1d79-ab69c65febaf
 # ╟─c1fdcad0-51f5-11eb-2df9-b1f4c8dca09d
 # ╟─e58cf4ca-51f8-11eb-218d-8d3141dc8289
+# ╟─8e1187ab-28da-47cc-b523-05a7d77ac3af
+# ╟─784f7146-1e35-42e7-9a9c-fad75db71201
 # ╟─3f3a7695-ce0b-444b-a8b2-29421050d828
 # ╟─a02d93e9-c53e-4a82-bdf8-34d38377ff99
 # ╟─f3c8ffe6-51f5-11eb-362d-293e727b14c7
