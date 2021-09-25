@@ -20,7 +20,7 @@ begin
 	using GeoRegions
 	using Interpolations
 	using NCDatasets
-	using StatsBase
+	using StatsBasea
 
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
