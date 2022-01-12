@@ -12,43 +12,30 @@ This project investigates the nature of precipitation dynamics in the tropics ov
 
 I have created several different notebooks to help better illustrate my thought process during the course of this project.  These notebooks will be mostly used for data analysis and plotting.  For computationally heavy, memory intensive, and lengthy work, scripts will be provided and referenced as need be, so that the user can submit these jobs to a backend/cluster to obtain the data themselves.
 
-The general outline of this project is:
+The general outline of this project can be split into two parts:
+A. Analysis of Observational and Reanalysis datasets
+B. Corroborating our results from part (A) with model runs in SAM
+
+### A. Observations and Reanalysis
 1. Defining domains within the tropical region to be explored
 
 2. Download and exploratory analysis of satellte rainfall data in the tropical domain and subdomains
-* Analysis of mean, diurnal cycle in domains
+    * Analysis of mean, diurnal cycle in domains
 
 3. Download and exploratory analysis of reanalysis ERA5 data in the tropical domain and subdomains
-* Analysis of mean, diurnal cycle in domains
-* Analysis of vertical profiles for pressure-level data
+    * Analysis of mean, diurnal cycle in domains
+    * Analysis of vertical profiles for pressure-level data
 
 4. Analysis of the seasonal and intraseasonal variability of the satellite and reanalysis data in the tropical domain and subdomains
-* What is the difference between land and sea
-* Is there a difference in this landmass over different land areas
+    * What is the difference between land and sea
+    * Is there a difference in this landmass over different land areas
 
-5. Extracting Large-Scale Forcing for SAM
-* Quick exploratory analysis of moisture flux convergence
-* Finding domain-averaged moisture flux convergence for large-scale forcing input
+5. Investigating the relationship between column saturation fraction (r) and precipitation rate (P) in reanalysis data
+    * What is the difference between land and sea
+    * Is there a difference in this landmass over different land areas
 
-6. Implementing the Weak-Temperature Gradient Approximation in SAM
-* Finding an equilibrium RCE sounding profile
-* Transitioning the model from RCE/pseudo-RCE to WTG state
-* Investigating the senstivity of WTG momentum damping parameter $a_m$
-
-7. Explore the equilibrium RCE states in SAM
-* Plot the 2D rain/PWV fields ... is there convective aggregation?
-
-8. Explore the statistics of the diurnal cycle under WTG
-* Calculate energy imbalance when slab depth is infinity
-* Investigate slab-depth and the diurnal amplitude of SST
-* What happens when you add ocean-heat transport?
-
-9. Investigating the relationship between column saturation fraction (r) and precipitation rate (P) in reanalysis data
-* What is the difference between land and sea
-* Is there a difference in this landmass over different land areas
-* Having a preliminary look at the P-r relationship in SAM
-
-10.
+### B. Corroborating our observations with Model Runs in SAM
+6. 
 "
 
 # ╔═╡ Cell order:
