@@ -1,3 +1,3 @@
 using DrWatson
-@quickactivate "TroPrecOLS"
+@quickactivate "TroPrecLS"
 DrWatson.greet()
