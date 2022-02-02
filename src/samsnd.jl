@@ -1,3 +1,4 @@
+using DelimitedFiles
 using NCDatasets
 using Printf
 using Statistics
@@ -7,18 +8,24 @@ function createsndmean(
     exp::AbstractString, config::AbstractString,
     ndays::Integer=100, psfc::Real, extract=false
 )
-    
+
     mkpath(projectdir("exp/snd")); fsnd = projectdir("exp/snd/$(sndname)")
     statds = NCDataset(datadir("$exp/$config/OUT_STAT/RCE_TroPrecLS-$exp.nc"))
 
-    nz = statds.dim["z"]; nt = statds.dim["time"]; z = statds["z"][:]
+    nz = statds.dim["z"]; nt = statds.dim["time"]
+    z  = statds["z"][:]
     dt = (statds["time"][end] - statds["time"][1]) / (nt-1)
     dystep = round(Int,1/dt); beg = ndays*dystep-1
 
+    p    = dropdims(mean(statds["PRES"][:,(end-beg):end],dims=2),dims=2)
+    tabs = dropdims(mean(statds["TABS"][:,(end-beg):end],dims=2),dims=2)
+    qv   = dropdims(mean(statds["QV"][:,(end-beg):end],dims=2),dims=2)
+
     snddata = zeros(nz,6)
-    snddata[:,1] .= z; snddata[:,2] .= -999.0
-    snddata[:,3] .= dropdims(mean(statds["THETA"][:,(end-beg):end],dims=2),dims=2)
-    snddata[:,4] .= dropdims(mean(statds["QT"][:,(end-beg):end],dims=2),dims=2)
+    snddata[:,1] .= z
+    snddata[:,2] .= p
+    snddata[:,3] .= tabs .* (1000 ./p).^(287/1004)
+    snddata[:,4] .= qv
     close(statds)
 
     printsnd(fsnd,snddata,psfc)
@@ -126,3 +133,21 @@ function printsnd(
     end
 
 end
+
+function readsnd(sndname::String)
+	
+	fsnd = projectdir("exp","snd",sndname)
+	data = readdlm(fsnd)
+	data = data[2:end,:]; nrow = size(data,1)
+	data = data[2:Int(nrow/2),:]
+	
+	z  = Float64.(data[:,1])
+	p  = Float64.(data[:,2])
+	pt = Float64.(data[:,3])
+	q  = Float64.(data[:,4])
+	t  = pt .* (p/1000).^(2/7)
+	rh = calcrh(q/1000,t,p*100)
+	
+	return z,p,pt,q,t,rh
+	
+end	
