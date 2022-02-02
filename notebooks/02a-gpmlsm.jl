@@ -71,8 +71,8 @@ begin
 		ax.format(xlim=(-180,180),ylim=(-30,30),xlocator=-180:60:180)
 	end
 
-	f.savefig(plotsdir("GPMlsm-TRP.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("GPMlsm-TRP.png"))
+	f.savefig(plotsdir("02a-GPMlsm-TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("02a-GPMlsm-TRP.png"))
 end
 
 # ╔═╡ b5841fc6-56ab-11eb-0c0d-cdf45571f6d7
@@ -128,8 +128,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("GPMlsmreg.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("GPMlsmreg.png"))
+	freg.savefig(plotsdir("02a-GPMlsmreg.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("02a-GPMlsmreg.png"))
 end
 
 # ╔═╡ 54903304-57ae-11eb-0654-c7c351bcae9f

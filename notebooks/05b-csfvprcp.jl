@@ -193,8 +193,8 @@ begin
 		)
 	end
 
-	f2.savefig(plotsdir("csfvprcp.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("csfvprcp.png"))
+	f2.savefig(plotsdir("05b-csfvprcp.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("05b-csfvprcp.png"))
 end
 
 # ╔═╡ Cell order:

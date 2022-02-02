@@ -162,8 +162,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("flsm_$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("flsm_$(geo.regID).png"))
+	freg.savefig(plotsdir("01c-flsm_$(geo.regID).png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("01c-flsm_$(geo.regID).png"))
 end
 
 # ╔═╡ Cell order:

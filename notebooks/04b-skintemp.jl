@@ -114,8 +114,8 @@ begin
 		)
 	end
 
-	fs.savefig(plotsdir("csfspatial_TRP.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("csfspatial_TRP.png"))
+	fs.savefig(plotsdir("04b-csfspatial_TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("04b-csfspatial_TRP.png"))
 end
 
 # ╔═╡ b586e602-5190-4eb5-897c-bf6de8576a65
@@ -196,8 +196,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("csfspatial_$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("csfspatial_$(geo.regID).png"))
+	freg.savefig(plotsdir("04b-csfspatial_$(geo.regID).png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("04b-csfspatial_$(geo.regID).png"))
 end
 
 # ╔═╡ 91a53908-8090-4835-ac31-127919a175ac
@@ -289,8 +289,8 @@ begin
 		)
 	end
 
-	f2.savefig(plotsdir("csffreq.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("csffreq.png"))
+	f2.savefig(plotsdir("04b-csffreq.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("04b-csffreq.png"))
 end
 
 # ╔═╡ Cell order:

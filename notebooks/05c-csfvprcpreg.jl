@@ -189,8 +189,8 @@ begin
 		)
 	end
 
-	f2.savefig(plotsdir("csfvprcp-$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("csfvprcp-$(geo.regID).png"))
+	f2.savefig(plotsdir("05c-csfvprcp-$(geo.regID).png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("05c-csfvprcp-$(geo.regID).png"))
 end
 
 # ╔═╡ Cell order:

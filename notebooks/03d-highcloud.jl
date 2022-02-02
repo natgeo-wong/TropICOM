@@ -154,8 +154,8 @@ begin
 		)
 	end
 
-	f.savefig(plotsdir("hccmodel_TRP.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("hccmodel_TRP.png"))
+	f.savefig(plotsdir("03d-hccmodel_TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("03d-hccmodel_TRP.png"))
 end
 
 # ╔═╡ 5c0e5bae-554e-11eb-3f83-a364ae0a2485
@@ -220,8 +220,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("hccmodel_reg.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("hccmodel_reg.png"))
+	freg.savefig(plotsdir("03d-hccmodel_reg.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("03d-hccmodel_reg.png"))
 end
 
 # ╔═╡ c4792bf2-5552-11eb-3b52-997f59fd42f3
@@ -300,8 +300,8 @@ begin
 		ultitle="Ocean"
 	)
 
-	fbin.savefig(plotsdir("hccdiurnalmean.png"),transparent=false,dpi=200)
-	load(plotsdir("hccdiurnalmean.png"))
+	fbin.savefig(plotsdir("03d-hccdiurnalmean.png"),transparent=false,dpi=200)
+	load(plotsdir("03d-hccdiurnalmean.png"))
 end
 
 # ╔═╡ 0fbb0b46-57c2-11eb-365a-a73a2ebda8e4
@@ -364,8 +364,8 @@ begin
 		urtitle="Ocean"
 	)
 
-	fA.savefig(plotsdir("hccdiurnalamplitude.png"),transparent=false,dpi=200)
-	load(plotsdir("hccdiurnalamplitude.png"))
+	fA.savefig(plotsdir("03d-hccdiurnalamplitude.png"),transparent=false,dpi=200)
+	load(plotsdir("03d-hccdiurnalamplitude.png"))
 end
 
 # ╔═╡ 1432fa12-57c7-11eb-0606-7be0389e8fb3
@@ -411,8 +411,8 @@ begin
 	aθ[2].format(theta0="N",thetaformatter="tau",ltitle="Ocean")
 	aθ[1].format(suptitle=L"$\theta$ / Fraction of Day")
 
-	fθ.savefig(plotsdir("hccdiurnalphase.png"),transparent=false,dpi=200)
-	load(plotsdir("hccdiurnalphase.png"))
+	fθ.savefig(plotsdir("03d-hccdiurnalphase.png"),transparent=false,dpi=200)
+	load(plotsdir("03d-hccdiurnalphase.png"))
 end
 
 # ╔═╡ Cell order:

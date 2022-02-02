@@ -149,8 +149,8 @@ begin
 	
 	ata[1].colorbar(cta,loc="r",label="K")
 	
-	fta.savefig(plotsdir("buoyancy-t_air-500hPa.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("buoyancy-t_air-500hPa.png"))
+	fta.savefig(plotsdir("01a-buoyancy-t_air-500hPa.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("01a-buoyancy-t_air-500hPa.png"))
 end
 
 # ╔═╡ 38d5e1f1-03fd-4863-b363-d4ad0440d6d2
@@ -207,8 +207,8 @@ begin
 	
 	atv[1].colorbar(ctv,loc="r",label="K")
 	
-	ftv.savefig(plotsdir("buoyancy-vt-500hPa.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("buoyancy-vt-500hPa.png"))
+	ftv.savefig(plotsdir("01a-buoyancy-vt-500hPa.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("01a-buoyancy-vt-500hPa.png"))
 end
 
 # ╔═╡ 58f78fc0-481f-42b1-85f6-61cb1fa19b91
@@ -265,8 +265,8 @@ begin
 	
 	amse[1].colorbar(cmse,loc="r",locator=305:5:330)
 	
-	fmse.savefig(plotsdir("buoyancy-mse-500hPa.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("buoyancy-mse-500hPa.png"))
+	fmse.savefig(plotsdir("01a-buoyancy-mse-500hPa.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("01a-buoyancy-mse-500hPa.png"))
 end
 
 # ╔═╡ 11f6a8cd-7f6e-4604-a06b-3b66d394e0d0

@@ -154,8 +154,8 @@ begin
 		)
 	end
 
-	f.savefig(plotsdir("sktspatial_TRP.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("sktspatial_TRP.png"))
+	f.savefig(plotsdir("03a-sktspatial_TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("03a-sktspatial_TRP.png"))
 end
 
 # ╔═╡ 5c0e5bae-554e-11eb-3f83-a364ae0a2485
@@ -237,8 +237,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("sktspatial_$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("sktspatial_$(geo.regID).png"))
+	freg.savefig(plotsdir("03a-sktspatial_$(geo.regID).png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("03a-sktspatial_$(geo.regID).png"))
 end
 
 # ╔═╡ c4792bf2-5552-11eb-3b52-997f59fd42f3
@@ -335,8 +335,8 @@ begin
 		ltitle="(b) Ocean"
 	)
 
-	fbin.savefig(plotsdir("sktmean.png"),transparent=false,dpi=200)
-	load(plotsdir("sktmean.png"))
+	fbin.savefig(plotsdir("03a-sktmean.png"),transparent=false,dpi=200)
+	load(plotsdir("03a-sktmean.png"))
 end
 
 # ╔═╡ 0fbb0b46-57c2-11eb-365a-a73a2ebda8e4
@@ -410,8 +410,8 @@ begin
 		ltitle="(b) Ocean"
 	)
 
-	fA.savefig(plotsdir("sktdiurnalamplitude.png"),transparent=false,dpi=200)
-	load(plotsdir("sktdiurnalamplitude.png"))
+	fA.savefig(plotsdir("03a-sktdiurnalamplitude.png"),transparent=false,dpi=200)
+	load(plotsdir("03a-sktdiurnalamplitude.png"))
 end
 
 # ╔═╡ 1432fa12-57c7-11eb-0606-7be0389e8fb3
@@ -463,8 +463,8 @@ begin
 	aθ[2].format(theta0="N",thetaformatter="tau",ltitle="(b) Ocean")
 	aθ[1].format(suptitle=L"$\theta$ / Fraction of Day")
 
-	fθ.savefig(plotsdir("sktdiurnalphase.png"),transparent=false,dpi=200)
-	load(plotsdir("sktdiurnalphase.png"))
+	fθ.savefig(plotsdir("03a-sktdiurnalphase.png"),transparent=false,dpi=200)
+	load(plotsdir("03a-sktdiurnalphase.png"))
 end
 
 # ╔═╡ Cell order:

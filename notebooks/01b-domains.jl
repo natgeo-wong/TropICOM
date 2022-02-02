@@ -154,8 +154,8 @@ begin
 		ylim=(-30,30),ylocator=-30:10:30,ylabel=L"Latitude / $\degree$",grid=true
 	)
 
-	f.savefig(plotsdir("domain.png"),transparent=false,dpi=200)
-	load(plotsdir("domain.png"))
+	f.savefig(plotsdir("01b-domain.png"),transparent=false,dpi=200)
+	load(plotsdir("01b-domain.png"))
 end
 
 # ╔═╡ ce969b7e-5248-11eb-36c2-dd1900221e34
@@ -253,8 +253,8 @@ begin
 		ylim=(S-1,N+1),ylabel=L"Latitude / $\degree$",grid=true
 	)
 
-	freg.savefig(plotsdir("domain_SEA.png"),transparent=false,dpi=200)
-	load(plotsdir("domain_SEA.png"))
+	freg.savefig(plotsdir("01b-domain_SEA.png"),transparent=false,dpi=200)
+	load(plotsdir("01b-domain_SEA.png"))
 end
 
 # ╔═╡ Cell order:

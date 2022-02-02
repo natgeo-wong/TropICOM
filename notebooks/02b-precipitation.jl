@@ -236,8 +236,8 @@ begin
 		)
 	end
 
-	f.savefig(plotsdir("gpmspatial_TRP.png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("gpmspatial_TRP.png"))
+	f.savefig(plotsdir("02b-gpmspatial_TRP.png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("02b-gpmspatial_TRP.png"))
 end
 
 # ╔═╡ 5c0e5bae-554e-11eb-3f83-a364ae0a2485
@@ -323,8 +323,8 @@ begin
 		)
 	end
 
-	freg.savefig(plotsdir("gpmspatial_$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("gpmspatial_$(geo.regID).png"))
+	freg.savefig(plotsdir("02b-gpmspatial_$(geo.regID).png"),transparent=false,dpi=200)
+	PNGFiles.load(plotsdir("02b-gpmspatial_$(geo.regID).png"))
 end
 
 # ╔═╡ c4792bf2-5552-11eb-3b52-997f59fd42f3
@@ -425,8 +425,8 @@ begin
 		ltitle="(b) Ocean"
 	)
 
-	fbin.savefig(plotsdir("gpmmean.png"),transparent=false,dpi=200)
-	load(plotsdir("gpmmean.png"))
+	fbin.savefig(plotsdir("02b-gpmmean.png"),transparent=false,dpi=200)
+	load(plotsdir("02b-gpmmean.png"))
 end
 
 # ╔═╡ 0fbb0b46-57c2-11eb-365a-a73a2ebda8e4
@@ -500,8 +500,8 @@ begin
 		ltitle="(b) Ocean"
 	)
 
-	fA.savefig(plotsdir("gpmdiurnalamplitude.png"),transparent=false,dpi=200)
-	load(plotsdir("gpmdiurnalamplitude.png"))
+	fA.savefig(plotsdir("02b-gpmdiurnalamplitude.png"),transparent=false,dpi=200)
+	load(plotsdir("02b-gpmdiurnalamplitude.png"))
 end
 
 # ╔═╡ 1432fa12-57c7-11eb-0606-7be0389e8fb3
@@ -560,8 +560,8 @@ begin
 		)
 	end
 
-	fθ.savefig(plotsdir("gpmdiurnalphase.png"),transparent=false,dpi=200)
-	load(plotsdir("gpmdiurnalphase.png"))
+	fθ.savefig(plotsdir("02b-gpmdiurnalphase.png"),transparent=false,dpi=200)
+	load(plotsdir("02b-gpmdiurnalphase.png"))
 end
 
 # ╔═╡ Cell order:
