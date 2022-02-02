@@ -1,13 +1,13 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-Slab00d05-member03',
+caseid ='TroPrecLS-Slab01d00-member02',
 
 dx = 500.,
 dy = 500.,
 dt = 30.,
 
 doensemble    = .true.,
-nensemble     = 3,
+nensemble     = 2,
 nrestart      = 0,
 nrestart_skip = 239,
 perturb_type  = 0,
@@ -43,7 +43,7 @@ day0       = 0.,
 tabs_s     = 300.,
 Szero      = 0,
 
-depth_slab_ocean = 0.05,
+depth_slab_ocean = 1.0,
 
 nrad = 12,
 

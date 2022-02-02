@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-Slab00d05-member03',
+caseid ='TroPrecLS-Slab00d50-member03',
 
 dx = 500.,
 dy = 500.,
@@ -43,7 +43,7 @@ day0       = 0.,
 tabs_s     = 300.,
 Szero      = 0,
 
-depth_slab_ocean = 0.05,
+depth_slab_ocean = 0.5,
 
 nrad = 12,
 

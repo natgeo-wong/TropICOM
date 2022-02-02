@@ -2,8 +2,8 @@
 
 caseid ='TroPrecLS-Slab00d05-member01',
 
-dx = 1000.,
-dy = 1000.,
+dx = 500.,
+dy = 500.,
 dt = 30.,
 
 doensemble    = .true.,
@@ -39,11 +39,11 @@ SFC_TAU_FXD    = .false.,
 
 longitude0 = 0.,
 latitude0  = 0.,
-day0       = 80.5,
-tabs_s     = 301.70,
+day0       = 0.,
+tabs_s     = 300.,
 Szero      = 0,
 
-depth_slab_ocean = 0.050,
+depth_slab_ocean = 0.05,
 
 nrad = 12,
 
@@ -55,7 +55,7 @@ doperpetual     = .false.,
 doseasons       = .false.,
 dosolarconstant = .true.,
 zenith_angle    = 51.7,
-solar_constant  = 1354.23,
+solar_constant  = 1354.215,
 
 doisccp = .false.,
 domodis = .false.,
@@ -89,7 +89,7 @@ compute_advection_everywhere = .true.,
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
 twtg_scale = 0., ! If WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG from pseudo-RCE occurs over 25 days.
 
-am_wtg  = 2.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
+am_wtg  = 1.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 0.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 650.e3,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
 
