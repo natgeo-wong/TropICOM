@@ -145,7 +145,7 @@ function readsnd(sndname::String)
 	p  = Float64.(data[:,2])
 	pt = Float64.(data[:,3])
 	q  = Float64.(data[:,4])
-	t  = pt .* (p/1000).^(2/7)
+	t  = pt .* (p/1000).^(287/1004)
 	rh = calcrh(q/1000,t,p*100)
 	
 	return z,p,pt,q,t,rh
