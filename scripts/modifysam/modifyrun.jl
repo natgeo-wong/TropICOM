@@ -14,14 +14,15 @@ for sd in sdlist
 
     for crhii = 20 : 5 : 95
 
-        trun = projectdir("run",expii,"colrelhum$(crhii)","ensemblexx.sh")
+        trun = projectdir("run","ensemblexx.sh")
         open(trun,"r") do frun
             s = read(frun,String)
             for imember = 1 : 5
                 memstr = @sprintf("%02d",imember)
                 nrun = projectdir("run",expii,"colrelhum$(crhii)","ensemble$(memstr).sh")
                 open(nrun,"w") do wrun
-                    sn = replace(s ,"[project]"=>"TroPrecLS")
+                    sn = replace(s ,"[email]"=>"")
+                    sn = replace(sn,"[project]"=>"TroPrecLS")
                     sn = replace(sn,"[experiment]"=>"$(expii)")
                     sn = replace(sn,"[sndname]"=>"colrelhum$(crhii)")
                     sn = replace(sn,"[lsfname]"=>"noforcing")
@@ -31,17 +32,17 @@ for sd in sdlist
             end
         end
 
-        trun = projectdir("run",expii,"colrelhum$(crhii)","Build.csh")
-        nrun = projectdir("run",expii,"colrelhum$(crhii)","tmp.csh")
+        trun = projectdir("run","Build.csh")
+        nrun = projectdir("run",expii,"colrelhum$(crhii)","Build.csh")
         open(trun,"r") do frun
             s = read(frun,String)
             open(nrun,"w") do wrun
-                sn = replace(s ,"Slab[ssdss]"=>"$(expii)")
+                sn = replace(s ,"[user]"=>"")
+                sn = replace(sn,"Slab[ssdss]"=>"$(expii)")
                 sn = replace(sn,"colrelhum[xx]"=>"colrelhum$(crhii)")
                 write(wrun,sn)
             end
         end
-        mv(nrun,trun,force=true)
 
     end
 
