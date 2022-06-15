@@ -2,8 +2,8 @@
 
 caseid ='TroPrecLS-Slab00d50-member01',
 
-dx = 500.,
-dy = 500.,
+dx = 2000.,
+dy = 2000.,
 dt = 30.,
 
 doensemble    = .true.,
@@ -69,8 +69,8 @@ nstatfrq = 30,     ! Collect 60 samples per statistical calculation (every 1 min
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 60,
-nsave2Dstart = 9999999,
+nsave2D      = 120,
+nsave2Dstart = 835200,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
