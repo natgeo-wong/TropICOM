@@ -5,25 +5,25 @@ using Printf
 using Statistics
 
 function outstatname(
-    experiment::AbstractString, config::AbstractString,
-    istest::Bool=false,
-    isensemble::Bool=false, member::Integer=0
+    expname :: AbstractString,
+    config  :: AbstractString,
+    isensemble :: Bool = false,
+    member     :: Integer = 0
 )
 
     if isensemble
-    	  expname = "$(experiment)-member$(@sprintf("%02d",member))"
-    else; expname = experiment
+    	  expname = "$(expname)-member$(@sprintf("%02d",member))"
     end
 
     if istest
     	fnc = datadir(joinpath(
-    		experiment,config,"OUT_STAT",
-    		"RCE_TroPrecLS-$(expname)-test.nc"
+    		expname,config,"OUT_STAT",
+    		"DGW_TroPrecLS-$(expname)-test.nc"
     	))
     else
     	fnc = datadir(joinpath(
-    		experiment,config,"OUT_STAT",
-    		"RCE_TroPrecLS-$(expname).nc"
+    		expname,config,"OUT_STAT",
+    		"DGW_TroPrecLS-$(expname).nc"
     	))
     end
 
@@ -32,18 +32,19 @@ function outstatname(
 end
 
 function out2Dname(
-    experiment::AbstractString, config::AbstractString,
-    isensemble::Bool=false, member::Integer=0
+    expname :: AbstractString,
+    config  :: AbstractString,
+    isensemble :: Bool = false,
+    member     :: Integer = 0
 )
 
     if isensemble
-    	  expname = "$(experiment)-member$(@sprintf("%02d",member))"
-    else; expname = experiment
+    	  expname = "$(expname)-member$(@sprintf("%02d",member))"
     end
 
 	fnclist = glob(
-		"RCE_TroPrecLS-$(expname)*.nc",
-		joinpath(datadir(experiment,config,"OUT_2D"))
+		"DGW_TroPrecLS-$(expname)*.nc",
+		joinpath(datadir(expname,config,"OUT_2D"))
 	); fnc = datadir(fnclist[1])
 
     return fnc
@@ -51,48 +52,51 @@ function out2Dname(
 end
 
 function retrievedims(
-    experiment::AbstractString, config::AbstractString;
-    istest::Bool=false,
-    isensemble::Bool=false, member::Integer=0
+    expname :: AbstractString,
+    config  :: AbstractString = "";
+    isensemble :: Bool = false,
+    member     :: Integer=0
 )
 
-    rce = NCDataset(outstatname(experiment,config,istest,isensemble,member))
-    z = rce["z"][:]
-    p = rce["p"][:]
-    t = rce["time"][:]
-    close(rce)
+    ds  = NCDataset(outstatname(expname,config,isensemble,member))
+    z   = ds["z"][:]
+    p   = ds["p"][:]
+    t   = ds["time"][:]
+    close(ds)
 
     return z,p,t
 
 end
 
-function retrievedims(fnc::AbstractString)
+function retrievedims_fnc(fnc::AbstractString)
 
-    rce = NCDataset(fnc)
-    z = rce["z"][:]
-    p = rce["p"][:]
-    t = rce["time"][:]
-    close(rce)
+    ds  = NCDataset(fnc)
+    z   = ds["z"][:]
+    p   = ds["p"][:]
+    t   = ds["time"][:]
+    close(ds)
 
     return z,p,t
 
 end
 
 function retrievedims2D(
-    experiment::AbstractString, config::AbstractString;
-    isensemble::Bool=false, member::Integer=0
+    expname :: AbstractString,
+    config  :: AbstractString = "",
+    isensemble :: Bool = false,
+    member     :: Integer = 0
 )
 
-    rce = NCDataset(out2Dname(experiment,config,isensemble,member))
-	x = rce["x"][:]
-    t = rce["time"][:]
+    ds = NCDataset(out2Dname(expname,config,isensemble,member))
+	x = ds["x"][:]
+    t = ds["time"][:]
 
-	if haskey(rce,"y")
-		  isy = true; y = rce["y"][:]
+	if haskey(ds,"y")
+		  isy = true; y = ds["y"][:]
 	else; isy = false
 	end
 
-    close(rce)
+    close(ds)
 
 	if isy
     	  return x,y,t
@@ -101,18 +105,18 @@ function retrievedims2D(
 
 end
 
-function retrievedims2D(fnc::AbstractString)
+function retrievedims2D_fnc(fnc::AbstractString)
 
-    rce = NCDataset(fnc)
-    x = rce["x"][:]
-    t = rce["time"][:]
+    ds = NCDataset(fnc)
+    x = ds["x"][:]
+    t = ds["time"][:]
 
-	if haskey(rce,"y")
-		  isy = true; y = rce["y"][:]
+	if haskey(ds,"y")
+		  isy = true; y = ds["y"][:]
 	else; isy = false
 	end
 
-    close(rce)
+    close(ds)
 
 	if isy
     	  return x,y,t
@@ -122,49 +126,52 @@ function retrievedims2D(fnc::AbstractString)
 end
 
 function retrievevar(
-    variable::AbstractString,
-    experiment::AbstractString, config::AbstractString;
-    istest::Bool=false,
-    isensemble::Bool=false, member::Integer=0
+    varname :: AbstractString,
+    expname :: AbstractString,
+    config  :: AbstractString = "";
+    isensemble :: Bool = false,
+    member     :: Integer=0
 )
 
-    rce = NCDataset(outstatname(experiment,config,istest,isensemble,member))
-    var = rce[variable][:]
-    close(rce)
+    ds  = NCDataset(outstatname(expname,config,isensemble,member))
+    var = ds[varname][:]
+    close(ds)
 
     return var
 
 end
 
-function retrievevar(variable::AbstractString, fnc::AbstractString)
+function retrievevar_fnc(variable::AbstractString, fnc::AbstractString)
 
-    rce = NCDataset(fnc)
-    var = rce[variable][:]
-    close(rce)
+    ds  = NCDataset(fnc)
+    var = ds[variable][:]
+    close(ds)
 
     return var
 
 end
 
 function retrievevar2D(
-    variable::AbstractString,
-    experiment::AbstractString, config::AbstractString;
-    isensemble::Bool=false, member::Integer=0
+    varname :: AbstractString,
+    expname :: AbstractString,
+    config  :: AbstractString = "";
+    isensemble :: Bool = false,
+    member     :: Integer=0
 )
 
-    rce = NCDataset(out2Dname(experiment,config,isensemble,member))
-    var = rce[variable][:]
-    close(rce)
+    ds  = NCDataset(out2Dname(expname,config,isensemble,member))
+    var = ds[varname][:]
+    close(ds)
 
     return var
 
 end
 
-function retrievevar2D(variable::AbstractString, fnc::AbstractString)
+function retrievevar2D_fnc(variable::AbstractString, fnc::AbstractString)
 
-    rce = NCDataset(fnc)
-    var = rce[variable][:]
-    close(rce)
+    ds  = NCDataset(fnc)
+    var = ds[variable][:]
+    close(ds)
 
     return var
 
@@ -184,8 +191,6 @@ end
 
 function tair2qsat(T,P)
 
-	# Formula from Huang [2018]
-	# A Simple Accurate Formula for Calculating Saturation Vapor Pressure of Water and Ice
     tb = T - 273.15
     if tb <= 0
     	esat = exp(43.494 - 6545.8/(tb+278)) / (tb+868)^2
@@ -199,28 +204,18 @@ function tair2qsat(T,P)
 
 end
 
-function calccsf(RH,QV,P)
+function calcswp(RH,QV,P)
 
-	pvec = vcat(0,reverse(P)) * 100; nt = size(RH,2); np = length(pvec)
-	QVtmp = zeros(length(pvec))
+	pvec = vcat(0,reverse(P)) * 100; nt = size(RH,2)
 	QVsat = zeros(length(pvec))
-    csf = zeros(nt)
 	swp = zeros(nt)
 
     for it = 1 : nt
-		for ip = 1 : (np-1)
-			QVtmp[ip+1] = QV[np-ip,it]
-			tmp = QV[np-ip,it] ./ RH[np-ip,it]
-			if !isnan(tmp)
-				  QVsat[ip+1] = tmp
-			else; QVsat[ip+1] = 0
-			end
-		end
-        csf[it] = integrate(pvec,QVtmp) / integrate(pvec,QVsat)
+		QVsat[2:end] .= reverse(QV[:,it]) ./ reverse(RH[:,it])
 		swp[it] = integrate(pvec,QVsat) / 9.81 / 1000
     end
 
-	return csf,swp
+	return swp
 
 end
 
