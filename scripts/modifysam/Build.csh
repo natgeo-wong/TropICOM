@@ -4,7 +4,7 @@
 # restart and large output data file will be located :
 
 #setenv SAM_SCR `pwd`
-setenv SAM_SCR /n/holyscratch01/kuang_lab/[user]/TroPrecLS/data/Slab[ssdss]/colrelhum[xx]
+setenv SAM_SCR /n/holyscratch01/kuang_lab/[user]/TroPrecLS/data/[expname]/[config]
 
 # ----------------------------------
 # specify scalar-advection directory in SRC
