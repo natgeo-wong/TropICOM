@@ -29,7 +29,7 @@ lsfname=[lsfname]
 ensemblemember=member[xx]
 
 exproot=/n/holyscratch01/kuang_lab/nwong/$project/exp
-prmfile=$exproot/prm/$experiment/${ensemblemember}.prm
+prmfile=$exproot/prm/$experiment/$config/${ensemblemember}.prm
 sndfile=$exproot/snd/$sndname
 lsffile=$exproot/lsf/$lsfname
 
