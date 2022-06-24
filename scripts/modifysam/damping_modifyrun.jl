@@ -22,24 +22,21 @@ for sd in sdlist
         trun = projectdir("run","damping_ensemble.sh")
         open(trun,"r") do frun
             s = read(frun,String)
-            for imember = 1 : 5
-                memstr = @sprintf("%02d",imember)
-                nrun = projectdir("run",expii,"colrelhum$(crhii)","ensemble$(memstr).sh")
-                open(nrun,"w") do wrun
-                    sn = replace(s ,"[email]"=>"")
-                    sn = replace(sn,"[project]"=>"TroPrecLS")
-                    sn = replace(sn,"[experiment]"=>"$(expii)")
-                    sn = replace(sn,"[config]"=>"$(dmpstr)")
-                    sn = replace(sn,"[sndname]"=>"control")
-                    sn = replace(sn,"[lsfname]"=>"noforcing")
-                    sn = replace(sn,"member[xx]"=>"member$(memstr)")
-                    write(wrun,sn)
-                end
+            memstr = @sprintf("%02d",imember)
+            nrun = projectdir("run",expii,"$(dmpstr).sh")
+            open(nrun,"w") do wrun
+                sn = replace(s ,"[email]"=>"")
+                sn = replace(sn,"[project]"=>"TroPrecLS")
+                sn = replace(sn,"[experiment]"=>"$(expii)")
+                sn = replace(sn,"[config]"=>"$(dmpstr)")
+                sn = replace(sn,"[sndname]"=>"control")
+                sn = replace(sn,"[lsfname]"=>"noforcing")
+                write(wrun,sn)
             end
         end
 
         trun = projectdir("run","Build.csh")
-        nrun = projectdir("run",expii,"colrelhum$(crhii)","Build.csh")
+        nrun = projectdir("run",expii,"Build.csh")
         open(trun,"r") do frun
             s = read(frun,String)
             open(nrun,"w") do wrun
