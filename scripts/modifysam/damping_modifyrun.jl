@@ -2,8 +2,8 @@ using DrWatson
 @quickactivate "TroPrecLS"
 using Printf
 
-sdlist = [0.05,0.07071,0.1,0.1414,0.2,0.3162]
-sdlist = vcat(sdlist,sdlist*10,sdlist*100)
+sdlist = [0.05,0.1,0.2]
+sdlist = vcat(0.02,sdlist,sdlist*10,sdlist*100,50)
 pop!(sdlist)
 
 dmplist = [1,sqrt(2),2,2*sqrt(2.5),5,5*sqrt(2),10,10*sqrt(2),20]

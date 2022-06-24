@@ -3,7 +3,7 @@ using DrWatson
 using Printf
 
 sdlist = [0.05,0.1,0.2]
-sdlist = vcat(sdlist,sdlist*10,sdlist*100)
+sdlist = vcat(0.02,sdlist,sdlist*10,sdlist*100,50)
 tprm   = projectdir("exp","tmp.prm")
 
 prm  = projectdir("exp","prm","Slab00d05","damping01d0.prm")
