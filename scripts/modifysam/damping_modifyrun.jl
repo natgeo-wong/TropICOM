@@ -22,7 +22,6 @@ for sd in sdlist
         trun = projectdir("run","damping_ensemble.sh")
         open(trun,"r") do frun
             s = read(frun,String)
-            memstr = @sprintf("%02d",imember)
             nrun = projectdir("run",expii,"$(dmpstr).sh")
             open(nrun,"w") do wrun
                 sn = replace(s ,"[email]"=>"")
@@ -42,7 +41,6 @@ for sd in sdlist
             open(nrun,"w") do wrun
                 sn = replace(s ,"[user]"=>"")
                 sn = replace(sn,"[expname]"=>"$(expii)")
-                sn = replace(sn,"[config]"=>"$(dmpstr)")
                 write(wrun,sn)
             end
         end
