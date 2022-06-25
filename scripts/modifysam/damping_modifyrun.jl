@@ -19,7 +19,7 @@ for sd in sdlist
         dmpstr = "damping$(@sprintf("%04.1f",dmpii))"
         dmpstr = replace(dmpstr,"."=>"d")
 
-        trun = projectdir("run","damping_ensemble.sh")
+        trun = projectdir("run","damping_modelrun.sh")
         open(trun,"r") do frun
             s = read(frun,String)
             nrun = projectdir("run",expii,"$(dmpstr).sh")
