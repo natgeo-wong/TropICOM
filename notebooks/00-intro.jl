@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.19.9
 
 using Markdown
 using InteractiveUtils
@@ -34,9 +34,33 @@ B. Corroborating our results from part (A) with model runs in SAM
     * What is the difference between land and sea
     * Is there a difference in this landmass over different land areas
 
-### B. Corroborating our observations with Model Runs in SAM
-6. 
+6. Investigating the relationship between column saturation fraction (r) and other climatological variables
+    * Surface variables such as surface temperature
+    * Pressure variables and vertical profiles of vertical wind, air temperature, relative humidity, specific humidity, etc.
+
+### B. Corroborating Observations with SAM Runs
+7. Control runs with diurnal cycle
+    * Do some control runs with 128x128 km at 2km resolution
+    * Get statistics for vertical wind, humidity, etc. and diurnal cycle
+    * Run for different damping strengths
 "
+
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.7.1"
+manifest_format = "2.0"
+
+[deps]
+"""
 
 # ╔═╡ Cell order:
 # ╟─d20942a4-51f2-11eb-0977-33f2082de974
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
