@@ -27,7 +27,7 @@ config=[config]
 sndname=[sndname]
 lsfname=[lsfname]
 
-exproot=/n/holyscratch01/kuang_lab/nwong/$project/exp
+exproot=/n/holylfs04/LABS/kuang_lab/Users/nwong/$project/exp
 prmfile=$exproot/prm/$experiment/${config}.prm
 sndfile=$exproot/snd/$sndname
 lsffile=$exproot/lsf/$lsfname
