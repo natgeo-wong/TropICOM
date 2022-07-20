@@ -11,7 +11,7 @@ esgl = [
     SingleVariable("slhf"),SingleVariable("sshf"),SingleVariable("str"),
     SingleVariable("sst"),SingleVariable("t2m"),SingleVariable("skt"),
     SingleVariable("tcw"),SingleVariable("tcwv"),SingleVariable("sp"),
-    SingleVariable("hcc"),SingleVariable("mcc"),SingleVariable("lcc"),SingleVariable("tcc"),
+    SingleVariable("hcc"),SingleVariable("mcc"),SingleVariable("lcc"),SingleVariable("cc"),
 ]
 
 for evar in esgl

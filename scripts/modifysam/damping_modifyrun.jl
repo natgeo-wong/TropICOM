@@ -4,8 +4,6 @@ using Printf
 
 sdlist = [0.05,0.1,0.2]
 sdlist = vcat(0.02,sdlist,sdlist*10,sdlist*100,50)
-pop!(sdlist)
-
 dmplist = [1,sqrt(2),2,2*sqrt(2.5),5,5*sqrt(2),10]
 
 for sd in sdlist
