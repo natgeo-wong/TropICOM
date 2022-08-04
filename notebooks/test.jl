@@ -29,7 +29,7 @@ end
 
 # ╔═╡ 47218e37-00d8-4a0a-9f31-c3722636de8a
 begin
-	ds = NCDataset(datadir("Slab02d00/OUT_STAT/DGW_TroPrecLS-Slab02d00-damping01d0.nc"))
+	ds = NCDataset(datadir("Slab00d10/OUT_STAT/DGW_TroPrecLS-Slab00d10-damping01d0.nc"))
 	t  = ds["time"][:]
 	pp = ds["p"][:] * 100
 	pw = ds["PW"][:]
@@ -40,6 +40,9 @@ begin
 	pr = ds["PREC"][:]
 	ts = ds["SST"][:]
 	w  = ds["WWTG"][:]
+	u  = ds["U"][:]
+	v  = ds["V"][:]
+	ws = sqrt.(u.^2 .+ v.^2)
 	close(ds)
 end
 
@@ -81,13 +84,13 @@ begin
 		aspect=3,axwidth=4)
 	
 	# c = axs[1].contourf(t,pp/100,rh,cmap="Blues",levels=50:10:100,extend="both")
-	c = axs[1].contourf(t,pp/100,ta.-ta[:,1],cmap="RdBu_r",extend="both")
+	c = axs[1].contourf(t,pp/100,ta.-to,extend="both")
 	axs[1].format(ylim=(1000,25),yscale="log")
 	axs[2].plot(t,pw ./sw)
 	axs[3].plot(t,pr)
 	axs[4].plot(mean(ta,dims=2),pp/100)
 
-	axs[3].format(xlim=(250,300),ylim=(0,150))
+	axs[3].format(xlim=(120,150),ylim=(0,150))
 
 	fig.colorbar(c)
 	fig.savefig("test.png",transparent=false,dpi=200)

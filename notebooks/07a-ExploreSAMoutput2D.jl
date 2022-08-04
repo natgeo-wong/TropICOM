@@ -109,8 +109,22 @@ begin
 		
 				cc[idmp,islb] = axs[islb+(idmp-1)*nslb].pcolormesh(
 					xplt,yplt,olr',
-					levels=120:20:320,cmap="Blues",extend="both"
+					levels=100:10:260,cmap="Blues",extend="both"
 				)
+
+			end
+
+			for islb = 1 : nslb, idmp = 1 : ndmp
+
+				dmpstr = dmpconfig[idmp]
+				dmpstr = replace(dmpstr,"damping"=>"")
+				dmpstr = replace(dmpstr,"d"=>".")
+				dmpstr = parse(Float32,dmpstr)
+	
+				slbstr = slabexp[islb]
+				slbstr = replace(slbstr,"Slab"=>"")
+				slbstr = replace(slbstr,"d"=>".")
+				slbstr = parse(Float32,slbstr)
 	
 				if isone(islb)
 					axs[islb+(idmp-1)*nslb].format(
@@ -136,16 +150,17 @@ begin
 	
 			for ax in axs
 				ax.format(
-					xlocator=0:32:128,ylocator=0:32:128,
+					xlim=(0,128),xlocator=0:32:128,
+					ylim=(0,128),ylocator=0:32:128,
 					suptitle="Hour $(mod(it,24))"
 				)
 			end
 	
 			mkpath(plotsdir("2DTest"))
-			fig.colorbar(cc[4,5],length=0.5,label=L"OLR / W m$^{-2}$")
+			fig.colorbar(cc[1,2],length=0.5,label=L"OLR / W m$^{-2}$")
 			fig.savefig(
 				plotsdir("2DTest","test-$(@sprintf("%03d",it)).png"),
-				transparent=false,dpi=150
+				transparent=false,dpi=120
 			)
 			# load(plotsdir("2DTest","test-$(@sprintf("%03d",it)).png"))
 			
@@ -159,62 +174,6 @@ end
 # ╔═╡ 4962739e-b33d-4ac3-9901-1b9eb21361cd
 load(plotsdir("2DTest","test-241.png"))
 
-# ╔═╡ ba558d83-510a-4239-a1aa-5fddfc92292d
-md"
-### C. Checking the Wind Magnitude
-"
-
-# ╔═╡ 5fc3c7c5-83bd-4f0b-8f4d-b2d3eb995117
-begin
-	pplt.close()
-	fig,axs = pplt.subplots(
-		ncols=4,nrows=5,hspace=1.5,aspect=2,axwidth=1.5,
-	)
-
-	icon = 0
-	for islb = 1 : nslb, idmp = 1 : ndmp
-
-		global icon += 1
-		dmpstr = dmpconfig[idmp]
-		dmpstr = replace(dmpstr,"damping"=>"")
-		dmpstr = replace(dmpstr,"d"=>".")
-		dmpstr = parse(Float32,dmpstr)
-	
-		slbstr = slabexp[islb]
-		slbstr = replace(slbstr,"Slab"=>"")
-		slbstr = replace(slbstr,"d"=>".")
-		slbstr = parse(Float32,slbstr)
-		
-		ds = NCDataset(datadir(
-			slabexp[islb],"OUT_STAT",
-			fncb * "$(slabexp[islb])-$(dmpconfig[idmp])" * fSTe
-		))
-	
-		p = ds["p"][:]
-		t = ds["time"][:]
-		w = sqrt.((ds["U"][:]).^2 .+ (ds["V"][:]).^2)
-	
-		cw[icon] = axs[icon].pcolormesh(
-			t,p,w,levels=5:25,extend="both"
-		)
-	
-		axs[icon].format(
-			ylim=(1000,25),yscale="log",
-			ylabel="Pressure / hPa",xlabel="Time / days",
-			ultitle="MLD = $slbstr m",
-			suptitle=L"$a_m$ = " * "$dmpstr" * L" day$^{-1}$"
-		)
-		
-	end
-	
-	fig.colorbar(cw[1],length=0.5,label=L"Wind Speed / m s$^{-1}$")
-	fig.savefig(
-		plotsdir("07a-windtimeseries.png"),
-		transparent=false,dpi=150
-	)
-	load(plotsdir("07a-windtimeseries.png"))
-end
-
 # ╔═╡ Cell order:
 # ╟─e0fee7ac-fc9b-11ec-0741-9f810d7bcd4c
 # ╟─8f2172e0-5b81-420a-8301-dbb8ed0c290a
@@ -225,5 +184,3 @@ end
 # ╟─f76a42d3-be3a-489b-b143-6994870ac73f
 # ╟─e7416867-d458-48b1-b0b6-a2c5c2a9557e
 # ╟─4962739e-b33d-4ac3-9901-1b9eb21361cd
-# ╟─ba558d83-510a-4239-a1aa-5fddfc92292d
-# ╟─5fc3c7c5-83bd-4f0b-8f4d-b2d3eb995117
