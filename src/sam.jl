@@ -15,19 +15,7 @@ function outstatname(
     	  expname = "$(expname)-member$(@sprintf("%02d",member))"
     end
 
-    if istest
-    	fnc = datadir(joinpath(
-    		expname,config,"OUT_STAT",
-    		"DGW_TroPrecLS-$(expname)-test.nc"
-    	))
-    else
-    	fnc = datadir(joinpath(
-    		expname,config,"OUT_STAT",
-    		"DGW_TroPrecLS-$(expname).nc"
-    	))
-    end
-
-    return fnc
+    return datadir(joinpath(expname,config,"OUT_STAT","DGW_TroPrecLS-$(expname).nc"))
 
 end
 
@@ -45,9 +33,9 @@ function out2Dname(
 	fnclist = glob(
 		"DGW_TroPrecLS-$(expname)*.nc",
 		joinpath(datadir(expname,config,"OUT_2D"))
-	); fnc = datadir(fnclist[1])
+	)
 
-    return fnc
+    return datadir(fnclist[1])
 
 end
 
