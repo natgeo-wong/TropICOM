@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.5
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -16,7 +16,7 @@ end
 begin
 	@quickactivate "TroPrecLS"
 	using DelimitedFiles
-	using GeoRegions
+	using NASAPrecipitation
 	using NCDatasets
 	using StatsBase
 
@@ -49,26 +49,28 @@ We start by loading and plotting the GPM IMERG land-sea mask ...
 "
 
 # ╔═╡ c43c087a-56a7-11eb-2c12-7db44d0a7eae
-begin
-	ds  = NCDataset(datadir("GPM_IMERG_LandSeaMask.2.nc4"))
-	lon = ds["lon"][:]
-	lat = ds["lat"][:]
-	lsm = ds["landseamask"][:]'*1; lsm[iszero.(lsm)] .= 0.00001
-	close(ds)
-end
+lsd = getIMERGlsd(GeoRegion("TRP"),path=datadir("imergmask"))
+
+# ╔═╡ f5fc06b0-0101-4897-b68c-c39abc10ca20
+size(lsd.lsm)
 
 # ╔═╡ ed63a2e2-56a7-11eb-10f2-2b291133bb4e
 begin
-	pplt.close(); f,axs = pplt.subplots(aspect=6,axwidth=6)
+	asp1 = (maximum(lsd.lon)-minimum(lsd.lon))/(maximum(lsd.lat)-minimum(lsd.lat))
+	pplt.close(); f,axs = pplt.subplots(aspect=asp1,axwidth=6)
 
-	c = axs[1].contourf(
-		lon,lat,lsm',levels=0:10:100,
+	c = axs[1].pcolormesh(
+		lsd.lon,lsd.lat,lsd.lsm',levels=0:10:100,
 		cmap="Delta_r",extend="both"
 	)
 	axs[1].colorbar(c,loc="r")
 
 	for ax in axs
-		ax.format(xlim=(-180,180),ylim=(-30,30),xlocator=-180:60:180)
+		ax.format(
+			xlim=(minimum(lsd.lon),maximum(lsd.lon)),
+			ylim=(minimum(lsd.lat),maximum(lsd.lat)),
+			xlocator=-0:60:360
+		)
 	end
 
 	f.savefig(plotsdir("02a-GPMlsm-TRP.png"),transparent=false,dpi=200)
@@ -87,7 +89,7 @@ thr = 70
 
 # ╔═╡ e82fb766-56f1-11eb-34aa-f35e027df299
 begin
-	lsm01 = lsm / 100
+	lsm01 = lsd.lsm / 100
 	lsm01 = 1 .- lsm01
 
 md"Binning land-sea mask into 0s and 1s"
@@ -97,34 +99,31 @@ end
 md"Using the functions `regiongridvec` and `regionextractgrid`, we are able to extract the land-sea mask for a given region."
 
 # ╔═╡ 0b25e87e-56f0-11eb-1cb9-4574948fd72a
-regID = "SEA"
+regID = "TRP"
 
 # ╔═╡ 0b9d45f8-56dd-11eb-3928-2b11e9d7bdf7
 begin
-	rlon,rlat,rinfo = regiongridvec(gregionbounds(regID),lon,lat)
-	# rlon,rlat,rinfo = regiongridvec([6,-6,107,95],lon,lat)
-	rlsm = regionextractgrid(lsm01,rinfo)
+	ggrd = RegionGrid(GeoRegion(regID),lsd.lon,lsd.lat)
+	rlsm = extractGrid(lsm01,ggrd)
 	md"Extracting Land-Sea Mask for the region ..."
 end
 
 # ╔═╡ 4536cd18-56dd-11eb-0a9b-a1530a862491
 begin
-	asp = (maximum(rlon)-minimum(rlon))/(maximum(rlat)-minimum(rlat))
-	pplt.close(); freg,areg = pplt.subplots(aspect=asp,axwidth=asp*2)
+	asp = (maximum(ggrd.lon)-minimum(ggrd.lon))/(maximum(ggrd.lat)-minimum(ggrd.lat))
+	pplt.close(); freg,areg = pplt.subplots(aspect=asp,axwidth=asp)
 
-	creg = areg[1].contourf(
-		rlon,rlat,rlsm',levels=(0:10)/10,
+	creg = areg[1].pcolormesh(
+		ggrd.lon,ggrd.lat,rlsm',levels=(0:10)/10,
 		cmap="Delta",extend="both"
 	)
-	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].colorbar(creg,loc="r")
 
 	for ax in areg
 		ax.format(
-			xlim=(90,165),xlocator=90:15:165,xminorlocator=90:5:165,
-			ylim=(-15,20)
-			# xlim=(minimum(rlon),maximum(rlon)),
-			# ylim=(minimum(rlat),maximum(rlat))
+			xlim=(minimum(ggrd.lon),maximum(ggrd.lon)),
+			ylim=(minimum(ggrd.lat),maximum(ggrd.lat)),
+			xlocator=0:60:360,
 		)
 	end
 
@@ -166,23 +165,24 @@ end
 
 # ╔═╡ c6e405de-57ae-11eb-20b5-dbe72ee915fd
 if regID == "TRP"
-	savelsm(regID,rlon,rlat,rlsm)
+	savelsm(regID,ggrd.lon,ggrd.lat,rlsm)
 end
 
 # ╔═╡ Cell order:
 # ╟─f838a206-56a1-11eb-35dc-f1489317cd8a
 # ╟─abdaeba6-56a5-11eb-222b-a12819fce07c
 # ╟─ae7e6c26-56a5-11eb-2444-694b368de12c
-# ╠═a907ca40-56dd-11eb-07e6-dd780174001e
+# ╟─a907ca40-56dd-11eb-07e6-dd780174001e
 # ╟─b28b2cbe-56a7-11eb-3a3c-09b80ad4e0f2
 # ╠═c43c087a-56a7-11eb-2c12-7db44d0a7eae
+# ╠═f5fc06b0-0101-4897-b68c-c39abc10ca20
 # ╟─ed63a2e2-56a7-11eb-10f2-2b291133bb4e
 # ╟─b5841fc6-56ab-11eb-0c0d-cdf45571f6d7
 # ╠═b4613c36-56f2-11eb-1865-e33bc1e1b75f
-# ╠═e82fb766-56f1-11eb-34aa-f35e027df299
+# ╟─e82fb766-56f1-11eb-34aa-f35e027df299
 # ╟─3443392c-56ad-11eb-3a44-137601990567
 # ╠═0b25e87e-56f0-11eb-1cb9-4574948fd72a
-# ╠═0b9d45f8-56dd-11eb-3928-2b11e9d7bdf7
-# ╠═4536cd18-56dd-11eb-0a9b-a1530a862491
-# ╠═54903304-57ae-11eb-0654-c7c351bcae9f
+# ╟─0b9d45f8-56dd-11eb-3928-2b11e9d7bdf7
+# ╟─4536cd18-56dd-11eb-0a9b-a1530a862491
+# ╟─54903304-57ae-11eb-0654-c7c351bcae9f
 # ╟─c6e405de-57ae-11eb-20b5-dbe72ee915fd

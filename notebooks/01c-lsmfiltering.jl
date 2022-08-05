@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -15,7 +15,7 @@ end
 begin
 	@quickactivate "TroPrecLS"
 	using DelimitedFiles
-	using GeoRegions
+	using ERA5Reanalysis
 	using ImageFiltering
 	using NCDatasets
 
@@ -37,14 +37,7 @@ md"
 "
 
 # ╔═╡ c557eeb4-fab4-4751-af4b-bea2115e85a9
-begin
-	ds  = NCDataset(datadir("reanalysis","era5-TRPx0.25-lsm-sfc.nc"))
-	lon = ds["longitude"][:]
-	lat = ds["latitude"][:]
-	lsm = ds["lsm"][:]
-	close(ds)
-	md"Loading land-sea mask for the Tropical Region ..."
-end
+lsd = getLandSea(ERA5Region(GeoRegion("GLB"),gres=0.25),path=datadir("emask"))
 
 # ╔═╡ dc6929b0-c95d-4c71-9a4c-cb9fa4b01e34
 begin
@@ -57,7 +50,10 @@ end
 begin
 	pplt.close(); f1,a1 = pplt.subplots(aspect=1,axwidth=3)
 	
-	c = a1[1].pcolormesh(lon,lat,lsm',levels=(0:10)/10,extend="both",cmap="Delta")
+	c = a1[1].pcolormesh(
+		lsd.lon,lsd.lat,lsd.lsm',
+		levels=(0:10)/10,extend="both",cmap="Delta"
+	)
 	# a1[1].plot(x,y,c="k",lw=0.5)
 	a1[1].plot([95.5,106,105.5,95,95.5],[6.5,-6,-6.5,6,6.5],c="r",lw=1)
 	a1[1].plot([95,105.5,105,94.5,95],[6,-6.5,-7,5.5,6],c="r",lw=1)
@@ -78,12 +74,12 @@ md"
 "
 
 # ╔═╡ a66e0d88-7f48-4d7d-b716-3a424d93e90b
-function filterlsm(olsm,iterations=1)
+function filterlsm(olsm;iterations=1,smooth=1)
 	
 	it = 0
 	nlsm = deepcopy(olsm)
 	while it < iterations
-		nlsm = log10.(imfilter(10. .^nlsm, Kernel.gaussian(5),"circular"));
+		nlsm = log10.(imfilter(10. .^nlsm, Kernel.gaussian(smooth),"circular"));
 		nlsm = (nlsm.+olsm)/2
 		it += 1
 	end
@@ -96,74 +92,80 @@ end
 
 # ╔═╡ d3864cc7-284b-4278-9499-0b6f4d274608
 begin
-	nlsm = filterlsm(lsm,3)
+	nlsm1d0 = filterlsm(lsd.lsm,iterations=10,smooth=1)
+	nlsm1d5 = filterlsm(lsd.lsm,iterations=10,smooth=1.5)
+	nlsm2d0 = filterlsm(lsd.lsm,iterations=10,smooth=2)
 	md"Performing gaussian filtering/smoothing on land-sea mask ..."
 end
 
 # ╔═╡ 05c13f7e-58f8-4136-830d-fb20a9dc0e6f
 begin
-	geo = GeoRegion("AMZ")
+	geo = GeoRegion("SEA")
 	md"Defining region coordinates ..."
 end
 
 # ╔═╡ 8471606c-fead-450a-80f0-fd4cf308c3e5
 begin
 	N,S,E,W = geo.N,geo.S,geo.E,geo.W
-	ggrd = RegionGrid(geo,lon,lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-	rlsm = zeros(nlon,nlat)
-	flsm = zeros(nlon,nlat)
-	if typeof(ggrd) <: PolyGrid
-		mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-	for glat in 1 : nlat, glon in 1 : nlon
-		rlsm[glon,glat] =  lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-		flsm[glon,glat] = nlsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
+	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
+	rlsm = extractGrid(lsd.lsm,ggrd)
+	flsm1d0 = extractGrid(nlsm1d0,ggrd)
+	flsm1d5 = extractGrid(nlsm1d5,ggrd)
+	flsm2d0 = extractGrid(nlsm2d0,ggrd)
 	md"Extracting information for region ..."
 end
 
 # ╔═╡ 51d55158-32df-4135-ab12-186e295ce499
 begin
 	asp = (E-W+2)/(N-S+2)
-	if asp > 1.5
-		freg,areg = pplt.subplots(nrows=2,axwidth=asp*1.2,aspect=asp)
+	if asp > 3
+		freg,areg = pplt.subplots(nrows=4,axwidth=asp*1.2,aspect=asp)
 	else
-		freg,areg = pplt.subplots(ncols=2,axwidth=2.5,aspect=asp)
+		freg,areg = pplt.subplots(nrows=2,ncols=2,axwidth=asp*1.5,aspect=asp)
 	end
 	
-	lvls = vcat(10. .^(-6:-1),0.2,0.5,0.8,0.9)
+	lvls = vcat(10. .^(-5:-1),0.2,0.5,0.9,0.95,0.97,0.98,0.99,0.999)
 
 	creg = areg[1].pcolormesh(
-		ggrd.glon,ggrd.glat,rlsm',
+		ggrd.lon,ggrd.lat,rlsm',
 		levels=lvls,cmap="delta",extend="both"
 	)
-	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].format(urtitle="Raw")
 	
 	areg[2].pcolormesh(
-		ggrd.glon,ggrd.glat,flsm',
+		ggrd.lon,ggrd.lat,flsm1d0',
 		levels=lvls,cmap="delta",extend="both"
 	)
-	areg[2].plot(x,y,c="k",lw=0.5)
-	areg[2].format(urtitle="Filtered")
+	areg[2].format(urtitle="Smooth = 1")
 	
-	freg.colorbar(creg,loc="r")
+	areg[3].pcolormesh(
+		ggrd.lon,ggrd.lat,flsm1d5',
+		levels=lvls,cmap="delta",extend="both"
+	)
+	areg[3].format(urtitle="Smooth = 1.5")
+	
+	areg[4].pcolormesh(
+		ggrd.lon,ggrd.lat,flsm2d0',
+		levels=lvls,cmap="delta",extend="both"
+	)
+	areg[4].format(urtitle="Smooth = 2")
 
 	for ax in areg
+		ax.plot(x,y,c="k",lw=0.5)
 		ax.format(
-			xlim=(ggrd.glon[1].-1,ggrd.glon[end].+1),
-			xlabel=L"Longitude / $\degree$",
-			ylim=(S-1,N+1),ylabel=L"Latitude / $\degree$",
-			suptitle="Land-Sea Mask",
-			grid=true
+			xlim=(ggrd.lon[1].-1,ggrd.lon[end].+1),ylim=(S-1,N+1),
+			ylabel=L"Latitude / $\degree$",xlabel=L"Longitude / $\degree$",
+			suptitle="Land-Sea Mask",grid=true
 		)
 	end
 
+	if asp > 3
+		freg.colorbar(creg,loc="r",length=0.4)
+	else
+		freg.colorbar(creg,loc="r",length=0.8)
+	end
 	freg.savefig(plotsdir("01c-flsm_$(geo.regID).png"),transparent=false,dpi=200)
-	PNGFiles.load(plotsdir("01c-flsm_$(geo.regID).png"))
+	load(plotsdir("01c-flsm_$(geo.regID).png"))
 end
 
 # ╔═╡ Cell order:
@@ -176,7 +178,7 @@ end
 # ╟─a9bae1a3-c994-4b36-b9f8-740aa14a3929
 # ╟─95ffc474-8416-451c-ba9a-4452dc582626
 # ╠═a66e0d88-7f48-4d7d-b716-3a424d93e90b
-# ╟─d3864cc7-284b-4278-9499-0b6f4d274608
-# ╟─05c13f7e-58f8-4136-830d-fb20a9dc0e6f
+# ╠═d3864cc7-284b-4278-9499-0b6f4d274608
+# ╠═05c13f7e-58f8-4136-830d-fb20a9dc0e6f
 # ╟─8471606c-fead-450a-80f0-fd4cf308c3e5
 # ╟─51d55158-32df-4135-ab12-186e295ce499

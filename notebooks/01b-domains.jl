@@ -71,8 +71,8 @@ end
 
 # ╔═╡ 3f3a7695-ce0b-444b-a8b2-29421050d828
 begin
-	addGeoRegions(srcdir("addgeorect.txt"))
-	addGeoRegions(srcdir("addgeopoly.txt"))
+	addGeoRegions(srcdir("addRectRegion_TRP.txt"))
+	addGeoRegions(srcdir("addPolyRegion_TRP.txt"))
 
 md"Adding new custom GeoRegions of interest from text files ..."
 end
@@ -140,15 +140,15 @@ begin
 	axs[1].plot(slnAMZ,sltAMZ,c=lsc[4],lw=1,linestyle="--")
 	axs[1].plot(slnTRA,sltTRA,c=lsc[3],lw=1,linestyle="--")
 
-	axs[1].text(-144,10,"DTP",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(-100,10,"CRB",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(-80,-12,"AMZ",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(10,15,"TRA",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(130,-12,"SEA",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(-140,-12,"AR6_EPO",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(170,10,"AR6_EPO",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(60,-12,"AR6_EIO",verticalalignment="center",backgroundcolor="gray2")
-	axs[1].text(-30,-12,"AR6_EAO",verticalalignment="center",backgroundcolor="gray2")
+	axs[1].text(-144,10,"DTP",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(-100,10,"CRB",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(-80,-12,"AMZ",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(10,15,"TRA",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(130,-12,"SEA",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(-140,-12,"AR6_EPO",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(170,10,"AR6_EPO",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(60,-12,"AR6_EIO",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
+	axs[1].text(-30,-12,"AR6_EAO",bbox=Dict("facecolor"=>"gray2","edgecolor"=>"none"))
 
 	axs[1].format(
 		xlim=(-150,210),xlocator=-180:60:180,xlabel=L"Longitude / $\degree$",
@@ -184,8 +184,8 @@ end
 
 # ╔═╡ d573cfb4-6eb5-48e7-9476-e8b0a8da9910
 begin
-	addGeoRegions(srcdir("addSEArect.txt"))
-	addGeoRegions(srcdir("addSEApoly.txt"))
+	addGeoRegions(srcdir("addRectRegion_SEA.txt"))
+	addGeoRegions(srcdir("addPolyRegion_SEA.txt"))
 	md"Adding Southeast Asian subregions ..."
 end
 
@@ -235,11 +235,11 @@ begin
 	asp = (E-W+2)/(N-S+2)
 	pplt.close(); freg,areg = pplt.subplots(aspect=asp,axwidth=asp*1.5);
 
-	c = areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtrop',levels=0:6,cmap="Reds_r")
-	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrarid',levels=5:9,cmap="Yellow3_r")
-	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtemph',levels=6:12,cmap="Green2_r")
-	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtemps',levels=11:15,cmap="Brown1_r")
-	areg[1].pcolormesh(ggrd.glon,ggrd.glat,kcrtempw',levels=12:18,cmap="Blue3_r")
+	c = areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtrop',levels=0:6,cmap="Reds_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrarid',levels=5:9,cmap="Yellow3_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemph',levels=6:12,cmap="Green2_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemps',levels=11:15,cmap="Brown1_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtempw',levels=12:18,cmap="Blue3_r")
 	areg[1].plot(slnSMT,sltSMT,lw=1,linestyle="--")
 	areg[1].plot(slnBRN,sltBRN,lw=1,linestyle="--")
 	areg[1].plot(slnJAV,sltJAV,lw=1,linestyle="--")

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -15,11 +15,9 @@ end
 # ╔═╡ 8f30c56c-530c-11eb-2782-33f3c4ed9e89
 begin
 	@quickactivate "TroPrecLS"
-	using ClimateSatellite
-	using Dates
 	using DelimitedFiles
-	using GeoRegions
 	using Interpolations
+	using NASAPrecipitation
 	using NCDatasets
 	using StatsBase
 
@@ -575,7 +573,7 @@ end
 # ╟─aa05317e-530b-11eb-2ec1-93aff65659dd
 # ╟─bb90be66-554c-11eb-05de-a5db553ad4b1
 # ╠═103f85e8-530c-11eb-047d-a537aa60075d
-# ╟─a116023a-53ad-11eb-25e0-d5dfa8338a1b
+# ╠═a116023a-53ad-11eb-25e0-d5dfa8338a1b
 # ╠═49d13e5c-53af-11eb-29ca-c994a7acd377
 # ╟─e8141e20-53af-11eb-1a23-81d34293c5eb
 # ╟─d82366b0-53b1-11eb-26c1-ff1bb6ccb027
