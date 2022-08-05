@@ -40,7 +40,7 @@ function compile(
 
     @info "$(now()) - TroPrecLS - Saving compiled GPM IMERG Half-Hourly data in Tropics GeoRegion ..."
 
-    fnc = datadir("imergfinalhh-compiled-$(geo.regID).nc")
+    fnc = datadir("imergfinalhh-$(geo.regID)-compiled.nc")
     if isfile(fnc)
         rm(fnc,force=true)
     end
