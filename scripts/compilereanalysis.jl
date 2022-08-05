@@ -11,8 +11,8 @@ function compile(
     egeo :: ERA5Region,
 )
 
-    dtbeg = e5ds.dtbeg
-    dtend = e5ds.dtend
+    dtbeg = e5ds.start
+    dtend = e5ds.stop
     dtvec = dtbeg : Day(1) : dtend
     lsd   = getLandSea(egeo,path=datadir("emask"))
     ndt   = length(dtvec)
@@ -25,7 +25,7 @@ function compile(
 
     for dt in dtvec
 
-        @info "$(now()) - TroPrecLS - Loading GPM IMERG Half-Hourly data in Tropics GeoRegion for $dt ..."
+        @info "$(now()) - TroPrecLS - Loading $(uppercase(e5ds.lname)) $(evar.vname) in $(ereg.geo.name) (Horizontal Resolution: $(ereg.gres)) for $(year(dt)) ..."
         ids = read(e5ds,evar,egeo,dt)
         isc = ids[evar.varID].attrib["scale_factor"]
         iof = ids[evar.varID].attrib["add_offset"]
@@ -48,7 +48,7 @@ function compile(
 
     var = dropdims(mean(reshape(var,nlon,nlat,24,12),dims=4),dims=4)
 
-    @info "$(now()) - TroPrecLS - Saving compiled GPM IMERG Half-Hourly data in Tropics GeoRegion ..."
+    @info "$(now()) - TroPrecLS - Saving compiled $(uppercase(e5ds.lname)) $(evar.vname) in $(ereg.geo.name) (Horizontal Resolution: $(ereg.gres)) ..."
 
     if evar <: SingleLevel
         fnc = datadir("era5mh-$(egeo.gstr)-$(evar.varID)-compiled.nc")
@@ -95,7 +95,9 @@ function compile(
 
 end
 
-npdhh = IMERGFinalHH(start=Date(2001,1,1),stop=Date(2020,12,31),path=datadir())
-geo_TRP = GeoRegion("TRP")
+e5ds_mh  = ERA5Monthly(start=Date(2001,1,1),stop=Date(2020,12,31),path=datadir(),hours=true)
+egeo_TRP = ERA5Region(GeoRegion("TRP"))
 
-compile(npdhh,geo_TRP)
+evar = SingleVariable("skt")
+
+compile(e5ds_mh,evar,egeo_TRP)
