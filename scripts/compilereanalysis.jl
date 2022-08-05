@@ -101,6 +101,32 @@ end
 e5ds_mh  = ERA5Monthly(start=Date(1979,1,1),stop=Date(2020,12,31),path=datadir(),hours=true)
 egeo_TRP = ERA5Region(GeoRegion("TRP"))
 
-evar = SingleVariable("skt")
+esgl = [
+    SingleVariable("tsr"),SingleVariable("ttr"),SingleVariable("ssr"),
+    SingleVariable("slhf"),SingleVariable("sshf"),SingleVariable("str"),
+    SingleVariable("sst"),SingleVariable("t2m"),SingleVariable("skt"),
+    SingleVariable("tcw"),SingleVariable("tcwv"),SingleVariable("sp"),
+    SingleVariable("hcc"),SingleVariable("mcc"),SingleVariable("lcc"),SingleVariable("cc"),
+]
 
-compile(e5ds_mh,evar,egeo_TRP)
+for evar in esgl
+    compile(e5ds_mh,evar,egeo_TRP)
+end
+
+for ip in era5Pressures()
+    epre = [
+        PressureVariable("cc",  hPa=ip,throw=false),
+        PressureVariable("ciwc",hPa=ip,throw=false),
+        PressureVariable("clwc",hPa=ip,throw=false),
+        PressureVariable("q",   hPa=ip,throw=false),
+        PressureVariable("r",   hPa=ip,throw=false),
+        PressureVariable("t",   hPa=ip,throw=false),
+        PressureVariable("u",   hPa=ip,throw=false),
+        PressureVariable("v",   hPa=ip,throw=false),
+        PressureVariable("w",   hPa=ip,throw=false),
+        PressureVariable("z",   hPa=ip,throw=false)
+    ]
+    for evar in epre
+        compile(e5ds_mh,evar,egeo_TRP)
+    end
+end

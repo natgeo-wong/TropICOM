@@ -3,6 +3,6 @@ using DrWatson
 
 addGeoRegions(srcdir("addgeorect.txt"))
 
-npd = IMERGFinalHH(dtbeg=Date(2001,1,1),dtend=Date(2020,12,31),sroot=datadir())
+npd = IMERGFinalHH(start=Date(2001,1,1),stop=Date(2020,12,31),path=datadir())
 geo = GeoRegion("TRP")
 download(npd,geo)

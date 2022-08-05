@@ -26,3 +26,5 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 julia = "1"
+ERA5Reanalysis = "^0.2"
+NASAPrecipitation = "^0.2"

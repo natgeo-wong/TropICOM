@@ -3,7 +3,7 @@ using DrWatson
 
 using ERA5Reanalysis
 
-e5ds = ERA5Monthly(dtbeg=Date(1979),dtend=Date(2021),eroot=datadir())
+e5ds = ERA5Monthly(start=Date(1979),stop=Date(2021),path=datadir())
 egeo = ERA5Region(GeoRegion("GLB"),gres=0.25)
 
 esgl = [SingleVariable("t2m"),SingleVariable("skt"),SingleVariable("d2m")]
