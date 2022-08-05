@@ -92,7 +92,7 @@ function compile(
 
 	nclongitude[:] = lsd.lon
 	nclatitude[:]  = lsd.lat
-	ncvar[:] = var
+	ncvar.var[:] = ERA5Reanalysis.real2int16(var,scale,offset)
 
 	close(ds)
 
