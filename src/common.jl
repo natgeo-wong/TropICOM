@@ -50,9 +50,9 @@ function bindatasfclnd(geo::GeoRegion,bins,var,lon,lat,lsm)
 
 end
 
-function bindatasfcsea(geo::GeoRegion,bins,var,lon,lat,lsm)
+function bindatasfcsea(geo::GeoRegion,bins,var,lsd)
 
-	ggrd = RegionGrid(geo,lon,lat)
+	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
     rvar = zeros(nlon,nlat)
@@ -66,7 +66,7 @@ function bindatasfcsea(geo::GeoRegion,bins,var,lon,lat,lsm)
 
 	for glat in 1 : nlat, glon in 1 : nlon
 		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
+		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
 	end
 
     svar = rvar[rlsm.<0.5];
@@ -83,9 +83,75 @@ function bindatasfcsea(geo::GeoRegion,bins,var,lon,lat,lsm)
 
 end
 
-function getmean(coords,var,lon,lat,nlvl,lsm)
+function bindatasfclnd(geo::GeoRegion,bins,var,lsd)
 
-	ggrd = RegionGrid(geo,lon,lat)
+	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
+	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
+	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
+    rvar = zeros(nlon,nlat)
+    rlsm = zeros(nlon,nlat)
+    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
+
+	if typeof(ggrd) <: PolyGrid
+		  mask = ggrd.mask
+	else; mask = ones(nlon,nlat)
+	end
+
+	for glat in 1 : nlat, glon in 1 : nlon
+		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
+		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
+	end
+
+    lvar = rvar[rlsm.>0.5];
+	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
+    lbin = fit(Histogram,lvar,bins).weights;
+	lbin = lbin ./ sum(lbin) * (length(bins) - 1)
+
+    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
+    lvar = rvar[rlsm.>0.5];
+	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
+    lvar = lvar / mean(rwgt[rlsm.>0.5])
+
+    return lbin,mean(lvar)
+
+end
+
+function bindatasfcsea(geo::GeoRegion,bins,var,lsd)
+
+	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
+	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
+	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
+    rvar = zeros(nlon,nlat)
+    rlsm = zeros(nlon,nlat)
+    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
+
+	if typeof(ggrd) <: PolyGrid
+		  mask = ggrd.mask
+	else; mask = ones(nlon,nlat)
+	end
+
+	for glat in 1 : nlat, glon in 1 : nlon
+		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
+		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
+	end
+
+    svar = rvar[rlsm.<0.5];
+	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
+    sbin = fit(Histogram,svar,bins).weights;
+	sbin = sbin ./ sum(sbin) * (length(bins) - 1)
+
+    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
+    svar = rvar[rlsm.<0.5];
+	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
+    svar = svar / mean(rwgt[rlsm.<0.5])
+
+    return sbin,mean(svar)
+
+end
+
+function getmean(geo::GeoRegion,var,nlvl,lsd)
+
+	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
 	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
 	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
     rvar = zeros(nlon,nlat,nlvl)
@@ -99,7 +165,7 @@ function getmean(coords,var,lon,lat,nlvl,lsm)
 
 	for ilvl = 1 : nlvl, glat in 1 : nlat, glon in 1 : nlon
 		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
+		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
 	end
 
     sprf = zeros(nlvl); lprf = zeros(nlvl)
