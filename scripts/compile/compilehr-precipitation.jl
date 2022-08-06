@@ -20,6 +20,7 @@ function compile(
 
     tmp  = zeros(Float32,nlon,nlat,48)
     prcp = zeros(Float32,nlon,nlat,48)
+    cnt  = zeros(Float32,nlon,nlat,48)
 
     for dt in dtvec
 
@@ -29,13 +30,17 @@ function compile(
         close(ids)
 
         for it = 1 : 48, ilat = 1 : nlat, ilon = 1 : nlon
-            prcp[ilon,ilat,it] += tmp[ilon,ilat,it]
+            tmpii = tmp[ilon,ilat,it]
+            if !isnan(tmpii)
+                prcp[ilon,ilat,it] += tmpii
+                cnt[ilon,ilat,it]  += 1
+            end
         end
 
     end
 
     for it = 1 : 48, ilat = 1 : nlat, ilon = 1 : nlon
-        prcp[ilon,ilat,it] = prcp[ilon,ilat,it] / ndt
+        prcp[ilon,ilat,it] = prcp[ilon,ilat,it] / cnt[ilon,ilat,it]
     end
 
     @info "$(now()) - TroPrecLS - Saving compiled GPM IMERG Half-Hourly data in Tropics GeoRegion ..."

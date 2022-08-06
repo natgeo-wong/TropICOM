@@ -54,9 +54,9 @@ function compile(
     fol = "compiled"
     if !isdir(datadir(fol)); mkpath(datadir(fol)) end
     if typeof(evar) <: SingleLevel
-        fnc = datadir(fol,"era5mh-$(egeo.gstr)-$(evar.varID)-compiled.nc")
+        fnc = datadir(fol,"era5hr-$(egeo.gstr)-$(evar.varID)-compiled.nc")
     else
-        fnc = datadir(fol,"era5mh-$(egeo.gstr)-$(evar.varID)-$(evar.hPa)hPa-compiled.nc")
+        fnc = datadir(fol,"era5hr-$(egeo.gstr)-$(evar.varID)-$(evar.hPa)hPa-compiled.nc")
     end
 
     if isfile(fnc)
