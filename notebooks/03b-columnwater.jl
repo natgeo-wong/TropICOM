@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -17,10 +17,10 @@ begin
 	@quickactivate "TroPrecLS"
 	using Dates
 	using DelimitedFiles
-	using GeoRegions
+	using ERA5Reanalysis
 	using Interpolations
 	using NCDatasets
-	using StatsBasea
+	using StatsBase
 
 	using ImageShow, PNGFiles
 	using PyCall, LaTeXStrings
@@ -37,6 +37,13 @@ md"
 
 The first variable that we want to explore among the ERA5 reanalysis variables is Skin Temperature.  More details about the retrieval of reanalysis data can be found in notebook `03-reanalysis.jl`.
 "
+
+# ╔═╡ d82366b0-53b1-11eb-26c1-ff1bb6ccb027
+begin
+	coord = readdlm(datadir("GLB-i.txt"),comments=true,comment_char='#')
+	x = coord[:,1]; y = coord[:,2];
+md"Loading coastlines ..."
+end
 
 # ╔═╡ c1fafcba-530f-11eb-1cc2-67d10a3fa606
 md"
@@ -91,40 +98,41 @@ function eradiurnal2model(data,longitude)
 
 end
 
+# ╔═╡ 489d8f11-0c10-43f1-b8a1-0a86bbe0d4b6
+md"
+### B. Defining GeoRegions
+"
+
+# ╔═╡ 3c9013ce-5084-4360-8ab3-2ce88ab9dea8
+egeo = ERA5Region(GeoRegion("TRP"))
+
+# ╔═╡ 6960a260-57c5-4394-9d2d-506df3bcf60e
+lsd = getLandSea(egeo,path=datadir("emask"))
+
 # ╔═╡ aa05317e-530b-11eb-2ec1-93aff65659dd
 md"
-### B. Retrieving ERA5 Column Water Data
+### C. Retrieving ERA5 Column Water Vapour Data
 "
 
 # ╔═╡ 103f85e8-530c-11eb-047d-a537aa60075d
 function retrieveera()
 
-    ds  = NCDataset(datadir("reanalysis/hourly/era5-TRPx0.25-tcwv-sfc-hour.nc"))
+    ds  = NCDataset(datadir("compiled","era5hr-TRPx0.25-tcwv-compiled.nc"))
 	lon = ds["longitude"][:]
 	lat = ds["latitude"][:]
-	var = ds["tcwv"][:] * 1
+	skt = ds["tcwv"][:] * 1
 	close(ds)
 
-	μ,A,θ = eradiurnal2model(var,lon)
+	μ,A,θ = eradiurnal2model(skt,lon)
 
     return lon,lat,μ,A,θ
 
 end
 
-# ╔═╡ 49d13e5c-53af-11eb-29ca-c994a7acd377
-sroot = "/n/kuangdss01/lab/"; regID = "TRP"
-
 # ╔═╡ e8141e20-53af-11eb-1a23-81d34293c5eb
 begin
 	lon,lat,μ,A,θ = retrieveera()
-md"Modelling diurnal cycle of surface temperature"
-end
-
-# ╔═╡ d82366b0-53b1-11eb-26c1-ff1bb6ccb027
-begin
-	coord = readdlm(datadir("GLB-i.txt"),comments=true,comment_char='#')
-	x = coord[:,1]; y = coord[:,2];
-md"Loading coastlines ..."
+	md"Modelling diurnal cycle of surface temperature"
 end
 
 # ╔═╡ bb59b8d6-53b1-11eb-3631-87ef61219c4c
@@ -172,7 +180,7 @@ We can get quick snapshots of the results for different GeoRegions specified in 
 
 # ╔═╡ 52b39ff8-9426-11eb-2a86-43f7da15f62e
 begin
-	geo = GeoRegion("SMT")
+	geo = GeoRegion("SEA")
 	md"Defining region coordinates ..."
 end
 
@@ -180,20 +188,9 @@ end
 begin
 	N,S,E,W = geo.N,geo.S,geo.E,geo.W
 	ggrd = RegionGrid(geo,lon,lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-	rμ = zeros(nlon,nlat)
-	rA = zeros(nlon,nlat)
-	rθ = zeros(nlon,nlat)
-	if typeof(ggrd) <: PolyGrid
-		mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-	for glat in 1 : nlat, glon in 1 : nlon
-		rμ[glon,glat] = μ[ilon[glon],ilat[glat]] * mask[glon,glat]
-		rA[glon,glat] = A[ilon[glon],ilat[glat]] * mask[glon,glat]
-		rθ[glon,glat] = θ[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
+	rμ = extractGrid(μ,ggrd)
+	rA = extractGrid(A,ggrd)
+	rθ = extractGrid(θ,ggrd)
 	md"Extracting information for region ..."
 end
 
@@ -208,27 +205,27 @@ begin
 	end
 
 	creg = areg[1].contourf(
-		ggrd.glon,ggrd.glat,rμ',levels=15:5:75,cmap="Blues",extend="both")
+		ggrd.lon,ggrd.lat,rμ',levels=15:5:75,cmap="Blues",extend="both")
 	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].format(rtitle=L"$\mu$ / K")
 	areg[1].colorbar(creg,loc="r")
 
 	creg = areg[2].contourf(
-		ggrd.glon,ggrd.glat,rA',
+		ggrd.lon,ggrd.lat,rA',
 		levels=10. .^(-1:0.2:1),extend="both"
 	)
 	areg[2].plot(x,y,c="k",lw=0.5)
 	areg[2].format(rtitle="A / K")
 	areg[2].colorbar(creg,loc="r",ticks=[0.1,1,10,100])
 
-	creg = areg[3].pcolormesh(ggrd.glon,ggrd.glat,rθ',cmap="romaO",levels=0:0.5:24)
+	creg = areg[3].pcolormesh(ggrd.lon,ggrd.lat,rθ',cmap="romaO",levels=0:0.5:24)
 	areg[3].plot(x,y,c="k",lw=0.5)
 	areg[3].format(rtitle=L"$\theta$ / Hour of Day")
 	areg[3].colorbar(creg,loc="r",ticks=0:3:24)
 
 	for ax in areg
 		ax.format(
-			xlim=(ggrd.glon[1].-1,ggrd.glon[end].+1),
+			xlim=(ggrd.lon[1].-1,ggrd.lon[end].+1),
 			xlabel=L"Longitude / $\degree$",
 			ylim=(S-1,N+1),ylabel=L"Latitude / $\degree$",
 			grid=true
@@ -246,15 +243,6 @@ md"
 We now wish to bin the modelled precipitation data in order to determine the relationship between precipitation rate and the diurnal cycle over land and sea.  Is it different?
 "
 
-# ╔═╡ 1fadf4ca-5755-11eb-1ece-a99313019785
-begin
-	lds = NCDataset(datadir("reanalysis/era5-TRPx0.25-lsm-sfc.nc"))
-	lsm = lds["lsm"][:]*1
-	close(lds)
-
-md"Loading Land-Sea Mask for ERA5 data ..."
-end
-
 # ╔═╡ 43982629-a34e-4153-80f9-dce137951c27
 begin
 	lsc = pplt.Colors("Delta_r",15)
@@ -263,25 +251,25 @@ end
 
 # ╔═╡ f752b054-57c1-11eb-117c-ed52464aa25f
 md"
-#### i. Mean Precipitation Rate $\mu$ (Hourly)
+#### i. Mean Column Water Vapour $\mu$
 "
 
 # ╔═╡ 4b289fa8-57b9-11eb-0923-116c3d9444bb
 begin
 	lbins = collect(0:0.5:75); lpbin = (lbins[2:end].+lbins[1:(end-1)])/2
-	lbin_DTP,lavg_DTP = bindatasfclnd(GeoRegion("DTP"),lbins,μ,lon,lat,lsm)
-	lbin_SEA,lavg_SEA = bindatasfclnd(GeoRegion("SEA"),lbins,μ,lon,lat,lsm)
-	lbin_CRB,lavg_CRB = bindatasfclnd(GeoRegion("CRB"),lbins,μ,lon,lat,lsm)
-	lbin_TRA,lavg_TRA = bindatasfclnd(GeoRegion("TRA"),lbins,μ,lon,lat,lsm)
-	lbin_AMZ,lavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lbins,μ,lon,lat,lsm)
+	lbin_DTP,lavg_DTP = bindatasfclnd(GeoRegion("DTP"),lbins,μ,lsd)
+	lbin_SEA,lavg_SEA = bindatasfclnd(GeoRegion("SEA"),lbins,μ,lsd)
+	lbin_CRB,lavg_CRB = bindatasfclnd(GeoRegion("CRB"),lbins,μ,lsd)
+	lbin_TRA,lavg_TRA = bindatasfclnd(GeoRegion("TRA"),lbins,μ,lsd)
+	lbin_AMZ,lavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lbins,μ,lsd)
 
 	sbins = collect(0:0.5:75); spbin = (sbins[2:end].+sbins[1:(end-1)])/2
-	sbin_DTP,savg_DTP = bindatasfcsea(GeoRegion("DTP"),sbins,μ,lon,lat,lsm)
-	sbin_SEA,savg_SEA = bindatasfcsea(GeoRegion("SEA"),sbins,μ,lon,lat,lsm)
-	sbin_CRB,savg_CRB = bindatasfcsea(GeoRegion("CRB"),sbins,μ,lon,lat,lsm)
-	sbin_EPO,savg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),sbins,μ,lon,lat,lsm)
-	sbin_EIO,savg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),sbins,μ,lon,lat,lsm)
-	sbin_EAO,savg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),sbins,μ,lon,lat,lsm)
+	sbin_DTP,savg_DTP = bindatasfcsea(GeoRegion("DTP"),sbins,μ,lsd)
+	sbin_SEA,savg_SEA = bindatasfcsea(GeoRegion("SEA"),sbins,μ,lsd)
+	sbin_CRB,savg_CRB = bindatasfcsea(GeoRegion("CRB"),sbins,μ,lsd)
+	sbin_EPO,savg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),sbins,μ,lsd)
+	sbin_EIO,savg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),sbins,μ,lsd)
+	sbin_EAO,savg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),sbins,μ,lsd)
 
 	md"Binning mean column water for different tropical regions ..."
 end
@@ -322,7 +310,7 @@ begin
 	abin[1].format(
 		xlim=(minimum(lbins),maximum(lbins)),
 		ylim=(0,20),#yscale="log",
-		ylabel="Density",
+		xlabel="Total Column Water Vapour / mm",ylabel="Density",
 		ltitle="(a) Land"
 	)
 
@@ -345,19 +333,19 @@ md"
 # ╔═╡ 252508a8-57c2-11eb-08b5-8fa673b1ac8a
 begin
 	lvec = collect(0:0.02:4); lAbin = (lvec[2:end].+lvec[1:(end-1)])/2
-	lAbin_DTP,lAavg_DTP = bindatasfclnd(GeoRegion("DTP"),lvec,A,lon,lat,lsm)
-	lAbin_SEA,lAavg_SEA = bindatasfclnd(GeoRegion("SEA"),lvec,A,lon,lat,lsm)
-	lAbin_CRB,lAavg_CRB = bindatasfclnd(GeoRegion("CRB"),lvec,A,lon,lat,lsm)
-	lAbin_TRA,lAavg_TRA = bindatasfclnd(GeoRegion("TRA"),lvec,A,lon,lat,lsm)
-	lAbin_AMZ,lAavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lvec,A,lon,lat,lsm)
+	lAbin_DTP,lAavg_DTP = bindatasfclnd(GeoRegion("DTP"),lvec,A,lsd)
+	lAbin_SEA,lAavg_SEA = bindatasfclnd(GeoRegion("SEA"),lvec,A,lsd)
+	lAbin_CRB,lAavg_CRB = bindatasfclnd(GeoRegion("CRB"),lvec,A,lsd)
+	lAbin_TRA,lAavg_TRA = bindatasfclnd(GeoRegion("TRA"),lvec,A,lsd)
+	lAbin_AMZ,lAavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),lvec,A,lsd)
 
 	svec = collect(0:0.01:2); sAbin = (svec[2:end].+svec[1:(end-1)])/2
-	sAbin_DTP,sAavg_DTP = bindatasfcsea(GeoRegion("DTP"),svec,A,lon,lat,lsm)
-	sAbin_SEA,sAavg_SEA = bindatasfcsea(GeoRegion("SEA"),svec,A,lon,lat,lsm)
-	sAbin_CRB,sAavg_CRB = bindatasfcsea(GeoRegion("CRB"),svec,A,lon,lat,lsm)
-	sAbin_EPO,sAavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),svec,A,lon,lat,lsm)
-	sAbin_EIO,sAavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),svec,A,lon,lat,lsm)
-	sAbin_EAO,sAavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),svec,A,lon,lat,lsm)
+	sAbin_DTP,sAavg_DTP = bindatasfcsea(GeoRegion("DTP"),svec,A,lsd)
+	sAbin_SEA,sAavg_SEA = bindatasfcsea(GeoRegion("SEA"),svec,A,lsd)
+	sAbin_CRB,sAavg_CRB = bindatasfcsea(GeoRegion("CRB"),svec,A,lsd)
+	sAbin_EPO,sAavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),svec,A,lsd)
+	sAbin_EIO,sAavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),svec,A,lsd)
+	sAbin_EAO,sAavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),svec,A,lsd)
 
 	md"Binning amplitude of the diurnal cycle for column water in different tropical regions ..."
 end
@@ -397,7 +385,7 @@ begin
 	aA[1].format(
 		xlim=(minimum(lvec),maximum(lvec)),
 		ylim=(0,10),#yscale="log",
-		ylabel="Density",
+		xlabel="A / mm",ylabel="Density",
 		ltitle="(a) Land"
 	)
 
@@ -422,25 +410,25 @@ begin
 	θvec = collect(0:0.5:24); pθbin = (θvec[2:end].+θvec[1:(end-1)])/24*pi
 	pθbin = vcat(pθbin,pθbin[1]+2*pi)
 
-	lθbin_DTP,lθavg_DTP = bindatasfclnd(GeoRegion("DTP"),θvec,θ,lon,lat,lsm)
-	lθbin_SEA,lθavg_SEA = bindatasfclnd(GeoRegion("SEA"),θvec,θ,lon,lat,lsm)
-	lθbin_CRB,lθavg_CRB = bindatasfclnd(GeoRegion("CRB"),θvec,θ,lon,lat,lsm)
-	lθbin_TRA,lθavg_TRA = bindatasfclnd(GeoRegion("TRA"),θvec,θ,lon,lat,lsm)
-	lθbin_AMZ,lθavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),θvec,θ,lon,lat,lsm)
+	lθbin_DTP,lθavg_DTP = bindatasfclnd(GeoRegion("DTP"),θvec,θ,lsd)
+	lθbin_SEA,lθavg_SEA = bindatasfclnd(GeoRegion("SEA"),θvec,θ,lsd)
+	lθbin_CRB,lθavg_CRB = bindatasfclnd(GeoRegion("CRB"),θvec,θ,lsd)
+	lθbin_TRA,lθavg_TRA = bindatasfclnd(GeoRegion("TRA"),θvec,θ,lsd)
+	lθbin_AMZ,lθavg_AMZ = bindatasfclnd(GeoRegion("AMZ"),θvec,θ,lsd)
 
-	sθbin_DTP,sθavg_DTP = bindatasfcsea(GeoRegion("DTP"),θvec,θ,lon,lat,lsm)
-	sθbin_EPO,sθavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),θvec,θ,lon,lat,lsm)
-	sθbin_EIO,sθavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),θvec,θ,lon,lat,lsm)
-	sθbin_EAO,sθavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),θvec,θ,lon,lat,lsm)
-	sθbin_CRB,sθavg_CRB = bindatasfcsea(GeoRegion("CRB"),θvec,θ,lon,lat,lsm)
-	sθbin_SEA,sθavg_SEA = bindatasfcsea(GeoRegion("SEA"),θvec,θ,lon,lat,lsm)
+	sθbin_DTP,sθavg_DTP = bindatasfcsea(GeoRegion("DTP"),θvec,θ,lsd)
+	sθbin_EPO,sθavg_EPO = bindatasfcsea(GeoRegion("AR6_EPO"),θvec,θ,lsd)
+	sθbin_EIO,sθavg_EIO = bindatasfcsea(GeoRegion("AR6_EIO"),θvec,θ,lsd)
+	sθbin_EAO,sθavg_EAO = bindatasfcsea(GeoRegion("AR6_EAO"),θvec,θ,lsd)
+	sθbin_CRB,sθavg_CRB = bindatasfcsea(GeoRegion("CRB"),θvec,θ,lsd)
+	sθbin_SEA,sθavg_SEA = bindatasfcsea(GeoRegion("SEA"),θvec,θ,lsd)
 
 	md"Binning hour of maximum column water for different tropical regions ..."
 end
 
 # ╔═╡ 8d739d0a-57c7-11eb-16b6-736f595e329e
 begin
-	pplt.close(); fθ,aθ = pplt.subplots(ncols=2,aspect=2,proj="polar");
+	pplt.close(); fθ,aθ = pplt.subplots(ncols=2,proj="polar");
 
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_DTP,lθbin_DTP[1])),c="k")
 	aθ[1].plot(pθbin,sqrt.(vcat(lθbin_CRB,lθbin_CRB[1])),c=lsc[10])
@@ -469,15 +457,17 @@ end
 # ╟─90fffbc8-524d-11eb-232a-1bada28d5505
 # ╟─6f00b8fc-530c-11eb-2242-99d8544f6e14
 # ╟─8f30c56c-530c-11eb-2782-33f3c4ed9e89
+# ╟─d82366b0-53b1-11eb-26c1-ff1bb6ccb027
 # ╟─c1fafcba-530f-11eb-1cc2-67d10a3fa606
 # ╟─3565af3c-5311-11eb-34c4-2d228b05b17c
 # ╠═fd344560-94d3-11eb-2b79-05c905c5953f
 # ╠═a6a688ca-53ab-11eb-2776-b5380ffb26c1
+# ╟─489d8f11-0c10-43f1-b8a1-0a86bbe0d4b6
+# ╟─3c9013ce-5084-4360-8ab3-2ce88ab9dea8
+# ╟─6960a260-57c5-4394-9d2d-506df3bcf60e
 # ╟─aa05317e-530b-11eb-2ec1-93aff65659dd
-# ╟─103f85e8-530c-11eb-047d-a537aa60075d
-# ╟─49d13e5c-53af-11eb-29ca-c994a7acd377
+# ╠═103f85e8-530c-11eb-047d-a537aa60075d
 # ╟─e8141e20-53af-11eb-1a23-81d34293c5eb
-# ╟─d82366b0-53b1-11eb-26c1-ff1bb6ccb027
 # ╟─bb59b8d6-53b1-11eb-3631-87ef61219c4c
 # ╟─5c0e5bae-554e-11eb-3f83-a364ae0a2485
 # ╟─68cfc46c-5755-11eb-1702-373942539652
@@ -485,7 +475,6 @@ end
 # ╟─ea7f0956-575b-11eb-3e3f-a1ba3e08b771
 # ╟─5714c13c-575c-11eb-06d4-838b4e8dbcd7
 # ╟─c4792bf2-5552-11eb-3b52-997f59fd42f3
-# ╟─1fadf4ca-5755-11eb-1ece-a99313019785
 # ╟─43982629-a34e-4153-80f9-dce137951c27
 # ╟─f752b054-57c1-11eb-117c-ed52464aa25f
 # ╟─4b289fa8-57b9-11eb-0923-116c3d9444bb

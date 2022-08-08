@@ -100,7 +100,7 @@ end
 
 # ╔═╡ 05c13f7e-58f8-4136-830d-fb20a9dc0e6f
 begin
-	geo = GeoRegion("SEA")
+	geo = GeoRegion("TRP")
 	md"Defining region coordinates ..."
 end
 
