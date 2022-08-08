@@ -12,10 +12,10 @@ function outstatname(
 )
 
     if isensemble
-    	  expname = "$(expname)-member$(@sprintf("%02d",member))"
+        config = "$(config)-member$(@sprintf("%02d",member))"
     end
 
-    return datadir(joinpath(expname,config,"OUT_STAT","DGW_TroPrecLS-$(expname).nc"))
+    return datadir(joinpath(expname,"OUT_STAT","DGW_TroPrecLS-$(expname)-$(config).nc"))
 
 end
 
@@ -27,12 +27,12 @@ function out2Dname(
 )
 
     if isensemble
-    	  expname = "$(expname)-member$(@sprintf("%02d",member))"
+        config = "$(config)-member$(@sprintf("%02d",member))"
     end
 
 	fnclist = glob(
-		"DGW_TroPrecLS-$(expname)*.nc",
-		joinpath(datadir(expname,config,"OUT_2D"))
+		"DGW_TroPrecLS-$(expname)-$(config)*.nc",
+		joinpath(datadir(expname,"OUT_2D"))
 	)
 
     return datadir(fnclist[1])
