@@ -5,8 +5,9 @@ using Printf
 using Statistics
 
 function outstatname(
-    expname :: AbstractString,
-    config  :: AbstractString,
+    wtgscheme :: AbstractString,
+    expname   :: AbstractString,
+    config    :: AbstractString,
     isensemble :: Bool = false,
     member     :: Integer = 0
 )
@@ -15,11 +16,14 @@ function outstatname(
         config = "$(config)-member$(@sprintf("%02d",member))"
     end
 
-    return datadir(joinpath(expname,"OUT_STAT","DGW_TroPrecLS-$(expname)-$(config).nc"))
+    return datadir(joinpath(
+        expname,"OUT_STAT","$(wtgscheme)_TroPrecLS-$(expname)-$(config).nc"
+    ))
 
 end
 
 function out2Dname(
+    wtgscheme :: AbstractString,
     expname :: AbstractString,
     config  :: AbstractString,
     isensemble :: Bool = false,
@@ -31,7 +35,7 @@ function out2Dname(
     end
 
 	fnclist = glob(
-		"DGW_TroPrecLS-$(expname)-$(config)*.nc",
+		"$(wtgscheme)_TroPrecLS-$(expname)-$(config)*.nc",
 		joinpath(datadir(expname,"OUT_2D"))
 	)
 
@@ -40,13 +44,14 @@ function out2Dname(
 end
 
 function retrievedims(
-    expname :: AbstractString,
-    config  :: AbstractString = "";
+    expname   :: AbstractString,
+    config    :: AbstractString,
+    wtgscheme :: AbstractString = "DGW";
     isensemble :: Bool = false,
     member     :: Integer=0
 )
 
-    ds  = NCDataset(outstatname(expname,config,isensemble,member))
+    ds  = NCDataset(outstatname(wtgscheme,expname,config,isensemble,member))
     z   = ds["z"][:]
     p   = ds["p"][:]
     t   = ds["time"][:]
@@ -69,13 +74,14 @@ function retrievedims_fnc(fnc::AbstractString)
 end
 
 function retrievedims2D(
-    expname :: AbstractString,
-    config  :: AbstractString = "",
+    expname   :: AbstractString,
+    config    :: AbstractString,
+    wtgscheme :: AbstractString = "DGW",
     isensemble :: Bool = false,
     member     :: Integer = 0
 )
 
-    ds = NCDataset(out2Dname(expname,config,isensemble,member))
+    ds = NCDataset(out2Dname(wtgscheme,expname,config,isensemble,member))
 	x = ds["x"][:]
     t = ds["time"][:]
 
@@ -114,14 +120,15 @@ function retrievedims2D_fnc(fnc::AbstractString)
 end
 
 function retrievevar(
-    varname :: AbstractString,
-    expname :: AbstractString,
-    config  :: AbstractString = "";
+    varname   :: AbstractString,
+    expname   :: AbstractString,
+    config    :: AbstractString,
+    wtgscheme :: AbstractString = "DGW";
     isensemble :: Bool = false,
     member     :: Integer=0
 )
 
-    ds  = NCDataset(outstatname(expname,config,isensemble,member))
+    ds  = NCDataset(outstatname(wtgscheme,expname,config,isensemble,member))
     var = ds[varname][:]
     close(ds)
 
@@ -140,14 +147,15 @@ function retrievevar_fnc(variable::AbstractString, fnc::AbstractString)
 end
 
 function retrievevar2D(
-    varname :: AbstractString,
-    expname :: AbstractString,
-    config  :: AbstractString = "";
+    varname   :: AbstractString,
+    expname   :: AbstractString,
+    config    :: AbstractString,
+    wtgscheme :: AbstractString = "DGW";
     isensemble :: Bool = false,
     member     :: Integer=0
 )
 
-    ds  = NCDataset(out2Dname(expname,config,isensemble,member))
+    ds  = NCDataset(out2Dname(wtgscheme,expname,config,isensemble,member))
     var = ds[varname][:]
     close(ds)
 
