@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-Slab00d02-relaxscale05d0',
+caseid ='TroPrecLS-Slab20d00-relaxscale05d0',
 
 dx = 2000.,
 dy = 2000.,
