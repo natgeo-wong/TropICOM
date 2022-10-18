@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.19.13
 
 using Markdown
 using InteractiveUtils
@@ -146,6 +146,13 @@ begin
 	md"Extracting Regional Data for ERA5 data ..."
 end
 
+# ╔═╡ 0ffd4cfb-dd7e-42b3-9289-6924287a6261
+begin
+	data = readdlm(datadir("test.txt"))
+	bin  = data[:,1]
+	prcp = data[:,2]
+end
+
 # ╔═╡ d0aebfcd-6068-4ff0-9aae-fef936be7a99
 begin
 	pplt.close(); f2,a2 = pplt.subplots(nrows=2,aspect=2,axwidth=3)
@@ -166,6 +173,7 @@ begin
 	a2[1].plot(csf,lgfrq_AMZ,lw=1,c=lsc[4],linestyle="--")
 	a2[1].plot(csf,lgfrq_TRA,lw=1,c=lsc[3],linestyle="--")
 	# a2[1].plot(csf,lgfrq_SAS,lw=1,c="r",linestyle="--")
+	a2[1].plot(bin,prcp,c="r",label="SAM",legend="r",legend_kw=lgd)
 	a2[1].format(ltitle="(a) GPM Precipitation")
 
 	# a2[2].plot(csf,oefrq_DTP,label="TRP",legend="r",lw=1,c="r")
@@ -183,11 +191,12 @@ begin
 	a2[2].plot(csf,lefrq_SEA,lw=1,c=lsc[5],linestyle="--")
 	a2[2].plot(csf,lefrq_AMZ,lw=1,c=lsc[4],linestyle="--")
 	a2[2].plot(csf,lefrq_TRA,lw=1,c=lsc[3],linestyle="--")
+	a2[2].plot(bin,prcp,c="r")
 	a2[2].format(ltitle="(b) ERA5 Precipitation")
 
 	for ax in a2
 		ax.format(
-			xlim=(0,100),xlabel="Column Relative Humidity",
+			xlim=(50,100),xlabel="Column Relative Humidity",
 			ylim=10. .^(-3.5,1.5),ylabel=L"Precipitation Rate / mm hr$^{-1}$",
 			yscale="log",ylocator=10. .^(-3:1)
 		)
@@ -211,4 +220,5 @@ end
 # ╠═1cd2bee0-0e9a-4c82-afaf-f54dbe4a359a
 # ╟─48e74e01-c1ef-456e-9e6c-5f6da0ce93bf
 # ╟─35c157f3-fdcc-4259-888d-ea6af3aa362a
-# ╟─d0aebfcd-6068-4ff0-9aae-fef936be7a99
+# ╠═0ffd4cfb-dd7e-42b3-9289-6924287a6261
+# ╠═d0aebfcd-6068-4ff0-9aae-fef936be7a99

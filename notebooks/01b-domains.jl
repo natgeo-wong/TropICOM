@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.11
+# v0.19.13
 
 using Markdown
 using InteractiveUtils
@@ -125,9 +125,9 @@ begin
 
 	axs[1].pcolormesh(lon,lat,kctrop',levels=0:6,cmap="Reds_r")
 	axs[1].pcolormesh(lon,lat,kcarid',levels=5:9,cmap="Yellow3_r")
-	axs[1].pcolormesh(lon,lat,kctemph',levels=6:12,cmap="Green2_r")
-	axs[1].pcolormesh(lon,lat,kctemps',levels=11:15,cmap="Brown1_r")
-	axs[1].pcolormesh(lon,lat,kctempw',levels=12:18,cmap="Blue3_r")
+	axs[1].pcolormesh(lon,lat,kctemph',levels=6:12,cmap="Greens2_r")
+	axs[1].pcolormesh(lon,lat,kctemps',levels=11:15,cmap="Browns1_r")
+	axs[1].pcolormesh(lon,lat,kctempw',levels=12:18,cmap="Blues3_r")
 
 	axs[1].plot(x,y,c="k",lw=0.2)
 	axs[1].plot([-150,210,210,-150,-150],[-10,-10,10,10,-10],c="k",lw=1,linestyle="--")
@@ -237,9 +237,9 @@ begin
 
 	c = areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtrop',levels=0:6,cmap="Reds_r")
 	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrarid',levels=5:9,cmap="Yellow3_r")
-	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemph',levels=6:12,cmap="Green2_r")
-	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemps',levels=11:15,cmap="Brown1_r")
-	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtempw',levels=12:18,cmap="Blue3_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemph',levels=6:12,cmap="Greens2_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtemps',levels=11:15,cmap="Browns1_r")
+	areg[1].pcolormesh(ggrd.lon,ggrd.lat,kcrtempw',levels=12:18,cmap="Blues3_r")
 	areg[1].plot(slnSMT,sltSMT,lw=1,linestyle="--")
 	areg[1].plot(slnBRN,sltBRN,lw=1,linestyle="--")
 	areg[1].plot(slnJAV,sltJAV,lw=1,linestyle="--")
@@ -256,6 +256,22 @@ begin
 
 	freg.savefig(plotsdir("01b-domain_SEA.png"),transparent=false,dpi=200)
 	load(plotsdir("01b-domain_SEA.png"))
+end
+
+# ╔═╡ 59c4ce67-fbae-4bbb-a3bb-84912725e7ec
+md"
+### D. Deep Tropics Region for Indo-Pacific Warmpool
+"
+
+# ╔═╡ c02de95c-de7c-4251-a87b-246f8ae7b107
+begin
+	if isGeoRegion("DTP_IPW",throw=false)
+		removeGeoRegion("DTP_IPW")
+	end
+	DTP_IPW = RectRegion(
+		"DTP_IPW","DTP","Indo-Pacific Warmpool (Deep Tropics)",
+		[10,-10,180,90]
+	)
 end
 
 # ╔═╡ Cell order:
@@ -280,3 +296,5 @@ end
 # ╟─ea1495f2-edcc-4606-a6b3-f739bff104a3
 # ╟─a5f1afd5-4b14-4f27-b414-191f947f73fc
 # ╟─fa5dbc76-84e4-4889-9e28-2b1053a3d6c9
+# ╟─59c4ce67-fbae-4bbb-a3bb-84912725e7ec
+# ╟─c02de95c-de7c-4251-a87b-246f8ae7b107
