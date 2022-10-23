@@ -100,12 +100,12 @@ WindSpeedForFluxes               = 5.,
 dowtg_raymondzeng_QJRMS2005 = .true.,
 ttheta_wtg = 1.,
 ttheta_tscale = 0.,
-dthetadz_min  = 1.e-3
+dthetadz_min  = 1.e-3,
 
 doradtendency    = .false.,
 
 dooceantimeperturb = .true.,
-tabs_ptscale = 12. 18. 30.
-tabs_pamp = 0.04 0.04 0.04
+tabs_ptscale = 12., 18., 30.
+tabs_pamp = 0.04, 0.04, 0.04
 
 /
