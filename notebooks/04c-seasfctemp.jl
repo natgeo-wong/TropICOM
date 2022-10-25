@@ -142,7 +142,7 @@ end
 begin
 	for imo = 1 : 12
 		mstr = uppercase(monthabbr(imo))
-		pplt.close(); f,axs = pplt.subplots(nrows=3,axwidth=6,aspect=6)
+		pplt.close(); f,axs = pplt.subplots(nrows=2,axwidth=6,aspect=6)
 	
 		c = axs[1].contourf(lon,lat,μ[:,:,imo]',levels=295:305,extend="both")
 		axs[1].plot(x,y,c="k",lw=0.5)
@@ -153,11 +153,6 @@ begin
 		axs[2].plot(x,y,c="k",lw=0.5)
 		axs[2].format(urtitle=L"A / 10$^{-2}$ K")
 		axs[2].colorbar(c,loc="r",ticks=[0.1,1,10,100])
-	
-		c = axs[3].pcolormesh(lon,lat,θ[:,:,imo]',cmap="romaO",levels=8.75:0.5:15.25,extend="both")
-		axs[3].plot(x,y,c="k",lw=0.5)
-		axs[3].format(urtitle=L"$\theta$ / Hour of Day")
-		axs[3].colorbar(c,loc="r",ticks=9:1.5:15,minorticks=8.5:0.5:15.5)
 	
 		for ax in axs
 			ax.format(
@@ -191,7 +186,7 @@ We can get quick snapshots of the results for different GeoRegions specified in 
 
 # ╔═╡ 52b39ff8-9426-11eb-2a86-43f7da15f62e
 begin
-	geo = GeoRegion("SEA")
+	geo = GeoRegion("DTP_IPW")
 	md"Defining Regional GeoRegion ..."
 end
 
@@ -219,9 +214,9 @@ begin
 		asp = (E-W+2)/(N-S+2)
 		pplt.close()
 		if asp > 1.5
-			freg,areg = pplt.subplots(nrows=3,axwidth=asp*1.2,aspect=asp)
+			freg,areg = pplt.subplots(nrows=2,axwidth=asp*1.2,aspect=asp)
 		else
-			freg,areg = pplt.subplots(ncols=3,axwidth=2,aspect=asp)
+			freg,areg = pplt.subplots(ncols=2,axwidth=2,aspect=asp)
 		end
 	
 		creg = areg[1].contourf(
@@ -239,14 +234,6 @@ begin
 		areg[2].plot(x,y,c="k",lw=0.5)
 		areg[2].format(rtitle=L"A / 10$^{-2}$ K")
 		areg[2].colorbar(creg,loc="r",ticks=[0.1,1,10,100])
-	
-		creg = areg[3].pcolormesh(
-			ggrd.lon,ggrd.lat,rθ[:,:,imo]',
-			cmap="romaO",levels=8.75:0.5:15.25
-		)
-		areg[3].plot(x,y,c="k",lw=0.5)
-		areg[3].format(rtitle=L"$\theta$ / Hour of Day")
-		areg[3].colorbar(creg,loc="r",ticks=9:15,minorticks=8.5:0.5:15.5)
 	
 		for ax in areg
 			ax.format(

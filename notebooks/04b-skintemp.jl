@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.11
+# v0.19.13
 
 using Markdown
 using InteractiveUtils
@@ -188,7 +188,7 @@ We can get quick snapshots of the results for different GeoRegions specified in 
 
 # ╔═╡ 52b39ff8-9426-11eb-2a86-43f7da15f62e
 begin
-	geo = GeoRegion("SEA")
+	geo = GeoRegion("DTP_IPW")
 	md"Defining Regional GeoRegion ..."
 end
 
@@ -504,7 +504,7 @@ end
 # ╠═52b39ff8-9426-11eb-2a86-43f7da15f62e
 # ╟─ea7f0956-575b-11eb-3e3f-a1ba3e08b771
 # ╟─5714c13c-575c-11eb-06d4-838b4e8dbcd7
-# ╠═0fdad268-07e0-4a29-88d6-15b66a264722
+# ╟─0fdad268-07e0-4a29-88d6-15b66a264722
 # ╟─c4792bf2-5552-11eb-3b52-997f59fd42f3
 # ╟─8b80552f-2d1e-41b5-bc8f-b6ca5467220e
 # ╟─f752b054-57c1-11eb-117c-ed52464aa25f

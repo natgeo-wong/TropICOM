@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.11
+# v0.19.13
 
 using Markdown
 using InteractiveUtils
@@ -100,8 +100,7 @@ end
 
 # ╔═╡ 05c13f7e-58f8-4136-830d-fb20a9dc0e6f
 begin
-	geo = GeoRegion("TRP")
-	md"Defining region coordinates ..."
+	geo = GeoRegion("DTP_IPW")
 end
 
 # ╔═╡ 8471606c-fead-450a-80f0-fd4cf308c3e5
@@ -168,6 +167,42 @@ begin
 	load(plotsdir("01c-flsm_$(geo.regID).png"))
 end
 
+# ╔═╡ 5c08a214-baaf-4f05-b505-67f49d02b4ef
+begin
+	fnc = datadir("flsm","flsm-$(geo.regID).nc")
+	if !isdir(datadir("flsm")); mkpath(datadir("flsm")) end
+	if isfile(fnc)
+		rm(fnc,force=true)
+	end
+
+	ds = NCDataset(fnc,"c")
+	ds.dim["longitude"] = length(ggrd.lon)
+	ds.dim["latitude"]  = length(ggrd.lat)
+
+	nclon = defVar(ds,"longitude",Float64,("longitude",),attrib = Dict(
+		"units"     => "degrees_east",
+		"long_name" => "longitude",
+	))
+
+	nclat = defVar(ds,"latitude",Float64,("latitude",),attrib = Dict(
+		"units"     => "degrees_north",
+		"long_name" => "latitude",
+	))
+
+	ncvar = defVar(ds,"flsm",Float64,("longitude","latitude",),attrib = Dict(
+		"long_name"     => "land_sea_mask_filtered",
+		"full_name"     => "Filtered Land-Sea Mask",
+		"units"         => "0-1",
+	))
+
+	nclon[:] = ggrd.lon
+	nclat[:] = ggrd.lat
+	ncvar[:] = flsm1d0
+
+	close(ds)
+	md"Saving Filtered Land-Sea Mask ..."
+end
+
 # ╔═╡ Cell order:
 # ╟─faa41f45-5a58-4bcb-a48c-dcd17e8bad3a
 # ╟─a675084e-f638-11eb-2930-b70006b9445c
@@ -179,6 +214,7 @@ end
 # ╟─95ffc474-8416-451c-ba9a-4452dc582626
 # ╠═a66e0d88-7f48-4d7d-b716-3a424d93e90b
 # ╠═d3864cc7-284b-4278-9499-0b6f4d274608
-# ╠═05c13f7e-58f8-4136-830d-fb20a9dc0e6f
+# ╟─05c13f7e-58f8-4136-830d-fb20a9dc0e6f
 # ╟─8471606c-fead-450a-80f0-fd4cf308c3e5
 # ╟─51d55158-32df-4135-ab12-186e295ce499
+# ╟─5c08a214-baaf-4f05-b505-67f49d02b4ef
