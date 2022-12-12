@@ -85,7 +85,6 @@ rad3Dout     = .true.,
 compute_advection_everywhere = .false.,
 
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-wtgscale_time = 0., ! If WTG/Large-scale is turned on for 100 days, am_tscale = 1/4 means that the scaling up to WTG from pseudo-RCE occurs over 25 days.
 am_wtg  = 1.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 0.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 20.e3,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
