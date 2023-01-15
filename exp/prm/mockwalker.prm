@@ -2,7 +2,7 @@
 
 caseid = 'MockWalker',
 
-dx = 2000.,
+dx = 2500.,
 dt = 30.,
 
 nrestart      = 0,
@@ -40,6 +40,7 @@ day0       = 0.,
 tabs_s     = 300.,
 Szero      = 0,
 
+ocean_type = 1
 delta_sst = 0.25,
 
 nrad = 12,
@@ -67,13 +68,13 @@ doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
 nsave2D      = 120,
-nsave2Dstart = 835200,
+nsave2Dstart = 0,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .true.,
 
 nsave3D      = 120,
-nsave3Dstart = 9999999,
+nsave3Dstart = 0,
 nsave3Dend   = 999999999,
 save3Dbin    = .true.,
 rad3Dout     = .true.,
