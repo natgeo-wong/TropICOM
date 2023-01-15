@@ -30,10 +30,17 @@ end
 
 # ╔═╡ ebbbea99-9f3d-402a-ba91-8f66914d8478
 md"
-# 04f. Point Signals in Surface Temperatures
+# 04e. Signals in Surface Temperatures
 
-Following from notebook `04e`, we now seek to decompose the daily timeseries signals for sea surface temperatures over the deep-tropical (<10$\degree$) regions of the Maritime Continent and Indo-Pacific warmpool for the individual points (i.e., not the domain mean). We have downloaded 1.0º x 1.0º resolution data within the region, as this corresponds to domains roughly 100 km in size.
+Following from notebook `04d`, we now seek to decompose the domain-mean, ocean-mean and land-mean timeseries signals for both skin and sea surface temperatures over the deep-tropical (<10$\degree$) regions of the Maritime Continent and Indo-Pacific warmpool.
 "
+
+# ╔═╡ 43882c17-36c4-4cab-974e-e518cce6f348
+function hr2daily(data)
+
+	return dropdims(mean(reshape(data,24,:),dims=1),dims=1)
+	
+end
 
 # ╔═╡ 0d258e07-3bec-4dcc-8d45-f866858a3f9e
 md"
@@ -57,15 +64,22 @@ lsd = getLandSea(egeo,path=datadir("emask"))
 
 # ╔═╡ 3f62e505-1032-4eaf-a20b-0244ff234244
 begin
-	sstdy = zeros(length(lsd.lon),length(lsd.lat),Dates.value(e5ds.stop-e5ds.start)+1)
+	ndt = Dates.value(e5ds.stop-e5ds.start)+1
+	sstdy = zeros(length(lsd.lon),length(lsd.lat),ndt)
+	sstsm = zeros(length(lsd.lon),length(lsd.lat),ndt)
 	for idt in e5ds.start : Month(1) : e5ds.stop
 		ibeg = Dates.value(idt-e5ds.start) + 1
 		iend = Dates.value(idt+Month(1)-e5ds.start)
 		ndy  = daysinmonth(idt)
-		ids = read(e5ds,evar_sst,egeo,idt)
-		sstdy[:,:,ibeg:iend] = nomissing(ids[evar_sst.varID][:],NaN)
-		close(ids)
+		ds1 = read(e5ds,evar_sst,egeo,idt)
+		sstdy[:,:,ibeg:iend] = nomissing(ds1[evar_sst.varID][:],NaN)
+		close(ds1)
+		ds2 = read(e5ds,evar_sst,egeo,idt,smooth=true,smoothlon=10,smoothlat=10)
+		sstsm[:,:,ibeg:iend] = nomissing(ds2[evar_sst.varID][:],NaN)
+		close(ds2)
 	end
+	sstdy = sstdy .- sstsm
+	md"Finding difference between raw and smoothed data ..."
 end
 
 # ╔═╡ 66a2a61d-978f-4bee-9e9c-79ccc582a902
@@ -93,13 +107,13 @@ end
 begin
 	pplt.close(); f2,a2 = pplt.subplots(aspect=1.5,axwidth=2)
 
-	for ilat = 1 : length(lsd.lat), ilon = 1 : length(lsd.lon)
+	for ilat = 11 : 11, ilon = 30 : 30
 		pdg = periodogram(sstdy[ilon,ilat,:].-mean(sstdy[ilon,ilat,:]),fs=365)
-		a2[1].plot(pdg.freq,pdg.power.*pdg.freq,lw=1,c="k")
+		a2[1].plot(pdg.freq,sqrt.(pdg.power.*pdg.freq),lw=1,c="k")
 	end
 	a2[1].format(
-		xscale="log",xlim=(0.1,180),yscale="log",ylim=(0.1,500),
-		xlocator=[0.5,1,2,12,20,28],ylabel="Power",xlabel="Cycles per Year"
+		xscale="log",xlim=(0.1,180),ylim=(0.01,20),yscale="log",
+		xlocator=[0.5,1,2,3,4,5,16,24,30],ylabel="Power",xlabel="Cycles per Year"
 	)
 	
 	f2.savefig("test2.png",transparent=false,dpi=150)
@@ -132,15 +146,15 @@ begin
 	designmethod = Butterworth(1)
 	sst_itr = filtfilt(digitalfilter(responsetype, designmethod), sstii)
 
-	responsetype = Bandpass(1.8,2.2; fs=365)
+	responsetype = Bandpass(1.9,2.1; fs=365)
 	designmethod = Butterworth(1)
 	sst_san = filtfilt(digitalfilter(responsetype, designmethod), sstii)
 
-	responsetype = Bandpass(2.8,3.2; fs=365)
+	responsetype = Bandpass(2.9,3.1; fs=365)
 	designmethod = Butterworth(1)
 	sst_san = sst_san .+ filtfilt(digitalfilter(responsetype, designmethod), sstii)
 
-	responsetype = Bandpass(0.6,1.3; fs=365)
+	responsetype = Bandpass(0.9,1.1; fs=365)
 	designmethod = Butterworth(1)
 	sst_ann = filtfilt(digitalfilter(responsetype, designmethod), sstii)
 
@@ -151,11 +165,11 @@ begin
 	t = e5ds.start:Day(1):e5ds.stop
 	msst = mean(sstii) * ones(length(t))
 	# a3[1].plot(t,sstdy[30,11,:].-sst_trd.+msst)
-	a3[1].plot(t,sst_san.+mean(sstii),zorder=3,c="red")
+	# a3[1].plot(t,sst_san.+mean(sstii),zorder=3,c="red")
 	# a3[1].plot(t,sst_ann.+mean(sstii),zorder=4,c="green")
-	# a3[1].plot(t,sst_itr.+mean(sstii),zorder=5,c="purple")
+	a3[1].plot(t,sst_itr.+mean(sstii),zorder=5,c="purple")
 	a3[1].plot(t,msst,c="black",zorder=5)
-	a3[1].format(xlim=(Date(1979),Date(2022)))
+	a3[1].format(xlim=(Date(2017),Date(2021)))
 
 	msst = [1,1]*mean(sstii)
 	p1 = a3[1].panel("r",space=1,width=0.5)
@@ -178,9 +192,9 @@ begin
 	pplt.close(); f4,a4 = pplt.subplots(nrows=2,ncols=2,aspect=2,axwidth=2.5,sharex=0)
 	
 	itt = (0 : 0.001 : 86) * pi
-	mann = 0.5*sin.(itt.-pi/2)
-	msan = - 0.30*sin.(itt.*2) .+ 0.10*sin.(itt.*3 .-pi/3)
-	mitr = 0.15*sin.(itt.*12).+0.15*sin.(itt.*28)
+	mann = -0.40*sin.(itt.+pi/2)
+	msan = 0.10*sin.(itt.*2 .+pi/6) .+ 0.08*sin.(itt.*3 .-pi/6)
+	mitr = 0.1*sin.(itt.*23.5).+0.1*sin.(itt.*28)
 	fitc = mean(sstii) .+ mann .+ msan .+ mitr
 	sstm = mean(sstii) * ones(length(t))
 	
@@ -188,17 +202,17 @@ begin
 	a4[3].plot((1:15706)./365,sst_ann)
 	a4[2].plot((1:15706),sst_san,label="ERA5 Data",legend="r",legend_kw=Dict("frame"=>false))
 	a4[4].plot((1:15706),sst_itr)
-	a4[1].plot(itt./(86*pi)*15706/365,mann.+msan.+mitr.+0.5,c="k",alpha=0.3)
+	a4[1].plot(itt./(86*pi)*15706/365,mann.+msan.+mitr,c="k",alpha=0.3)
 	a4[3].plot(itt./(86*pi)*15706/365,mann,c="k",alpha=0.3)
 	a4[2].plot(itt./(86*pi)*15706,msan,c="k",alpha=0.3)
 	a4[4].plot(itt./(86*pi)*15706,mitr,c="k",alpha=0.3,label="Modelled Variability",legend="r",legend_kw=Dict("frame"=>false))
 	for ax in a4
 		ax.format(ylabel=L"$\Delta$ SST")
 	end
-	a4[1].format(urtitle="(a) Total Variability",xlim=(0,2),ylim=(-1.5,1.5))
+	a4[1].format(urtitle="(a) Total Variability",xlim=(0,2),ylim=(-1,1))
 	a4[3].format(urtitle="(b) Annual Variability",xlim=(0,20),ylim=(-0.5,0.5),xlabel="Years")
 	a4[2].format(urtitle="(c) Semi-Annual Variability",xlim=(0,365*2),xlocator=0:100:730,xminorticks=0:10:365)
-	a4[4].format(urtitle="(d) Intraseasonal Variability",xlabel="Days",xlim=(365*39,365*40),xlocator=0:100:730)
+	a4[4].format(urtitle="(d) Intraseasonal Variability",xlabel="Days",xlim=(365*10,365*15),xlocator=0:100:730)
 	
 	f4.savefig("test.png",transparent=false,dpi=400)
 	load("test.png")
@@ -208,6 +222,7 @@ end
 # ╟─ebbbea99-9f3d-402a-ba91-8f66914d8478
 # ╟─c5ed58c4-ec6d-11ec-0bf4-8b84a46aba2e
 # ╟─8d72de06-476c-4bcf-99b3-a9b469fac93d
+# ╠═43882c17-36c4-4cab-974e-e518cce6f348
 # ╟─0d258e07-3bec-4dcc-8d45-f866858a3f9e
 # ╟─01907cf6-48cf-4405-a2c5-d6e29c081878
 # ╟─5ce73ef5-e423-462e-9836-6bb134602cc6
@@ -217,10 +232,10 @@ end
 # ╟─3f62e505-1032-4eaf-a20b-0244ff234244
 # ╟─66a2a61d-978f-4bee-9e9c-79ccc582a902
 # ╟─fc3dbb3b-d105-4c5a-a6ab-57c180d7234c
-# ╠═f2799fba-35a5-48f4-b303-8d89fb44841e
+# ╟─f2799fba-35a5-48f4-b303-8d89fb44841e
 # ╠═23b400e2-4e93-42cc-b1dc-7f941d774e95
 # ╟─bfce18f3-b099-4b79-98cc-634c612142f1
 # ╟─19cdd04a-33a0-4c38-a272-d248f1f87913
-# ╠═98151041-24d8-41ce-9e10-104b1f24eb4f
+# ╟─98151041-24d8-41ce-9e10-104b1f24eb4f
 # ╟─eef9a4b7-7ef6-4255-a026-7af63a5db081
 # ╠═f5784e23-00cb-4d4b-af6f-c08aee2fe2d0

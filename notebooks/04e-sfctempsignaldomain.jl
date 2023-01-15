@@ -116,39 +116,34 @@ md"
 
 # ╔═╡ 70eeff1a-8f23-4965-9923-55902b82fbec
 begin
-	pdg_sst = periodogram(sst_o,fs=365)
-	pdg_sko = periodogram(skt_o,fs=365)
-	pdg_skd = periodogram(skt_d,fs=365)
-	pdg_skl = periodogram(skt_l,fs=365)
-	pdg_skr = periodogram(skt_l_raw,fs=24*365)
+	pdg_sst = periodogram(sst_o.-mean(sst_o),fs=365)
+	pdg_sko = periodogram(skt_o.-mean(skt_o),fs=365)
+	pdg_skd = periodogram(skt_d.-mean(skt_d),fs=365)
+	pdg_skl = periodogram(skt_l.-mean(skt_l),fs=365)
 	md"Fourier Decompositions of the TimeSeries Data ..."
 end
 
 # ╔═╡ 7855c102-54f8-4d9a-8a5f-6c51c0a8dd8a
 begin
-	pplt.close(); f2,a2 = pplt.subplots(ncols=2,aspect=1.5,axwidth=2)
+	pplt.close(); f2,a2 = pplt.subplots(ncols=3,aspect=1.5,axwidth=2)
 	
-	a2[1].plot(pdg_sst.freq,pdg_sst.power,lw=3,c="k")
-	a2[1].plot(pdg_sko.freq,pdg_sko.power,lw=1,alpha=1)
-	a2[1].plot(pdg_skd.freq,pdg_skd.power,lw=1,alpha=0.5)
-	a2[1].plot(pdg_skl.freq,pdg_skl.power,lw=1,alpha=0.5)
-	a2[1].format(
-		xscale="log",xlim=(0.1,180),ylim=(0,75),
-		xlocator=[0.5,1,2,12,20,28,180,365],
-		ylabel=L"Power (K$^2$ / Cycles per Year)",
-		xlabel="Frequency / Cycles per Year",
-	)
-	
-	a2[2].plot(pdg_sst.freq,pdg_sst.power,lw=3,c="k")
-	a2[2].plot(pdg_sko.freq,pdg_sko.power,lw=1,alpha=1)
-	a2[2].plot(pdg_skd.freq,pdg_skd.power,lw=1,alpha=0.5)
-	a2[2].plot(pdg_skl.freq,pdg_skl.power,lw=1,alpha=0.5)
-	a2[2].format(
-		xscale="log",yscale="log",xlim=(0.1,180),ylim=(0.1,100),
-		xlocator=[0.5,1,2,12,20,28,180,365],
-		xlabel="Frequency / Cycles per Year",
-		ylabel=L"Power (K$^2$ / Cycles per Year)"
-	)
+	a2[1].plot(pdg_skd.freq,pdg_skd.power,lw=1,alpha=0.8)
+	a2[2].plot(pdg_sko.freq,pdg_sko.power,lw=1,alpha=0.8)
+	a2[3].plot(pdg_skl.freq,pdg_skl.power,lw=1,alpha=0.8)
+
+	a2[1].format(urtitle="(a) Domain")
+	a2[2].format(urtitle="(b) Ocean")
+	a2[3].format(urtitle="(c) Land")
+
+	for ax in a2
+		ax.plot(pdg_sst.freq,pdg_sst.power,lw=3,c="k",zorder=0)
+		ax.format(
+			xscale="log",xlim=(0.2,50),ylim=(0.00002,5),yscale="log",
+			ylocator=10. .^(-4:0),yformatter="log",
+			ylabel=L"Power (K$^2$ / f)",
+			xlabel="f / Cycles per Year",
+		)
+	end
 	
 	f2.savefig(plotsdir("04e-sfctemp-fourier.png"),transparent=false,dpi=150)
 	load(plotsdir("04e-sfctemp-fourier.png"))

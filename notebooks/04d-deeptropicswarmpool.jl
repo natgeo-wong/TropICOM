@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.13
+# v0.19.14
 
 using Markdown
 using InteractiveUtils
@@ -213,6 +213,134 @@ md"
 We see that the differences in sea surface and skin temperature are smallest around island regions which have the greatest precipitation. This is interesting because for the warmpool regions where there is always high rainfall the sea surface temperature is around 0.2 K higher than skin temperature.
 "
 
+# ╔═╡ 9f85bd6d-794c-4347-b20a-2374a6452551
+md"
+### D. Comparison against Domain Mean SST
+"
+
+# ╔═╡ 9d3fb2fe-16a3-4107-b4f0-b4a37491b798
+ggrd = RegionGrid(geo,lsd_TRP.lon,lsd_TRP.lat)
+
+# ╔═╡ 8cb9d654-c6e4-44a3-816b-9155ac5666dc
+begin
+	for imo = 1 : 12
+		pplt.close()
+		f4,a4 = pplt.subplots(nrows=2,aspect=asp,axwidth=asp)
+		
+		sstii = extractGrid(sst[:,:,imo],ggrd)
+		sstm  = mean(sstii[.!isnan.(sstii)])
+		c4_1 = a4[1].contourf(
+			lsd.lon,lsd.lat,sstii',
+			levels=300:0.5:305,extend="both"
+		)
+		c4_2 = a4[2].contourf(
+			lsd.lon,lsd.lat,sstii'.-sstm,
+			levels=vcat(-5:-1,-0.5,0.5,1:5),extend="both",cmap="RdBu_r"
+		)
+	
+		a4[1].format(urtitle="SST / K")
+		a4[2].format(urtitle=L"SST - $\mu$(SST) / K")
+	
+		for ax in a4
+			ax.plot(x,y,lw=1,c="k")
+			ax.format(
+				xlim=(geo.W,geo.E),xlabel=L"Longitude / $\degree$",
+				ylim=(geo.S,geo.N),ylabel=L"Latitude / $\degree$"
+			)
+		end
+		
+		a4[1].colorbar(c4_1,locator=300:305)
+		a4[2].colorbar(c4_2,locator=[-5,-3,-1,1,3,5])
+		f4.savefig(
+			plotsdir("04d-DTP_IPW-sstdelta-$(monthabbr(imo)).png"),
+			transparent=false,dpi=400
+		)
+	end
+end
+
+# ╔═╡ 1225457c-9ac2-4d78-aa7d-0fde23427b6e
+load(plotsdir("04d-DTP_IPW-sstdelta-$(monthabbr(mmo)).png"))
+
+# ╔═╡ b1f4cde1-345c-4315-966b-e542dc708c0a
+md"
+### E. Some additional Areas of Interest based on D
+
+Based on an analysis of D, we come up with certain areas of interest for a more in depth analysis.
+"
+
+# ╔═╡ 37511844-2a99-4180-884a-8ec1e5eb0b30
+begin
+	if isGeoRegion("DTP_IPW_1",throw=false)
+		removeGeoRegion("DTP_IPW_1")
+	end
+	geo1 = RectRegion(
+		"DTP_IPW_1","DTP_IPW","IndoPacific Warmpool SubRegion 1", [7.5,5,110,107.5]
+	)
+end
+
+# ╔═╡ ae856c1e-84c8-479b-9964-12788ff2b8f8
+begin
+	if isGeoRegion("DTP_IPW_2",throw=false)
+		removeGeoRegion("DTP_IPW_2")
+	end
+	geo2 = RectRegion(
+		"DTP_IPW_2","DTP_IPW","IndoPacific Warmpool SubRegion 1", [4.5,2,122,119.5]
+	)
+end
+
+# ╔═╡ 609b663c-c736-46e6-892a-e3abadf4c053
+begin
+	if isGeoRegion("DTP_IPW_3",throw=false)
+		removeGeoRegion("DTP_IPW_3")
+	end
+	geo3 = RectRegion(
+		"DTP_IPW_3","DTP_IPW","IndoPacific Warmpool SubRegion 3", [1.25,-1.25,152.5,150]
+	)
+end
+
+# ╔═╡ 40c4534d-8a0f-4ee3-8f85-15779b1b92d0
+begin
+	if isGeoRegion("DTP_IPW_4",throw=false)
+		removeGeoRegion("DTP_IPW_4")
+	end
+	geo4 = RectRegion(
+		"DTP_IPW_4","DTP_IPW","IndoPacific Warmpool SubRegion 4", [-6,-8.5,137.5,135]
+	)
+end
+
+# ╔═╡ 51181632-1b49-48a4-95b1-1f207ea7ca92
+begin
+	sln1,slt1 = coordGeoRegion(GeoRegion("DTP_IPW_1"))
+	sln2,slt2 = coordGeoRegion(GeoRegion("DTP_IPW_2"))
+	sln3,slt3 = coordGeoRegion(GeoRegion("DTP_IPW_3"))
+	sln4,slt4 = coordGeoRegion(GeoRegion("DTP_IPW_4"))
+	md"Loading coordinates for subregions ..."
+end
+
+# ╔═╡ b17fca74-f18a-45b3-8660-fbb2b113d34a
+begin
+	pplt.close()
+	f5,a5 = pplt.subplots(aspect=asp,axwidth=asp)
+	
+	c5 = a5[1].contourf(
+		lsd.lon,lsd.lat,lsd.lsm',levels=lvl,
+		cmap="delta",extend="both"
+	)
+	a5[1].plot(x,y,lw=1,c="k")
+	a5[1].plot(sln1,slt1,lw=1,c="r")
+	a5[1].plot(sln2,slt2,lw=1,c="g")
+	a5[1].plot(sln3,slt3,lw=1,c="b")
+	a5[1].plot(sln4,slt4,lw=1,c="y")
+	a5[1].format(
+		xlim=(geo.W-1,geo.E+1),xlabel=L"Longitude / $\degree$",
+		ylim=(geo.S-1,geo.N+1),ylabel=L"Latitude / $\degree$"
+	)
+	a5[1].colorbar(c5)
+	
+	f5.savefig(plotsdir("04d-IPWsubregions.png"),transparent=false,dpi=400)
+	load(plotsdir("04d-IPWsubregions.png"))
+end
+
 # ╔═╡ Cell order:
 # ╟─1be6a70c-4f5e-11ed-15c0-2db8088f3b9d
 # ╟─b82d16fd-c9a9-4e3f-ac00-3f189a5eb249
@@ -233,3 +361,14 @@ We see that the differences in sea surface and skin temperature are smallest aro
 # ╟─e80aa57d-bf5a-41b7-b966-42474e8a4866
 # ╟─91da6dc6-4007-402c-ac8e-b8348c14d963
 # ╟─a77aa352-df99-47ee-b1de-ddef9978dd5f
+# ╟─9f85bd6d-794c-4347-b20a-2374a6452551
+# ╟─9d3fb2fe-16a3-4107-b4f0-b4a37491b798
+# ╟─8cb9d654-c6e4-44a3-816b-9155ac5666dc
+# ╟─1225457c-9ac2-4d78-aa7d-0fde23427b6e
+# ╟─b1f4cde1-345c-4315-966b-e542dc708c0a
+# ╟─37511844-2a99-4180-884a-8ec1e5eb0b30
+# ╟─ae856c1e-84c8-479b-9964-12788ff2b8f8
+# ╟─609b663c-c736-46e6-892a-e3abadf4c053
+# ╠═40c4534d-8a0f-4ee3-8f85-15779b1b92d0
+# ╟─51181632-1b49-48a4-95b1-1f207ea7ca92
+# ╟─b17fca74-f18a-45b3-8660-fbb2b113d34a

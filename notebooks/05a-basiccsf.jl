@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.19.14
 
 using Markdown
 using InteractiveUtils
@@ -29,7 +29,7 @@ end
 
 # ╔═╡ d9faa384-d455-11eb-32a2-1723c787fbc7
 md"
-# 09a. The Basic Distribution of Column Saturation Fraction
+# 05a. The Basic Distribution of Column Saturation Fraction
 
 Here, we explore the probability distribution of column saturation fraction using ERA5 data.
 "
@@ -78,7 +78,7 @@ end
 
 # ╔═╡ 73c5847f-9783-49dd-a7cb-736113fe75bf
 begin
-	lsc = pplt.Colors("Delta_r",15)
+	lsc = pplt.get_colors("Delta_r",15)
 	md"Colours for different regions ..."
 end
 
@@ -103,7 +103,7 @@ begin
 
 	cs = as[4].contourf(lon,lat,drn',levels=5:15,extend="both")
 	as[4].plot(x,y,c="k",lw=0.5)
-	as[4].colorbar(cs,loc="r")
+	as[4].colorbar(cs,loc="r",locator=[5,10,15])
 	as[4].format(rtitle=L"$\Delta_{DRN}$")
 
 	for ax in as
@@ -127,7 +127,7 @@ We can get quick snapshots of the results for different GeoRegions specified in 
 
 # ╔═╡ 3b51a565-d9fb-4ae5-b572-bdbce3d94fe9
 begin
-	geo = GeoRegion("SEA")
+	geo = GeoRegion("DTP_IPW")
 	md"Defining region coordinates ..."
 end
 
@@ -159,37 +159,37 @@ begin
 	asp = (E-W+2)/(N-S+2)
 	pplt.close()
 	if asp > 1.5
-		freg,areg = pplt.subplots(nrows=2,ncols=2,axwidth=asp*1.2,aspect=asp)
+		freg,areg = pplt.subplots(nrows=4,axwidth=asp*1.2,aspect=asp)
 	else
 		freg,areg = pplt.subplots(nrows=2,ncols=2,axwidth=2,aspect=asp)
 	end
 
 	creg = areg[1].contourf(
-		ggrd.glon,ggrd.glat,rcsf',
+		ggrd.lon,ggrd.lat,rcsf',
 		cmap="Blues",levels=20:5:80,extend="both"
 	)
 	areg[1].plot(x,y,c="k",lw=0.5)
 	areg[1].format(rtitle=L"$\mu$")
 	areg[1].colorbar(creg,loc="r")
 
-	creg = areg[2].contourf(ggrd.glon,ggrd.glat,rsea',levels=10:10:90,extend="both")
+	creg = areg[2].contourf(ggrd.lon,ggrd.lat,rsea',levels=10:10:90,extend="both")
 	areg[2].plot(x,y,c="k",lw=0.5)
 	areg[2].format(rtitle=L"$\Delta_{SEA}$")
 	areg[2].colorbar(creg,loc="r")
 
-	creg = areg[3].contourf(ggrd.glon,ggrd.glat,ritr',levels=10:10:90,extend="both")
+	creg = areg[3].contourf(ggrd.lon,ggrd.lat,ritr',levels=10:10:90,extend="both")
 	areg[3].plot(x,y,c="k",lw=0.5)
 	areg[3].format(rtitle=L"$\Delta_{ITR}$")
 	areg[3].colorbar(creg,loc="r")
 
-	creg = areg[4].contourf(ggrd.glon,ggrd.glat,rdrn',levels=5:15,extend="both")
+	creg = areg[4].contourf(ggrd.lon,ggrd.lat,rdrn',levels=5:15,extend="both")
 	areg[4].plot(x,y,c="k",lw=0.5)
 	areg[4].format(rtitle=L"$\Delta_{DRN}$")
 	areg[4].colorbar(creg,loc="r")
 
 	for ax in areg
 		ax.format(
-			xlim=(ggrd.glon[1].-1,ggrd.glon[end].+1),
+			xlim=(ggrd.lon[1].-1,ggrd.lon[end].+1),
 			xlabel=L"Longitude / $\degree$",
 			ylim=(S-1,N+1),ylabel=L"Latitude / $\degree$",
 			grid=true
