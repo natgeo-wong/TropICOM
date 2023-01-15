@@ -48,7 +48,7 @@ nrad = 12,
 ! below values are equivalent to insolation = 423.4773 W/m2
 !   coszrs = 0.732650
 
-doperpetual     = .true.,
+doperpetual     = .false.,
 doseasons       = .false.,
 dosolarconstant = .true.,
 zenith_angle    = 0.0,
