@@ -46,26 +46,26 @@ echo $case > CaseName
 
 cd ./OUT_3D
 
-for fbin3D in *${config}*.bin3D
+for fbin3D in *$experiment-${config}*.bin3D
 do
     rm "$fbin3D"
 done
 
-for fbin2D in *${config}*.bin2D
+for fbin2D in *$experiment-${config}*.bin2D
 do
     rm "$fbin2D"
 done
 
 cd ../OUT_2D
 
-for f2Dbin in *${config}*.2Dbin
+for f2Dbin in *$experiment-${config}*.2Dbin
 do
     rm "$f2Dbin"
 done
 
 cd ../OUT_STAT
 
-for fstat in *${config}*.stat
+for fstat in *$experiment-${config}*.stat
 do
     rm "$fstat"
 done
@@ -81,7 +81,7 @@ echo SAM stopped with exit status $exitstatus
 
 cd ./OUT_3D
 
-for fbin3D in *${config}*.bin3D
+for fbin3D in *$experiment-${config}*.bin3D
 do
     if bin3D2nc "$fbin3D" >& /dev/null
     then
@@ -92,7 +92,7 @@ do
     fi
 done
 
-for fbin2D in *${config}*.bin2D
+for fbin2D in *$experiment-${config}*.bin2D
 do
     if bin2D2nc "$fbin2D" >& /dev/null
     then
@@ -105,7 +105,7 @@ done
 
 cd ../OUT_2D
 
-for f2Dbin in *${config}*.2Dbin
+for f2Dbin in *$experiment-${config}*.2Dbin
 do
     if 2Dbin2nc "$f2Dbin" >& /dev/null
     then
@@ -118,7 +118,7 @@ done
 
 cd ../OUT_STAT
 
-for fstat in *${config}*.stat
+for fstat in *$experiment-${config}*.stat
 do
     if stat2nc "$fstat" >& /dev/null
     then

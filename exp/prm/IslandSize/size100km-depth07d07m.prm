@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-IslandSize-Size100km-depth07d07m',
+caseid ='TroPrecLS-IslandSize-size100km-depth07d07m',
 
 dx = 2000.,
 dy = 2000.,
@@ -85,7 +85,7 @@ rad3Dout     = .true.,
 compute_advection_everywhere = .false.,
 
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-am_wtg  = 1.,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
+am_wtg  = 1.000000e+01,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 0.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 1.000000e+05,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
 

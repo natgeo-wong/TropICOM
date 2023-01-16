@@ -25,7 +25,7 @@ open(orun,"r") do rrun
             sizestr = sizestr[2:end]
 
             nrun = projectdir(
-                "run","IslandSize","size$(sizestr)km-depth$(depthstr)m.sh"
+                "run","IslandSize","size$(sizestr)km","depth$(depthstr)m.sh"
             )
             open(nrun) do fprm
                 newstr = replace(oldstr,"[email]"=>"")
