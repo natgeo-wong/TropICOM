@@ -6,8 +6,10 @@ tprm   = projectdir("exp","tmp.prm")
 oprm  = projectdir("exp","prm","IslandSize","template.prm")
 
 slist = [
-    10,10*sqrt(2),20,20*sqrt(2.5),50,50*sqrt(2),100,
-    100*sqrt(2),200,200*sqrt(2.5),500,500*sqrt(2),1000
+    2,2*sqrt(2.5),5,5*sqrt(2),10,
+    10*sqrt(2),20,20*sqrt(2.5),50,50*sqrt(2),100,
+    100*sqrt(2),200,200*sqrt(2.5),500,500*sqrt(2),
+    1000,1000*sqrt(2),2000,2000*sqrt(2.5),5000
 ]
 dlist = [
     0.02,0.02*sqrt(2.5),0.05,0.05*sqrt(2),
@@ -23,11 +25,25 @@ open(oprm,"r") do rprm
         depthstr = replace(depthstr,"."=>"d")
         for islandsize in slist
             sizestr = @sprintf("%04d",islandsize)
-            sizestr = sizestr[2:end]
 
+            if (islandsize) == 10
+                if depth < 2
+                    tstep = 2
+                else
+                    tstep = 5
+                end
+            elseif islandsize < 10
+                tstep = 2
+            elseif (islandsize > 10) && (islandsize < 100)
+                tstep = 5
+            else
+                tstep = 30
+            end
+
+            mkpath(projectdir("exp","prm","IslandSize","size$(sizestr)km"))
             nprm = projectdir(
                 "exp","prm","IslandSize",
-                "size$(sizestr)km-depth$(depthstr)m.prm"
+                "size$(sizestr)km","depth$(depthstr)m.prm"
             )
             open(tprm,"w") do fprm
                 newstr = replace(oldstr,"[depth]"=>@sprintf("%7e",depth))
@@ -35,6 +51,12 @@ open(oprm,"r") do rprm
                 newstr = replace(newstr,"[damping]"=>@sprintf("%7e",1000/islandsize))
                 newstr = replace(newstr,"[sizestr]"=>sizestr)
                 newstr = replace(newstr,"[depthstr]"=>depthstr)
+                
+                newstr = replace(newstr,"[timestep]"=>@sprintf("%.1f",tstep))
+                newstr = replace(newstr,"[nstat]"=>@sprintf("%d",1800/tstep))
+                newstr = replace(newstr,"[nprint]"=>@sprintf("%d",86400/tstep))
+                newstr = replace(newstr,"[nstop]"=>@sprintf("%d",86400*150/tstep))
+                newstr = replace(newstr,"[nrad]"=>@sprintf("%d",300/tstep))
                 write(fprm,newstr)
             end
 

@@ -22,7 +22,6 @@ open(orun,"r") do rrun
         depthstr = replace(depthstr,"."=>"d")
         for islandsize in slist
             sizestr = @sprintf("%04d",islandsize)
-            sizestr = sizestr[2:end]
 
             nrun = projectdir(
                 "run","IslandSize","size$(sizestr)km","depth$(depthstr)m.sh"

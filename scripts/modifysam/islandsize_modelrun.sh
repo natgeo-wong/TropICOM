@@ -28,7 +28,7 @@ sndname=[sndname]
 lsfname=[lsfname]
 
 exproot=/n/holylfs04/LABS/kuang_lab/Users/nwong/$project/exp
-prmfile=$exproot/prm/IslandSize/$experiment-${config}.prm
+prmfile=$exproot/prm/IslandSize/$experiment/${config}.prm
 sndfile=$exproot/snd/$sndname
 lsffile=$exproot/lsf/$lsfname
 
