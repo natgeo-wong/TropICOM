@@ -26,15 +26,7 @@ open(oprm,"r") do rprm
         for islandsize in slist
             sizestr = @sprintf("%04d",islandsize)
 
-            if (islandsize) == 10
-                if depth < 2
-                    tstep = 2
-                else
-                    tstep = 5
-                end
-            elseif islandsize < 10
-                tstep = 2
-            elseif (islandsize > 10) && (islandsize < 100)
+            if islandsize < 100
                 tstep = 5
             else
                 tstep = 30
