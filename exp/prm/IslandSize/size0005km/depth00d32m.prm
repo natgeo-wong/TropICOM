@@ -4,7 +4,7 @@ caseid ='TroPrecLS-IslandSize-size0005km-depth00d32m',
 
 dx = 2000.,
 dy = 2000.,
-dt = 5.0,
+dt = 1.0,
 
 nrestart      = 0,
 nrestart_skip = 23,
@@ -42,7 +42,7 @@ Szero      = 0,
 
 depth_slab_ocean = 3.162278e-01,
 
-nrad = 60,
+nrad = 300,
 
 ! note: insolation = solar_constant*cos(zenith_angle)
 ! below values are equivalent to insolation = 423.4773 W/m2
@@ -58,9 +58,9 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 2592000,
-nprint   = 17280,
-nstat    = 360,     ! Calculate statistics every hour!
+nstop    = 12960000,
+nprint   = 86400,
+nstat    = 1800,     ! Calculate statistics every hour!
 nstatfrq = 6,      ! Collect 60 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,

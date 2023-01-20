@@ -26,7 +26,7 @@ open(orun,"r") do rrun
             nrun = projectdir(
                 "run","IslandSize","size$(sizestr)km","depth$(depthstr)m.sh"
             )
-            open(nrun) do fprm
+            open(nrun,"w") do fprm
                 newstr = replace(oldstr,"[email]"=>"")
                 newstr = replace(newstr,"[project]"=>"TroPrecLS")
                 newstr = replace(newstr,"[experiment]"=>"size$(sizestr)km")
@@ -35,8 +35,6 @@ open(orun,"r") do rrun
                 newstr = replace(newstr,"[lsfname]"=>"noforcing")
                 write(fprm,newstr)
             end
-
-            mv(tprm,nprm,force=true)
 
         end
     end
