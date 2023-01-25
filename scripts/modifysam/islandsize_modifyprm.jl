@@ -26,12 +26,10 @@ open(oprm,"r") do rprm
         for islandsize in slist
             sizestr = @sprintf("%04d",islandsize)
 
-            if ((islandsize>=5) && (islandsize<10) && (depth < 1)) || ((islandsize<5) && (depth <= 2)) || ((islandsize==10) && (depth < 0.05))
-                tstep = 1
-            elseif islandsize >= 100
+            if islandsize >= 100
                 tstep = 30
             else
-                tstep = 5
+                tstep = 10
             end
 
             mkpath(projectdir("exp","prm","IslandSize","size$(sizestr)km"))
