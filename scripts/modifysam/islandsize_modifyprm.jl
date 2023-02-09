@@ -28,14 +28,16 @@ open(oprm,"r") do rprm
 
             if islandsize >= 100
                 tstep = 30
-            elseif (islandsize<10) && ((depth*islandsize)<2)
+            elseif (islandsize==10) && (depth<=0.05)
                 tstep = 1
-            elseif (islandsize<=10) && (depth<=0.05)
-                if depth <= 0.02
-                    tstep = 1
-                else
-                    tstep = 2
-                end
+            elseif (islandsize==5*sqrt(2)) && (depth<=0.2)
+                tstep = 1
+            elseif (islandsize==5) && (depth<0.5)
+                tstep = 1
+            elseif (islandsize==2*sqrt(2.5)) && (depth<=0.5)
+                tstep = 1
+            elseif (islandsize==2) && (depth<1)
+                tstep = 1
             else
                 tstep = 10
             end
