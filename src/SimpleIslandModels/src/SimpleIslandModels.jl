@@ -13,7 +13,8 @@ using ProgressMeter
 import Base: eltype, show, run
 
 export
-        CreateFixedSSTModel, CreateFixedAtmosModel, CreateMixedLayerModel
+        CreateFixedSSTModel, CreateFixedAtmosModel, CreateMixedLayerModel,
+        run
 
 """
     SimpleIslandModel
@@ -27,8 +28,8 @@ struct Variables{FT<:Real}
    S₀ :: Vector{FT}
    Tₛ :: Vector{FT}
    Tₐ :: Vector{FT}
-   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,δt]
-   stat :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,δt]
+   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,αₐ,αₜ,δt]
+   stat :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,αₐ]
 end
 
 const σ = 5.670374419e-8
