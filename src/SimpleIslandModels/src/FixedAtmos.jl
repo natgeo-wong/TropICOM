@@ -15,7 +15,7 @@ function CreateFixedAtmosModel(FT = Float64;
     εsw :: Real = 0.,
 )
 
-	return FixedAtmos{FT}(mld,calculatecps(mld),S0,Ta,α,εsw)
+	return FixedAtmos{FT}(mld,calculatecps(mld),Ta,S0,α,εsw)
 
 end
 
@@ -39,9 +39,10 @@ function stepforward!(
     vars.temp[3] = Ts + δTs
     vars.temp[4] = Ta
 
-    vars.stat[1] += S₀
-    vars.stat[2] += Ts + δTs
-    vars.stat[3] += Ta
+    vars.stat[1] += t
+    vars.stat[2] += S₀
+    vars.stat[3] += Ts + δTs
+    vars.stat[4] += Ta
 
     return nothing
 

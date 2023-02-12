@@ -41,7 +41,7 @@ function CreateMixedLayerModel(FT = Float64;
     end
 
 	return MixedLayer{FT}(
-		mld, calculatecps(mld), calculatecpa(S0/π,εsw,εlw,α,sst),
+		mld, calculatecps(mld), calculatecpa(S0/π,εsw,εlw,α,Tsr),
 		S0, α, εsw, εlw, τ, Tsr, Tar, do_wtg
 	)
 
@@ -60,12 +60,12 @@ function stepforward!(
     S₀ = calculateS₀(t,m.S0)
 
     δTa  = (m.α * m.εsw * (1-m.εsw) + m.εsw) * S₀ + m.εlw * σ * Ts^4 - 2 * σ * Ta^4
-    if m.wtg
-        δTa -= (Ta - m.Tls) / m.τ
-    end
     δTa *= δt / m.cpa
+    if m.wtg
+        δTa -= (Ta - m.Tar) / m.τ * δt
+    end
     
-    δTs  = (1-m.α) * (1-m.εsw) * S₀ - σ * Ts^4 + σ * Ta^4
+    δTs  = (1-m.α) * (1-m.εsw) * S₀ - σ * Ts^4 + σ * Ta^4 - 150
     δTs *= δt / m.cps
 
     vars.temp[1] = t
@@ -73,9 +73,10 @@ function stepforward!(
     vars.temp[3] = Ts + δTs
     vars.temp[4] = Ta + δTa
 
-    vars.stat[1] += S₀
-    vars.stat[2] += Ts + δTs
-    vars.stat[3] += Ta + δTa
+    vars.stat[1] += t
+    vars.stat[2] += S₀
+    vars.stat[3] += Ts + δTs
+    vars.stat[4] += Ta + δTa
 
     return nothing
 

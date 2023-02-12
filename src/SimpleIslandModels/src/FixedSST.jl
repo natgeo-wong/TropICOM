@@ -67,9 +67,10 @@ function stepforward!(
     vars.temp[3] = Ts
     vars.temp[4] = Ta + δTa
 
-    vars.stat[1] += S₀
-    vars.stat[2] += Ts
-    vars.stat[3] += Ta + δTa
+    vars.stat[1] += t
+    vars.stat[2] += S₀
+    vars.stat[3] += Ts
+    vars.stat[4] += Ta + δTa
 
     return nothing
 
