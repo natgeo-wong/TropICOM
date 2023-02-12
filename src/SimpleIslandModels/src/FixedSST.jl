@@ -57,10 +57,10 @@ function stepforward!(
     S₀ = calculateS₀(t,m.S0)
 
     δTa = (m.α * m.εsw * (1-m.εsw) + m.εsw) * S₀ + m.εlw * σ * Ts^4 - 2 * σ * Ta^4
+    δTa *= δt / m.cpa
     if m.wtg
         δTa -= (Ta - m.Tls) / m.τ
     end
-    δTa *= δt / m.cpa
 
     vars.temp[1] = t
     vars.temp[2] = S₀

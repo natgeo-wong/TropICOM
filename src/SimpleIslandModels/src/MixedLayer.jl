@@ -65,7 +65,7 @@ function stepforward!(
         δTa -= (Ta - m.Tar) / m.τ * δt
     end
     
-    δTs  = (1-m.α) * (1-m.εsw) * S₀ - σ * Ts^4 + σ * Ta^4 - 150
+    δTs  = (1-m.α) * (1-m.εsw) * S₀ - σ * Ts^4 + σ * Ta^4
     δTs *= δt / m.cps
 
     vars.temp[1] = t
