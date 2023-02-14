@@ -63,8 +63,8 @@ domisr  = .false.,
 
 nstop    = [nstop],
 nprint   = [nprint],
-nstat    = [nstat],     ! Calculate statistics every hour!
-nstatfrq = 15,      ! Collect 60 samples per statistical calculation (every 1 minute)
+nstat    = [nstat],     ! Calculate statistics every day!
+nstatfrq = 1440,      ! Collect 1440 samples per statistical calculation (every 1 min)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,

@@ -45,7 +45,7 @@ Szero      = 0,
 
 depth_slab_ocean = 2.000000e+01,
 
-nrad = 30,
+nrad = 12,
 
 ! note: insolation = solar_constant*cos(zenith_angle)
 ! below values are equivalent to insolation = 423.4773 W/m2
@@ -63,8 +63,8 @@ domisr  = .false.,
 
 nstop    = 1728000,
 nprint   = 17280,
-nstat    = 17280,     ! Calculate statistics every hour!
-nstatfrq = 15,      ! Collect 60 samples per statistical calculation (every 1 minute)
+nstat    = 17280,     ! Calculate statistics every day!
+nstatfrq = 1440,      ! Collect 1440 samples per statistical calculation (every 1 min)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
