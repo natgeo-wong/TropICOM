@@ -2,7 +2,7 @@ using DrWatson
 @quickactivate "TroPrecLS"
 using Printf
 
-orun  = projectdir("run","islandsize_modelrun-spinup.sh")
+orun  = projectdir("run","islandsize_spinup-modelrun.sh")
 
 slist = [
     5,5*sqrt(2),10,
@@ -32,7 +32,7 @@ open(orun,"r") do rrun
                 newstr = replace(oldstr,"[email]"=>"")
                 newstr = replace(newstr,"[project]"=>"TroPrecLS")
                 newstr = replace(newstr,"[experiment]"=>"size$(sizestr)km")
-                newstr = replace(newstr,"[config]"=>"spinup-depth$(depthstr)m")
+                newstr = replace(newstr,"[config]"=>"depth$(depthstr)m")
                 newstr = replace(newstr,"[sndname]"=>"islandsize")
                 newstr = replace(newstr,"[lsfname]"=>"noforcing")
                 write(fprm,newstr)
