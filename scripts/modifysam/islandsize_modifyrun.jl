@@ -33,7 +33,7 @@ open(orun,"r") do rrun
                 newstr = replace(newstr,"[project]"=>"TroPrecLS")
                 newstr = replace(newstr,"[experiment]"=>"size$(sizestr)km")
                 newstr = replace(newstr,"[config]"=>"depth$(depthstr)m")
-                newstr = replace(newstr,"[sndname]"=>"control")
+                newstr = replace(newstr,"[sndname]"=>"islandsize")
                 newstr = replace(newstr,"[lsfname]"=>"noforcing")
                 write(fprm,newstr)
             end
