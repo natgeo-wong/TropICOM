@@ -6,10 +6,10 @@ tprm   = projectdir("exp","tmp.prm")
 oprm  = projectdir("exp","prm","IslandSize","template.prm")
 
 slist = [
-    2,2*sqrt(2.5),5,5*sqrt(2),10,
-    10*sqrt(2),20,20*sqrt(2.5),50,50*sqrt(2),100,
-    100*sqrt(2),200,200*sqrt(2.5),500,500*sqrt(2),
-    1000,1000*sqrt(2),2000,2000*sqrt(2.5),5000
+    5,5*sqrt(2),10,
+    10*sqrt(2),20,20*sqrt(2.5),50,50*sqrt(2),
+    100,100*sqrt(2),200,200*sqrt(2.5),500,500*sqrt(2),
+    1000,1000*sqrt(2),2000
 ]
 dlist = [
     0.02,0.02*sqrt(2.5),0.05,0.05*sqrt(2),
@@ -28,18 +28,10 @@ open(oprm,"r") do rprm
 
             if islandsize >= 100
                 tstep = 30
-            elseif (islandsize==10) && (depth<=0.05)
-                tstep = 1
-            elseif (islandsize==5*sqrt(2)) && (depth<=0.2)
-                tstep = 1
-            elseif (islandsize==5) && (depth<0.5)
-                tstep = 1
-            elseif (islandsize==2*sqrt(2.5)) && (depth<=0.5)
-                tstep = 1
-            elseif (islandsize==2) && (depth<1)
-                tstep = 1
+            elseif islandsize<=10
+                tstep = 0.5
             else
-                tstep = 10
+                tstep = 5
             end
 
             mkpath(projectdir("exp","prm","IslandSize","size$(sizestr)km"))
