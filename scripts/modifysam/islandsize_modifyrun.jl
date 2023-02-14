@@ -8,13 +8,13 @@ slist = [
     5,5*sqrt(2),10,
     10*sqrt(2),20,20*sqrt(2.5),50,50*sqrt(2),
     100,100*sqrt(2),200,200*sqrt(2.5),500,500*sqrt(2),
-    1000,1000*sqrt(2),2000
+    1000,1000*sqrt(2),2000,2000*sqrt(2.5),5000.,
 ]
 dlist = [
-    0.05,0.05*sqrt(2),0.1,
-    0.1*sqrt(2),0.2,0.2*sqrt(2.5),0.5,0.5*sqrt(2),1.,
-    1*sqrt(2),2.,2*sqrt(2.5),5.,5*sqrt(2),
-    10.,10*sqrt(2),20.
+    0.02,0.02*sqrt(2.5),0.05,0.05*sqrt(2),
+    0.1,0.1*sqrt(2),0.2,0.2*sqrt(2.5),0.5,0.5*sqrt(2),
+    1.,1*sqrt(2),2.,2*sqrt(2.5),5.,5*sqrt(2),
+    10.,10*sqrt(2),20.,20*sqrt(2.5),50.,
 ]
 
 open(orun,"r") do rrun
@@ -26,7 +26,7 @@ open(orun,"r") do rrun
             sizestr = @sprintf("%04d",islandsize)
 
             nrun = projectdir(
-                "run","IslandSize","size$(sizestr)km","depth$(depthstr)m.sh"
+                "run","IslandSize","depth$(depthstr)m","size$(sizestr)km.sh"
             )
             open(nrun,"w") do fprm
                 newstr = replace(oldstr,"[email]"=>"")

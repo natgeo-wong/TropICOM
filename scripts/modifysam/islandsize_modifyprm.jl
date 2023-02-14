@@ -26,10 +26,10 @@ open(oprm,"r") do rprm
         for islandsize in slist
             sizestr = @sprintf("%04d",islandsize)
 
-            if islandsize >= 100
-                tstep = 30
-            elseif islandsize<=10
+            if islandsize<=10
                 tstep = 0.5
+            elseif islandsize<=1000
+                tstep = 2
             else
                 tstep = 5
             end
@@ -41,16 +41,15 @@ open(oprm,"r") do rprm
             )
             open(tprm,"w") do fprm
                 newstr = replace(oldstr,"[depth]"=>@sprintf("%7e",depth))
-                newstr = replace(newstr,"[size]"=>@sprintf("%7e",islandsize*1000))
-                newstr = replace(newstr,"[damping]"=>@sprintf("%7e",1000/islandsize))
+                newstr = replace(newstr,"[damping]"=>@sprintf("%7e",islandsize/1000))
                 newstr = replace(newstr,"[sizestr]"=>sizestr)
                 newstr = replace(newstr,"[depthstr]"=>depthstr)
                 
                 newstr = replace(newstr,"[timestep]"=>@sprintf("%.1f",tstep))
-                newstr = replace(newstr,"[nstat]"=>@sprintf("%d",1800/tstep))
+                newstr = replace(newstr,"[nstat]"=>@sprintf("%d",900/tstep))
                 newstr = replace(newstr,"[nprint]"=>@sprintf("%d",86400/tstep))
-                newstr = replace(newstr,"[nstop]"=>@sprintf("%d",86400*100/tstep))
-                newstr = replace(newstr,"[nrad]"=>@sprintf("%d",300/tstep))
+                newstr = replace(newstr,"[nstop]"=>@sprintf("%d",86400*50/tstep))
+                newstr = replace(newstr,"[nrad]"=>@sprintf("%d",150/tstep))
                 write(fprm,newstr)
             end
 
