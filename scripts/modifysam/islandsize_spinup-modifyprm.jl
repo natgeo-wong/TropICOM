@@ -41,7 +41,7 @@ open(oprm,"r") do rprm
             )
             open(tprm,"w") do fprm
                 newstr = replace(oldstr,"[depth]"=>@sprintf("%7e",depth))
-                newstr = replace(newstr,"[damping]"=>@sprintf("%7e",islandsize))
+                newstr = replace(newstr,"[damping]"=>@sprintf("%7e",islandsize/1000))
                 newstr = replace(newstr,"[sizestr]"=>sizestr)
                 newstr = replace(newstr,"[depthstr]"=>depthstr)
                 

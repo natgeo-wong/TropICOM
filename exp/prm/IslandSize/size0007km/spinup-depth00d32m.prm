@@ -88,7 +88,7 @@ rad3Dout     = .true.,
 compute_advection_everywhere = .false.,
 
 dowtg_blossey_etal_JAMES2009 = .true., ! alternate implementation
-am_wtg  = 7.071068e+00,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
+am_wtg  = 7.071068e-03,                           ! momentum damping rate in 1/d -- note must be non-zero, default= 2.,
 am_wtg_exp = 0.,                        ! exponent of p/p0 in momentum damping rate.
 lambda_wtg = 1000.e3,                    ! quarter wavelength in m. default = 650.e3 (=650 km).
 
