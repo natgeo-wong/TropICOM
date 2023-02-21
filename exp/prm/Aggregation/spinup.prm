@@ -2,14 +2,11 @@
 
 caseid ='TroPrecLS-Aggregation-spinup',
 
-caseid_restart = 'TroPrecLS-Aggregation-initialize',
-case_restart = 'RCE',
-
 dx = 2000.,
 dy = 2000.,
 dt = 30.,
 
-nrestart      = 2,
+nrestart      = 0,
 nrestart_skip = 23,
 perturb_type  = 0,
 
@@ -69,15 +66,15 @@ nstatfrq = 72,     ! Collect 60 samples per statistical calculation (every 1 min
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 720,
+nsave2D      = 2880,
 nsave2Dstart = 0,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .false.,
 save2Dsep    = .true.,
 
-nsave3D      = 720,
-nsave3Dstart = 0,
+nsave3D      = 2880,
+nsave3Dstart = 99999999,
 nsave3Dend   = 999999999,
 save3Dbin    = .true.,
 rad3Dout     = .true.,
