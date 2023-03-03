@@ -27,7 +27,7 @@ function calculateδTa(
     Fₐ  = calculateFₐ(S₀,Ts,Ta,atm,sfc)
     δTa = Fₐ * δt / atm.cpa
     if m.do_wtg
-        δTa -= (Ta - atm.Tar) / m.τ
+        δTa += (Ta - atm.Tar) / m.τ
     end
 
     return Fₐ, δTa
