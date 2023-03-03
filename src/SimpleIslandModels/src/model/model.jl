@@ -5,7 +5,6 @@ struct SimpleIslandModel{FT<:Real}
     mαₐ :: FT
     cₛα :: FT
     cₐα :: FT
-    mαₐ :: FT
     sfc :: Surface
     atm :: Atmosphere
     do_wtg     :: Bool
