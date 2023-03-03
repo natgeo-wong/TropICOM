@@ -22,6 +22,9 @@ function calculateδTs(
 )
 
     Fₛ  = calculateFₛ(S₀,Ts,Ta,atm,sfc)
+    if m.do_ocnflux
+        Fₛ -= m.Fo
+    end
     δTs = Fₛ * δt / sfc.cps
 
     return Fₛ, δTs

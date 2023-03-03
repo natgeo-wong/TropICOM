@@ -45,7 +45,7 @@ end
 function show(io::IO, model::MixedSurface)
     print(
 		io,
-		"FixedSurface:\n",
+		"MixedSurface:\n",
 		" ├─── Mixed-Layer Depth              (mld) : ", model.mld, '\n',
 		" ├─── Surface Heat Capacity          (cps) : ", model.cps, '\n',
 		" ├─── Surface Albedo                   (α) : ", model.α,   '\n',
