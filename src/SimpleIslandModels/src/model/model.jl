@@ -5,6 +5,7 @@ struct SimpleIslandModel{FT<:Real}
     mαₐ :: FT
     cₛα :: FT
     cₐα :: FT
+     τα :: FT
     sfc :: Surface
     atm :: Atmosphere
     do_wtg     :: Bool
@@ -24,6 +25,7 @@ function CreateModel(
     mαa :: Real = 0.8,
     csα :: Real = 0.001,
     caα :: Real = 0.001,
+    τα  :: Real = 0.001,
     do_wtg     :: Bool = false,
     do_diurnal :: Bool = true,
     do_ocnflux :: Bool = false,
@@ -40,7 +42,8 @@ function CreateModel(
     end
 
     return SimpleIslandModel{FT}(
-        S0,τ,Fo,mαa,csα,caα,sfc,atm,
+        S0,τ,Fo,mαa,csα,caα,τα,
+        sfc,atm,
         do_wtg,do_diurnal,do_ocnflux,do_cloud,cloudscheme
     )
 
@@ -61,6 +64,7 @@ function show(io::IO, model::SimpleIslandModel)
 		" ├─── Do Cloud                (do_cloud) : ", model.do_cloud,    '\n',
         " ├─── Cloud maximum albedo         (mαₐ) : ", model.mαₐ,         '\n',
         " ├─── Cloud albedo tendency (sfc)  (cₛα) : ", model.cₛα,         '\n',
-        " └─── Cloud albedo tendency (atm)  (cₐα) : ", model.cₐα,
+        " ├─── Cloud albedo tendency (atm)  (cₐα) : ", model.cₐα,         '\n',
+        " └─── Cloud albedo relax timescale  (τα) : ", model.τα,
 	)
 end

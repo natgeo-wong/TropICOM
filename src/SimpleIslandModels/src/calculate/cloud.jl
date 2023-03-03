@@ -30,6 +30,27 @@ function calculateαₐ(
 
             end
 
+        elseif m.cloudscheme == 3
+
+            if iszero(αₐ) && (dTs<2)
+                
+                αₐ = 0
+
+            else
+
+                dαₐ = (dTs * m.cₛα + dTa * m.cₐα)
+                if dαₐ > 0
+                    αₐ += δt * dαₐ
+                else
+                    αₐ -= δt * αₐ / m.τα
+                end
+
+                if αₐ<=0; αₐ = 0 end
+                if αₐ>=m.mαₐ; αₐ = m.mαₐ end
+
+            end
+
+
         end
 
     end
