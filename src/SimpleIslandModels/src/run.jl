@@ -45,7 +45,7 @@ function stepforward!(
     Ts = vars.temp[3]
     Ta = vars.temp[4]
     αₐ = vars.temp[7]
-    δt = vars.temp[end]
+    δt = vars.δt
     t += δt
 
     S₀  = calculateS₀(t,m)
@@ -62,9 +62,9 @@ function stepforward!(
     vars.temp[7] = αₐ
 
     if !iszero(n0)
-        @views @. vars.stat += vars.temp[1:(end-1)]
+        @views @. vars.stat += vars.temp
     else
-        @views @. vars.stat += vars.temp[1:(end-1)] * 0.5
+        @views @. vars.stat += vars.temp * 0.5
     end
 
     return nothing
@@ -81,6 +81,6 @@ function savestats!(vars::Variables,nstats::Int,istat::Int)
     vars.Fₐ[istat] = vars.stat[6] / (nstats)
     vars.αₐ[istat] = vars.stat[7] / (nstats)
 
-    @views @. vars.stat += vars.temp[1:(end-1)] * 0.5
+    @views @. vars.stat += vars.temp * 0.5
 
 end

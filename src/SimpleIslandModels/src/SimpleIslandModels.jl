@@ -41,7 +41,8 @@ struct Variables{FT<:Real}
    Fₛ :: Vector{FT}
    Fₐ :: Vector{FT}
    αₐ :: Vector{FT}
-   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,αₐ,δt]
+   δt :: FT
+   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,αₐ]
    stat :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,αₐ]
 end
 
