@@ -22,7 +22,7 @@ function calculateδTs(
 )
 
     Fₛ  = calculateFₛ(S₀,Ts,Ta,atm,sfc)
-    δTs = Fₛ * δt / m.cps
+    δTs = Fₛ * δt / sfc.cps
 
     return Fₛ, δTs
 
