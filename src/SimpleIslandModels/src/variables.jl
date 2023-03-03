@@ -8,7 +8,7 @@ function generateVariables(
     nt = Int(ceil(nsteps/nstats))
     return Variables{FT}(
         zeros(FT,nt), zeros(FT,nt), zeros(FT,nt), zeros(FT,nt),
-        zeros(FT,nt), zeros(FT,nt),
+        zeros(FT,nt), zeros(FT,nt), zeros(FT,nt),
         FT.([0,0,0,0,0,0,0,dt]), FT.([0,0,0,0,0,0,0])
     )
 

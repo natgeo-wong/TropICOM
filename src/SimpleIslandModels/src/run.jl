@@ -79,12 +79,8 @@ function savestats!(vars::Variables,nstats::Int,istat::Int)
     vars.Tₐ[istat] = vars.stat[4] / (nstats)
     vars.Fₛ[istat] = vars.stat[5] / (nstats)
     vars.Fₐ[istat] = vars.stat[6] / (nstats)
+    vars.αₐ[istat] = vars.stat[7] / (nstats)
 
-    vars.stat[1] = vars.temp[1] * 0.5
-    vars.stat[2] = vars.temp[2] * 0.5
-    vars.stat[3] = vars.temp[3] * 0.5
-    vars.stat[4] = vars.temp[4] * 0.5
-    vars.stat[5] = vars.temp[5] * 0.5
-    vars.stat[6] = vars.temp[6] * 0.5
+    @views @. vars.stat += vars.temp[1:(end-1)] * 0.5
 
 end

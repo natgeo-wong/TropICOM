@@ -40,8 +40,9 @@ struct Variables{FT<:Real}
    Tₐ :: Vector{FT}
    Fₛ :: Vector{FT}
    Fₐ :: Vector{FT}
-   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,δt]
-   stat :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ]
+   αₐ :: Vector{FT}
+   temp :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,αₐ,δt]
+   stat :: Vector{FT} # temp = [t,S₀,Tₛ,Tₐ,Fₛ,Fₐ,αₐ]
 end
 
 const σ = 5.670374419e-8
