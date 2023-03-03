@@ -57,6 +57,7 @@ include("variables.jl")
 include("calculate/basics.jl")
 include("calculate/atmosphere.jl")
 include("calculate/surface.jl")
+include("calculate/cloud.jl")
 include("calculate/analytic.jl")
 
 include("run.jl")
