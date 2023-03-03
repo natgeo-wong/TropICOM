@@ -81,6 +81,6 @@ function savestats!(vars::Variables,nstats::Int,istat::Int)
     vars.Fₐ[istat] = vars.stat[6] / (nstats)
     vars.αₐ[istat] = vars.stat[7] / (nstats)
 
-    @views @. vars.stat += vars.temp * 0.5
+    @views @. vars.stat = vars.temp * 0.5
 
 end
