@@ -48,8 +48,8 @@ function stepforward!(
     δt = vars.δt
     t += δt
 
-    S₀  = calculateS₀(t,m)
-    calculateαₐ!(αₐ,Ts,Ta,δt,m,atm,sfc); S₀ *= (1-αₐ)
+    αₐ = calculateαₐ(αₐ,Ts,Ta,δt,m,atm,sfc)
+    S₀ = calculateS₀(t,m) * (1-αₐ)
     Fₐ, δTa = calculateδTa(S₀,Ts,Ta,δt,m,atm,sfc)
     Fₛ, δTs = calculateδTs(S₀,Ts,Ta,δt,m,atm,sfc)
 

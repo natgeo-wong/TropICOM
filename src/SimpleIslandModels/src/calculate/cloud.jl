@@ -1,4 +1,4 @@
-function calculateαₐ!(
+function calculateαₐ(
     αₐ::Real, Ts::Real, Ta::Real, δt::Real,
     m::SimpleIslandModel, atm::MixedAtmosphere, sfc::Surface
 )
@@ -15,11 +15,11 @@ function calculateαₐ!(
 
     end
 
-    return nothing
+    return αₐ
 
 end
 
-function calculateαₐ!(
+function calculateαₐ(
     αₐ::Real, Ts::Real, Ta::Real, δt::Real,
     m::SimpleIslandModel, atm::FixedAtmosphere, sfc::Surface
 )
@@ -35,6 +35,6 @@ function calculateαₐ!(
 
     end
 
-    return nothing
+    return αₐ
 
 end
