@@ -2,23 +2,32 @@ struct SimpleIslandModel{FT<:Real}
      S0 :: FT
       τ :: FT
      Fo :: FT
+    mαₐ :: FT
+    cₛα :: FT
+    cₐα :: FT
+    mαₐ :: FT
     sfc :: Surface
     atm :: Atmosphere
-    do_wtg :: Bool
+    do_wtg     :: Bool
     do_diurnal :: Bool
     do_ocnflux :: Bool
+    do_cloud   :: Bool
 end
 
 function CreateModel(
     sfc :: Surface,
     atm :: Atmosphere,
     FT = Float64;
-    S0 :: Real = 1361.,
-    τ  :: Real = 0.,
-    Fo :: Real = 0.,
+    S0  :: Real = 1361.,
+    τ   :: Real = 0.,
+    Fo  :: Real = 0.,
+    mαa :: Real = 0.8,
+    csα :: Real = 0.001,
+    caα :: Real = 0.001,
     do_wtg     :: Bool = false,
     do_diurnal :: Bool = true,
-    do_ocnflux :: Bool = false
+    do_ocnflux :: Bool = false,
+    do_cloud   :: Bool = false
 )
 
     if do_wtg && iszero(τ)
@@ -29,7 +38,10 @@ function CreateModel(
         S0 = S0/π
     end
 
-    return SimpleIslandModel{FT}(S0,τ,Fo,sfc,atm,do_wtg,do_diurnal,do_ocnflux)
+    return SimpleIslandModel{FT}(
+        S0,τ,Fo,mαa,csα,caα,sfc,atm,
+        do_wtg,do_diurnal,do_ocnflux,do_cloud
+    )
 
 end
 
@@ -44,6 +56,10 @@ function show(io::IO, model::SimpleIslandModel)
 		" ├─── Weak Temperature Gradient (do_wtg) : ", model.do_wtg,      '\n',
         " ├─── Relaxation Timescale / sec     (τ) : ", model.τ,           '\n',
 		" ├─── Do Ocean Transport    (do_ocnflux) : ", model.do_ocnflux,  '\n',
-        " └─── Ocean Flux / W m**-2 s**-1    (Fo) : ", model.Fo,
+        " ├─── Ocean Flux / W m**-2 s**-1    (Fo) : ", model.Fo,          '\n',
+		" ├─── Do Cloud                (do_cloud) : ", model.do_cloud,    '\n',
+        " ├─── Cloud maximum albedo         (mαₐ) : ", model.mαₐ,         '\n',
+        " ├─── Cloud albedo tendency (sfc)  (cₛα) : ", model.cₛα,         '\n',
+        " └─── Cloud albedo tendency (atm)  (cₐα) : ", model.cₐα,
 	)
 end

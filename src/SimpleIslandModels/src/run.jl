@@ -44,10 +44,12 @@ function stepforward!(
     t  = vars.temp[1]
     Ts = vars.temp[3]
     Ta = vars.temp[4]
+    αₐ = vars.temp[7]
     δt = vars.temp[end]
     t += δt
 
     S₀  = calculateS₀(t,m)
+    calculateαₐ!(αₐ,Ts,Ta,δt,m,atm,sfc); S₀ *= (1-αₐ)
     Fₐ, δTa = calculateδTa(S₀,Ts,Ta,δt,m,atm,sfc)
     Fₛ, δTs = calculateδTs(S₀,Ts,Ta,δt,m,atm,sfc)
 
@@ -57,6 +59,7 @@ function stepforward!(
     vars.temp[4] = Ta + δTa
     vars.temp[5] = Fₛ
     vars.temp[6] = Fₐ
+    vars.temp[7] = αₐ
 
     if !iszero(n0)
         @views @. vars.stat += vars.temp[1:(end-1)]
