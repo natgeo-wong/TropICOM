@@ -11,6 +11,7 @@ struct SimpleIslandModel{FT<:Real}
     do_diurnal :: Bool
     do_ocnflux :: Bool
     do_cloud   :: Bool
+    cloudscheme :: Int
 end
 
 function CreateModel(
@@ -26,7 +27,8 @@ function CreateModel(
     do_wtg     :: Bool = false,
     do_diurnal :: Bool = true,
     do_ocnflux :: Bool = false,
-    do_cloud   :: Bool = false
+    do_cloud   :: Bool = false,
+    cloudscheme :: Int = 1
 )
 
     if do_wtg && iszero(τ)
@@ -39,7 +41,7 @@ function CreateModel(
 
     return SimpleIslandModel{FT}(
         S0,τ,Fo,mαa,csα,caα,sfc,atm,
-        do_wtg,do_diurnal,do_ocnflux,do_cloud
+        do_wtg,do_diurnal,do_ocnflux,do_cloud,cloudscheme
     )
 
 end

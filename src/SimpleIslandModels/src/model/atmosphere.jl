@@ -3,6 +3,7 @@ struct FixedAtmosphere{FT<:Real} <: Atmosphere
     cpa :: FT
 	εsw :: FT
 	εlw :: FT
+	Tar :: FT
 end
 
 struct MixedAtmosphere{FT<:Real} <: Atmosphere
@@ -22,7 +23,7 @@ function CreateAtmosphere(
 )
 
 	if isfixed
-        return FixedAtmosphere{FT}(Ta,calculatecpa(Ta,sfc.Tsr),εsw,εlw)
+        return FixedAtmosphere{FT}(Ta,calculatecpa(Ta,sfc.Tsr),εsw,εlw,Ta)
     else
         return MixedAtmosphere{FT}(Ta,calculatecpa(Ta,sfc.Tsr),εsw,εlw)
     end

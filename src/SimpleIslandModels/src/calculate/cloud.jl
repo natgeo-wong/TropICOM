@@ -1,6 +1,6 @@
 function calculateαₐ(
     αₐ::Real, Ts::Real, Ta::Real, δt::Real,
-    m::SimpleIslandModel, atm::MixedAtmosphere, sfc::Surface
+    m::SimpleIslandModel, atm::Atmosphere, sfc::Surface
 )
 
     if m.do_cloud
@@ -8,30 +8,29 @@ function calculateαₐ(
         dTs = Ts - sfc.Tsr
         dTa = Ta - atm.Tar
 
-        αₐ += (dTs * m.cₛα + dTa * m.cₐα) * δt
+        if m.cloudscheme == 1
 
-        if αₐ<=0; αₐ = 0 end
-        if αₐ>=m.mαₐ; αₐ = m.mαₐ end
+            αₐ += (dTs * m.cₛα + dTa * m.cₐα) * δt
 
-    end
+            if αₐ<=0; αₐ = 0 end
+            if αₐ>=m.mαₐ; αₐ = m.mαₐ end
 
-    return αₐ
+        elseif m.cloudscheme == 2
 
-end
+            if iszero(αₐ) && (dTs<2)
+                
+                αₐ = 0
 
-function calculateαₐ(
-    αₐ::Real, Ts::Real, Ta::Real, δt::Real,
-    m::SimpleIslandModel, atm::FixedAtmosphere, sfc::Surface
-)
+            else
 
-    if m.do_cloud
+                αₐ += (dTs * m.cₛα + dTa * m.cₐα) * δt
 
-        dTs = Ts - sfc.Tsr
+                if αₐ<=0; αₐ = 0 end
+                if αₐ>=m.mαₐ; αₐ = m.mαₐ end
 
-        αₐ += dTs * m.cₛα * δt
+            end
 
-        if αₐ<=0; αₐ = 0 end
-        if αₐ>=m.mαₐ; αₐ = m.mαₐ end
+        end
 
     end
 
