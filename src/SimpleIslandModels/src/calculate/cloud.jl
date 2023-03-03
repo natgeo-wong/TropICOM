@@ -8,10 +8,10 @@ function calculateαₐ!(
         dTs = Ts - sfc.Tsr
         dTa = Ta - atm.Tar
 
-        δαₐ = (dTs * m.cₛα + dTa * m.cₐα) * δt
+        αₐ += (dTs * m.cₛα + dTa * m.cₐα) * δt
 
-        if (αₐ+δαₐ)<=0; αₐ = 0 end
-        if (αₐ+δαₐ)>=m.mαₐ; αₐ = m.maxαₐ end
+        if αₐ<=0; αₐ = 0 end
+        if αₐ>=m.mαₐ; αₐ = m.mαₐ end
 
     end
 
@@ -28,10 +28,10 @@ function calculateαₐ!(
 
         dTs = Ts - sfc.Tsr
 
-        δαₐ = dTs * m.cₛα * δt
+        αₐ += dTs * m.cₛα * δt
 
-        if (αₐ+δαₐ)<=0; αₐ = 0 end
-        if (αₐ+δαₐ)>=m.mαₐ; αₐ = m.maxαₐ end
+        if αₐ<=0; αₐ = 0 end
+        if αₐ>=m.mαₐ; αₐ = m.mαₐ end
 
     end
 
