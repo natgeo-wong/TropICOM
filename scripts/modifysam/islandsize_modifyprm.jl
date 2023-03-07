@@ -48,7 +48,7 @@ open(oprm,"r") do rprm
                 newstr = replace(newstr,"[timestep]"=>@sprintf("%.1f",tstep))
                 newstr = replace(newstr,"[nstat]"=>@sprintf("%d",900/tstep))
                 newstr = replace(newstr,"[nprint]"=>@sprintf("%d",86400/tstep))
-                newstr = replace(newstr,"[nstop]"=>@sprintf("%d",86400*50/tstep))
+                newstr = replace(newstr,"[nstop]"=>@sprintf("%d",86400*100/tstep))
                 newstr = replace(newstr,"[nrad]"=>@sprintf("%d",60/tstep))
                 write(fprm,newstr)
             end
