@@ -61,23 +61,23 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 72000,
+nstop    = 144000,
 nprint   = 2880,
 nstat    = 120,    ! Calculate statistics every hour!
-nstatfrq = 12,     ! Collect 12 samples per statistical calculation (every 1 minute)
+nstatfrq = 60,     ! Collect 12 samples per statistical calculation (every 1 minute)
 
 doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
-nsave2D      = 30,
-nsave2Dstart = 0,
+nsave2D      = 120,
+nsave2Dstart = 115200,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .false.,
 save2Dsep    = .true.,
 
-nsave3D      = 30,
-nsave3Dstart = 0,
+nsave3D      = 120,
+nsave3Dstart = 115200,
 nsave3Dend   = 999999999,
 save3Dbin    = .true.,
 rad3Dout     = .true.,

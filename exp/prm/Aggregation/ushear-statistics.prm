@@ -1,9 +1,9 @@
 &PARAMETERS
 
-caseid ='TroPrecLS-Aggregation-ushear',
+caseid ='TroPrecLS-Aggregation-ushear-statistics',
 
 case_restart = 'RCE',
-caseid_restart = 'TroPrecLS-Aggregation-spinup',
+caseid_restart = 'TroPrecLS-Aggregation-ushear',
 
 dx = 2000.,
 dy = 2000.,
@@ -61,7 +61,7 @@ doisccp = .false.,
 domodis = .false.,
 domisr  = .false.,
 
-nstop    = 144000,
+nstop    = 28800,
 nprint   = 2880,
 nstat    = 120,    ! Calculate statistics every hour!
 nstatfrq = 60,     ! Collect 12 samples per statistical calculation (every 1 minute)
@@ -70,14 +70,14 @@ doSAMconditionals     = .false.,
 dosatupdnconditionals = .false.,
 
 nsave2D      = 120,
-nsave2Dstart = 115200,
+nsave2Dstart = 0,
 nsave2Dend   = 999999999,
 save2Dbin    = .true.,
 save2Davg    = .false.,
 save2Dsep    = .true.,
 
 nsave3D      = 120,
-nsave3Dstart = 115200,
+nsave3Dstart = 0,
 nsave3Dend   = 999999999,
 save3Dbin    = .true.,
 rad3Dout     = .true.,
