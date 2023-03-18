@@ -28,7 +28,7 @@ open(oprm,"r") do rprm
 
             if islandsize<20
                 if depth < 0.5
-                    tstep = 0.1
+                    tstep = 0.2
                 else
                     tstep = 0.5
                 end
