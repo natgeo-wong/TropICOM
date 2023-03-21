@@ -27,8 +27,8 @@ open(oprm,"r") do rprm
             sizestr = @sprintf("%04d",islandsize)
 
             if islandsize<20
-                if depth < 0.5
-                    tstep = 0.2
+                if depth <= 0.5
+                    tstep = 0.1
                 else
                     tstep = 0.5
                 end
