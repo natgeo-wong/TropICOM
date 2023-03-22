@@ -9,6 +9,7 @@ function run(
 
     atm  = model.atm
     sfc  = model.sfc
+    cld  = model.cld
     vars = generateVariables(nsteps,nstats,dt)
     initializeVars!(vars,Ts0,Ta0,model,sfc,atm)
 
@@ -18,7 +19,7 @@ function run(
 
         ifin += 1
         n0 = mod(it,nstats)
-        stepforward!(vars,model,sfc,atm,n0)
+        stepforward!(vars,model,sfc,atm,cld,n0)
         if iszero(n0)
             istat += 1
             savestats!(vars,nstats,istat)
@@ -37,7 +38,8 @@ function run(
 end
 
 function stepforward!(
-    vars :: Variables, m :: SimpleIslandModel, sfc :: Surface, atm :: Atmosphere,
+    vars :: Variables, m :: SimpleIslandModel,
+    sfc :: Surface, atm :: Atmosphere, cld :: CloudAlbedo,
     n0 :: Real
 )
 
@@ -48,8 +50,11 @@ function stepforward!(
     δt = vars.δt
     t += δt
 
-    αₐ = calculateαₐ(αₐ,Ts,Ta,δt,m,atm,sfc)
-    S₀ = calculateS₀(t,m) * (1-αₐ)
+    if m.do_cloud
+        αₐ = cld.calculateαₐ(αₐ,Ts,Ta,δt,cld.params,atm,sfc,)
+    end
+
+    S₀      = calculateS₀(t,m) * (1-αₐ)
     Fₐ, δTa = calculateδTa(S₀,Ts,Ta,δt,m,atm,sfc)
     Fₛ, δTs = calculateδTs(S₀,Ts,Ta,δt,m,atm,sfc)
 

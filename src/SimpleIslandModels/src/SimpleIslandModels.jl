@@ -15,6 +15,7 @@ import Base: eltype, show, run
 export
         Atmosphere, CreateAtmosphere,
         Surface, CreateSurface,
+        CloudAlbedo, CloudAlbedoType,
         SimpleIslandModel, CreateModel,
         calculateFₐ, calculateFₛ,
         run, solveanalytic
@@ -32,6 +33,13 @@ abstract type Atmosphere end
 Abstract supertype for the different surface layer types
 """
 abstract type Surface end
+
+"""
+    CloudAlbedoType
+
+Abstract supertype for the different cloud albedo types
+"""
+abstract type CloudAlbedoType end
 
 struct Variables{FT<:Real}
     t :: Vector{FT}
@@ -52,6 +60,7 @@ modulelog() = "$(now()) - SimpleIslandModels.jl"
 
 include("model/surface.jl")
 include("model/atmosphere.jl")
+include("model/cloud.jl")
 include("model/model.jl")
 
 include("variables.jl")
@@ -59,7 +68,6 @@ include("variables.jl")
 include("calculate/basics.jl")
 include("calculate/atmosphere.jl")
 include("calculate/surface.jl")
-include("calculate/cloud.jl")
 include("calculate/analytic.jl")
 
 include("run.jl")
