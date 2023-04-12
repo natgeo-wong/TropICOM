@@ -63,8 +63,8 @@ function retrievemaxtime(varID,sizelist,depthlist)
 
 	nsize  = length(sizelist)
 	ndepth = length(depthlist)
-	d2D  = zeros(96,nsize,ndepth)
-	vtmp = zeros(48)
+	d2D  = zeros(192,nsize,ndepth)
+	vtmp = zeros(96)
 
 	for id in 1 : ndepth
 		depthstr = @sprintf("%05.2f",depthlist[id])
@@ -77,8 +77,8 @@ function retrievemaxtime(varID,sizelist,depthlist)
 			if isfile(fnc)
 				ds  = NCDataset(fnc)
 				if length(ds["time"][:]) >= 4800
-					var = retrievevar_fnc(varID,fnc)[(48*50+1):(48*100)]
-					var = reshape(var,48,:); ndy = size(var,2)
+					var = retrievevar_fnc(varID,fnc)
+					var = reshape(var,96,:); ndy = size(var,2)
 					for idy = 1 : ndy
 						vtmp .= var[:,idy]
 						imax = argmax(vtmp)
@@ -86,7 +86,7 @@ function retrievemaxtime(varID,sizelist,depthlist)
 							d2D[(2*imax-1):(2*imax),is,id] .+= 1
 						end
 					end
-					d2D[:,is,id] .= d2D[:,is,id] ./ sum(d2D[:,is,id]) * 48
+					d2D[:,is,id] .= d2D[:,is,id] ./ sum(d2D[:,is,id]) * 96
 				end
 				close(ds)
 			end
@@ -114,9 +114,9 @@ begin
 	fθ,aθ = pplt.subplots([[1,4,7],[2,5,8],[3,6,9]],proj="polar",axwidth=1.5
 	);
 
-	θvec = zeros(2,48)
-	θvec[1,:] = collect(0:0.5:23.5)/24*2*pi
-	θvec[2,:] = collect(0.5:0.5:24)/24*2*pi
+	θvec = zeros(2,96)
+	θvec[1,:] = collect(0:0.25:23.75)/24*2*pi
+	θvec[2,:] = collect(0.25:0.25:24)/24*2*pi
 	θvec = θvec[:]
 	θvec = vcat(θvec,2*pi)
 
@@ -162,7 +162,7 @@ end
 # ╟─a99d31a1-4ef8-4cc9-894c-342fd5424e36
 # ╟─37a716a7-2425-4f9d-960f-a0be3744a223
 # ╟─e8499402-439d-4de2-8be2-1a43b2b506d5
-# ╟─18245629-9a24-4d97-a4c3-80877b19929b
+# ╠═18245629-9a24-4d97-a4c3-80877b19929b
 # ╟─1455f008-06c8-4f79-a852-ca7d4a324fe8
 # ╟─5c04acab-2807-4526-858f-7601b368130b
 # ╟─8cacf996-b900-41e5-a184-2a79d785d1fa

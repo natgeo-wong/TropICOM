@@ -608,7 +608,7 @@ begin
 	aspn[1].plot(tdiff_spn,pspn,c="k")
 	aspn[1].scatter(tdiff_spn,pspn,s=7)
 	aspn[1].format(
-		xlim=(-0.15,0.15),xlocator=(-2:2)./10,xlabel=L"T - T$_{OBS}$ / K",
+		xlim=(-0.075,0.075),xlocator=(-2:2)./20,xlabel=L"T - T$_{OBS}$ / K",
 		ylim=(1010,10),yscale="log",ylabel="Pressure / hPa",
 		suptitle="RCE Initial Spinup | $(str2D)"
 	)
@@ -629,7 +629,7 @@ begin
 	aspn[3].plot(qdiff_spn*100,pspn,c="k")
 	aspn[3].scatter(qdiff_spn*100,pspn,s=7)
 	aspn[3].format(
-		xlim=(-7.5,7.5),xlocator=(-2:2)*5,
+		xlim=(-1.5,1.5),xlocator=(-2:2),
 		xlabel=L"qr = $\frac{q - q_{OBS}}{q_{OBS}}$",
 		ylim=(1010,10),yscale="log",ylabel="Pressure / hPa",
 	)
@@ -698,36 +698,82 @@ end
 
 # ╔═╡ 1e9f2a5f-3a84-43e3-9ff8-a8adce7c8077
 begin
-	depthstr = @sprintf("%05.2f",depth)
-	depthstr = replace(depthstr,"."=>"d")
-	sizestr = @sprintf("%04d",islandsize)
-	fnc = outstatname("DGW","IslandSize$(str2D)","size$(sizestr)km-depth$(depthstr)m")
-	time = 50:150
-	prcp = ones(101)
-	if isfile(fnc)
-		ds   = NCDataset(fnc)
-		time = ds["time"][:] #[((48*50)+1):end]
-		time = time .- floor(time[1])
-		p    = ds["p"][:] #[((48*50)+1):end]
-		prcp = ds["PREC"][:] #[((48*50)+1):end]
-		tabs = ds["TABS"][:] #[((48*50)+1):end]
-		tobs = ds["TABSOBS"][:] #[((48*50)+1):end]
-		wwtg = ds["WWTG"][:] #[((48*50)+1):end]
-		close(ds)
+	prcp = zeros(length(sizelist),length(depthlist))
+	tsfc = zeros(length(sizelist),length(depthlist))
+	for idepth in 1 : length(depthlist), isize in 1 : length(sizelist)
+		depthstr = @sprintf("%05.2f",depthlist[idepth])
+		depthstr = replace(depthstr,"."=>"d")
+		sizestr = @sprintf("%04d",sizelist[isize])
+		fnc = datadir(
+			"IslandSize3D","OUT_STAT",
+			"DGW_TroPrecLS-IslandSize3D-spinup-size$(sizestr)km-depth$(depthstr)m.nc"
+		)
+		if isfile(fnc)
+			ds   = NCDataset(fnc)
+			prcp[isize,idepth] = mean(ds["PREC"][76:100]) / 24
+			tsfc[isize,idepth] = mean(ds["SST"][76:100]) - 300
+			close(ds)
+		end
 	end
 end
 
 # ╔═╡ 09e0b3fc-8fb0-423c-b871-01c80ff4c2f1
 begin
-	pplt.close(); ftst,atst = pplt.subplots(nrows=2,aspect=3)
+	pplt.close(); ftst,atst = pplt.subplots(ncols=2,axwidth=1.5)
 	
-	atst[1].pcolormesh(time,p,wwtg)
-	atst[2].plot(time,prcp.-0.15,lw=1)
-	atst[1].format(yscale="log",xlim=(0,50))
-	# atst[2].format(ylim=(-100,2000))
+	atst[1].pcolormesh(sizelist,depthlist,prcp',cmap="Blues",levels=10. .^(-0.5:0.1:0.5),extend="both")
+	atst[2].pcolormesh(sizelist,depthlist,tsfc',cmap="RdBu_r",levels=-15:15,extend="both")
+	for ax in atst
+		ax.format(xscale="log",yscale="log",ylim=(0.02,50),xlim=(5,5000))
+	end
 	
 	ftst.savefig(plotsdir("06a-islandsize-test.png"),transparent=false,dpi=150)
 	load(plotsdir("06a-islandsize-test.png"))
+end
+
+# ╔═╡ dc447a45-1fb4-4530-a923-c3b8462dfc45
+begin
+	pplt.close(); fts2,ats2 = pplt.subplots(aspect=4,axwidth=4)
+	
+	depthstr = @sprintf("%05.2f",depth)
+	depthstr = replace(depthstr,"."=>"d")
+	sizestr = @sprintf("%04d",islandsize)
+	fnc = datadir(
+		"IslandSize3D","OUT_STAT",
+		"DGW_TroPrecLS-IslandSize3D-spinup-size$(sizestr)km-depth$(depthstr)m.nc"
+	)
+	if isfile(fnc)
+		ds   = NCDataset(fnc)
+		t = ds["time"][:]
+		t = t .- floor(t[1])
+		prcpts = ds["PREC"][:] ./24
+		ats2[1].plot(t,prcpts)
+		close(ds)
+	end
+
+	fts2.savefig("test.png",transparent=false,dpi=150)
+	load("test.png")
+end
+
+# ╔═╡ 50539649-fe89-4e7a-b3c1-1488fa91614d
+begin
+	pplt.close(); fts3,ats3 = pplt.subplots(aspect=4,axwidth=4)
+	
+	ffnc = datadir(
+		"IslandSize3D","OUT_STAT",
+		"DGW_TroPrecLS-IslandSize3D-size$(sizestr)km-depth$(depthstr)m.nc"
+	)
+	if isfile(ffnc)
+		fds   = NCDataset(ffnc)
+		ft = fds["time"][:]
+		ft = ft .- floor(ft[1])
+		fprcpts = fds["PREC"][:] ./24
+		ats3[1].plot(ft,fprcpts)
+		close(fds)
+	end
+
+	fts3.savefig("test.png",transparent=false,dpi=150)
+	load("test.png")
 end
 
 # ╔═╡ Cell order:
@@ -772,4 +818,6 @@ end
 # ╟─1a048f82-20fe-413d-a9d5-cec8e6efeff5
 # ╟─3e4d29d7-2bca-4fb6-b28a-2f47980cbef4
 # ╟─1e9f2a5f-3a84-43e3-9ff8-a8adce7c8077
-# ╠═09e0b3fc-8fb0-423c-b871-01c80ff4c2f1
+# ╟─09e0b3fc-8fb0-423c-b871-01c80ff4c2f1
+# ╟─dc447a45-1fb4-4530-a923-c3b8462dfc45
+# ╟─50539649-fe89-4e7a-b3c1-1488fa91614d

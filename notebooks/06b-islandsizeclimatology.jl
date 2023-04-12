@@ -96,9 +96,9 @@ for idepth in 1 : ndepth
 		if isfile(fnc)
 			ds  = NCDataset(fnc)
 			if length(ds["time"][:]) >= 4800
-				time = ds["time"][1:48] .- floor(ds["time"][1])
+				time = ds["time"][1:96] .- floor(ds["time"][1])
 				prcp = ds["PREC"][:] / 24
-				ptmx = dropdims(mean(reshape(prcp,48,:),dims=2),dims=2)
+				ptmx = dropdims(mean(reshape(prcp,96,:),dims=2),dims=2)
 				prcpmat[isize,idepth] = mean(ptmx)
 				pmaxmat[isize,idepth] = maximum(ptmx)
 				pminmat[isize,idepth] = minimum(ptmx)
@@ -110,7 +110,7 @@ for idepth in 1 : ndepth
 					ptmnmat[isize,idepth] = NaN
 				end
 				tsfc = ds["SST"][:]
-				ttmx = dropdims(mean(reshape(tsfc,48,:),dims=2),dims=2)
+				ttmx = dropdims(mean(reshape(tsfc,96,:),dims=2),dims=2)
 				tsfcmat[isize,idepth] = mean(ttmx) - 300
 				tmaxmat[isize,idepth] = maximum(ttmx) - 300
 				tminmat[isize,idepth] = minimum(ttmx) - 300
@@ -127,7 +127,7 @@ end
 # ╔═╡ 4ab80acb-afe4-45ad-8698-1131a77c5c79
 begin
 	pplt.close()
-	fprcp,aprcp = pplt.subplots(axwidth=1.5,nrows=2,ncols=3,wspace=[1.5,3])
+	fprcp,aprcp = pplt.subplots(aspect=0.9,axwidth=1.5,nrows=2,ncols=3,wspace=[1.5,3])
 
 	for ax in aprcp
 		ax.format(
@@ -148,7 +148,7 @@ begin
 	); aprcp[1].clabel(ctxt_1,inline=true,fontsize=10)
 	cprcp_2 = aprcp[2].pcolormesh(
 		sizelist/100,depthlist,pmaxmat',cmap="blues",
-		levels=10. .^(-1:0.2:2),extend="both"
+		levels=10. .^(-1:0.1:2),extend="both"
 	)
 	ctxt_2 = aprcp[2].contour(
 		sizelist/100,depthlist,pmaxmat',levels=10. .^(-1:2),
@@ -159,7 +159,7 @@ begin
 	)
 	cprcp_4 = aprcp[4].pcolormesh(
 		sizelist/100,depthlist,pampmat',cmap="blues",
-		levels=10. .^(-1:0.2:2),extend="both"
+		levels=10. .^(-1:0.1:2),extend="both"
 	)
 	ctxt_4 = aprcp[4].contour(
 		sizelist/100,depthlist,pampmat',levels=10. .^(-1:2),
@@ -167,7 +167,7 @@ begin
 	); aprcp[4].clabel(ctxt_4,inline=true,fontsize=10)
 	cprcp_5 = aprcp[5].pcolormesh(
 		sizelist/100,depthlist,pminmat',cmap="blues",
-		levels=10. .^(-1:0.2:2),extend="both"
+		levels=10. .^(-1:0.1:2),extend="both"
 	)
 	ctxt_5 = aprcp[5].contour(
 		sizelist/100,depthlist,pminmat',levels=vcat(0,10. .^(-1:2)),
@@ -194,7 +194,7 @@ end
 # ╔═╡ 99e126ae-c746-4e83-8fc5-c09a5dd7980d
 begin
 	pplt.close()
-	ftsfc,atsfc = pplt.subplots(axwidth=1.5,nrows=2,ncols=3,wspace=[1.5,3])
+	ftsfc,atsfc = pplt.subplots(aspect=0.9,axwidth=1.5,nrows=2,ncols=3,wspace=[1.5,3])
 
 	for ax in atsfc
 		ax.format(
@@ -274,10 +274,10 @@ for idepth in 1 : ndepth
 		if isfile(fnc)
 			ds  = NCDataset(fnc)
 			if length(ds["time"][:]) >= 4800
-				time = ds["time"][1:48] .- floor(ds["time"][1])
-				olr  = ds["LWNTOA"][(48*50+1):end]
+				time = ds["time"][1:96] .- floor(ds["time"][1])
+				olr  = ds["LWNTOA"][:]
 				olrμmat[isize,idepth] = mean(olr)
-				otmx = dropdims(mean(reshape(olr,48,:),dims=2),dims=2)
+				otmx = dropdims(mean(reshape(olr,96,:),dims=2),dims=2)
 				otmxmat[isize,idepth] = time[argmax(otmx)] * 24
 				otmnmat[isize,idepth] = time[argmin(otmx)] * 24
 				olrAmat[isize,idepth] = maximum(otmx) - minimum(otmx)
@@ -292,7 +292,7 @@ end
 
 # ╔═╡ bb611707-a6a1-4009-bdd4-0bb1923ee528
 begin
-	pplt.close(); folr,aolr = pplt.subplots(axwidth=1.5,nrows=2,ncols=3,)
+	pplt.close(); folr,aolr = pplt.subplots(aspect=0.9,axwidth=1.5,nrows=2,ncols=3,)
 	
 	colr_1 = aolr[1].pcolormesh(
 		sizelist/100,depthlist,olrμmat',
@@ -324,7 +324,7 @@ begin
 	for ax in aolr
 		ax.format(
 			xscale="log",xlim=(0.05,20),ylabel="Mixed Layer Depth / m",
-			yscale="log",ylim=(0.05,20),xlabel="Island Radius / km",
+			yscale="log",ylim=(0.02,50),xlabel="Island Radius / km",
 			# ylocator=[0.1,0.2,0.5,1,2,5,10,],
 			# xlocator=[10,20,50,100,200,500,1000]
 		)
@@ -349,10 +349,10 @@ end
 # ╟─37a716a7-2425-4f9d-960f-a0be3744a223
 # ╟─1455f008-06c8-4f79-a852-ca7d4a324fe8
 # ╠═bb4b054f-87ca-4076-97be-207097ceb79e
-# ╠═1e9f2a5f-3a84-43e3-9ff8-a8adce7c8077
+# ╟─1e9f2a5f-3a84-43e3-9ff8-a8adce7c8077
 # ╟─4ab80acb-afe4-45ad-8698-1131a77c5c79
 # ╟─99e126ae-c746-4e83-8fc5-c09a5dd7980d
 # ╟─03cf4cf1-9d98-4f0e-83c3-036fe0ecae2b
-# ╟─21246adc-d19f-4eb6-8bb5-53f3384e640e
+# ╠═21246adc-d19f-4eb6-8bb5-53f3384e640e
 # ╟─e0d48ddb-0ddc-4e25-90eb-c38f183d2d56
 # ╟─bb611707-a6a1-4009-bdd4-0bb1923ee528
