@@ -18,6 +18,6 @@ esgl = [
     SingleVariable("hcc"),SingleVariable("mcc"),SingleVariable("lcc"),SingleVariable("cc"),
 ]
 
-for egeo in gvec, for evar in esgl
+for egeo in gvec, evar in esgl
     extract(e5ds,evar,egeo)
 end
