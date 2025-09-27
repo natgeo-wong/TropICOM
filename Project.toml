@@ -1,4 +1,5 @@
 name = "TropICOM"
+desc = "Tropical Island Convection in Observation and Models"
 authors = ["Nathanael Wong <natgeo.wong@outlook.com>"]
 
 [deps]
