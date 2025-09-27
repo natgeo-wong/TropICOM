@@ -1,0 +1,6 @@
+# PressureCustom
+# List of User-Defined Custom Pressure-Level Variables
+# (1) ERA5 ID, (2) Full Name, (3) Units, (4) Analysis, (5) Forecast, (6) Invariant, (7) CDS Name, (8) NetCDF ID, (9) MARS ID, (10) DKRZ ID
+
+b,Atmospheric Buoyancy,K,false,false,false,buoyancy,b,missing,missing
+vt,Virtual Temperature,K,false,false,false,virtual_temperature,vt,missing,missing
