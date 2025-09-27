@@ -1,17 +1,19 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.20.3
 
 using Markdown
 using InteractiveUtils
 
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
+    #! format: off
     quote
         local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
+    #! format: on
 end
 
 # ╔═╡ c5ed58c4-ec6d-11ec-0bf4-8b84a46aba2e
@@ -110,7 +112,7 @@ end
 begin
 	pplt.close(); fc,ac = pplt.subplots(
 		[1,1,1,1,1,1,2,2,2,2,2,2],wspace=0,
-		aspect=1.5,axwidth=2
+		aspect=1.5,axwidth=1.5
 	)
 
 	ac[1].fill_between(-0.25:0.01:0,sind.(0:3.6:90),y2=-5,c="green7")
@@ -152,8 +154,8 @@ begin
 		)
 	end
 	
-	ac[1].format(xlim=(-1,0),ylocator=[],xlocator=(-1:0)/4,xminorticks=[],xticklabels=[L"$-\lambda/4$","0"],xloc="bottom",fc="blue1")
-	ac[2].format(xlim=(0,1),ylocator=[],xlocator=(0:1)/4,xminorticks=[],xticklabels=["0",L"$\lambda/4$"],xloc="bottom")
+	ac[1].format(xlim=(-1,0),ylocator=[],xlocator=(-1:0)/4,xminorticks=[],xticklabels=[L"$-r$","0"],xloc="bottom",fc="blue1")
+	ac[2].format(xlim=(0,1),ylocator=[],xlocator=(0:1)/4,xminorticks=[],xticklabels=["0",L"$r$"],xloc="bottom")
 
 	ac[1].format(ultitle="(b)")
 	ac[2].format(urtitle="(b)")
@@ -172,7 +174,7 @@ end
 begin
 	pplt.close(); f1,a1 = pplt.subplots(
 		[1,1,1,1,1,1,4,3,3,3,5,2,2,2,2,2,2],wspace=0,
-		aspect=1.5,axwidth=2
+		aspect=1.5,axwidth=1.5
 	)
 
 	a1[1].fill_between(-0.25:0.01:0,sind.(0:3.6:90),y2=-5,c="green7")
@@ -228,8 +230,8 @@ begin
 		a1[5].plot([-0.8,0.8],[ii,ii]*4 .-1,c="k",linestyle=":",lw=0.5)
 	end
 	
-	a1[1].format(xlim=(-1,0),ylocator=[],xlocator=(-1:0)/4,xminorticks=[],xticklabels=[L"$-\lambda/4$","0"],xloc="bottom",fc="blue1")
-	a1[2].format(xlim=(0,1),ylocator=[],xlocator=(0:1)/4,xminorticks=[],xticklabels=["0",L"$\lambda/4$"],xloc="bottom")
+	a1[1].format(xlim=(-1,0),ylocator=[],xlocator=(-1:0)/4,xminorticks=[],xticklabels=[L"$-r$","0"],xloc="bottom",fc="blue1")
+	a1[2].format(xlim=(0,1),ylocator=[],xlocator=(0:1)/4,xminorticks=[],xticklabels=["0",L"$r$"],xloc="bottom")
 	a1[3].format(xlim=(-1,1),xticks=[],xloc="none")
 
 	a1[1].format(ultitle="(b)")

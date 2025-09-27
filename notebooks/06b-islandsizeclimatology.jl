@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.19.25
 
 using Markdown
 using InteractiveUtils
@@ -15,6 +15,7 @@ end
 begin
 	@quickactivate "TroPrecLS"
 	using NCDatasets
+	using NumericalIntegration
 	using PlutoUI
 	using Printf
 	using StatsBase
@@ -198,7 +199,7 @@ begin
 
 	for ax in atsfc
 		ax.format(
-			xscale="log",xlim=(0.05,20),ylabel="Mixed Layer Depth / m",
+			xscale="log",xlim=(0.05,50),ylabel="Mixed Layer Depth / m",
 			yscale="log",ylim=(0.02,50),xlabel=L"$a_m\lambda^2$ / 10$^5$ km$^2$ day$^{-1}$",
 			# ylocator=[0.1,0.2,0.5,1,2,5,10,20],
 			# xlocator=[10,20,50,100,200,500,1000]/100
@@ -323,7 +324,7 @@ begin
 
 	for ax in aolr
 		ax.format(
-			xscale="log",xlim=(0.05,20),ylabel="Mixed Layer Depth / m",
+			xscale="log",xlim=(0.05,50),ylabel="Mixed Layer Depth / m",
 			yscale="log",ylim=(0.02,50),xlabel="Island Radius / km",
 			# ylocator=[0.1,0.2,0.5,1,2,5,10,],
 			# xlocator=[10,20,50,100,200,500,1000]
@@ -340,19 +341,110 @@ begin
 	load(plotsdir("06b-islandsize-olr.png"))
 end
 
+# ╔═╡ 7ec520f8-29ec-4938-ac82-e29400e2fe74
+md"
+### C. Column Saturation Fraction
+"
+
+# ╔═╡ dbeb83e9-088f-40f4-9cd0-0632e6a097cf
+function calculateswv(T,P)
+
+	esat = zeros(size(T))
+	qsat = zeros(size(T))
+	
+	tb = T .- 273.15
+	@. esat = exp(43.494 - 6545.8/(tb+278)) / (tb+868)^2
+	@. qsat = esat * 0.621981 / (P - 0.378019 * esat)
+
+	nt = size(T,2)
+	swv = zeros(nt)
+
+	for it = 1 : nt
+		swv[it] = integrate(reverse(view(P,:,it)),reverse(view(qsat,:,it))) / 9.81
+	end
+
+	return swv
+	
+end
+
+# ╔═╡ a8af74a0-a9c6-431a-8306-49405fcca912
+begin
+	crhμmat = zeros(nsize,ndepth) * NaN
+	# olrAmat = zeros(nsize,ndepth) * NaN
+	# olmxmat = zeros(nsize,ndepth) * NaN
+	# olmnmat = zeros(nsize,ndepth) * NaN
+	# otmxmat = zeros(nsize,ndepth) * NaN
+	# otmnmat = zeros(nsize,ndepth) * NaN
+	md"Preallocation of column relative humidity arrays"
+end
+
+# ╔═╡ 0e6c7843-9b68-4a8b-9a67-60cc8d47ef83
+for idepth in 1 : ndepth
+	depthstr = @sprintf("%05.2f",depthlist[idepth])
+	depthstr = replace(depthstr,"."=>"d")
+	for isize in 1 : nsize
+		sizestr = @sprintf("%04d",sizelist[isize])
+
+		config = "size$(sizestr)km-depth$(depthstr)m"
+
+		fnc = outstatname("DGW","IslandSize3D",config)
+		if isfile(fnc)
+			ds  = NCDataset(fnc)
+			if length(ds["time"][:]) >= 4800
+				time = ds["time"][1:96] .- floor(ds["time"][1])
+				pwv  = ds["PW"][:]
+				ta   = ds["TABS"][:]
+				p    = ds["PRES"][:] * 100
+				swv  = calculateswv(ta,p)
+				crhμmat[isize,idepth]  = mean(pwv ./ swv * 100)
+			end
+			close(ds)
+		end
+
+	end
+end
+
+# ╔═╡ 8f892b75-4648-48f8-9e02-e19a9e6baf20
+begin
+	pplt.close(); fc,ac = pplt.subplots()
+	
+	for ax in ac
+		ax.format(
+			xscale="log",xlim=(0.05,50),ylabel="Mixed Layer Depth / m",
+			yscale="log",ylim=(0.02,50),xlabel=L"$a_m\lambda^2$ / 10$^5$ km$^2$ day$^{-1}$",
+			# ylocator=[0.1,0.2,0.5,1,2,5,10,20],
+			# xlocator=[10,20,50,100,200,500,1000]/100
+		)
+	end
+	
+	cc = ac[1].contourf(
+		sizelist/100,depthlist,crhμmat',cmap="blues",cmap_kw=Dict("left"=>0.05),
+		levels=(7:0.1:8)*10,extend="both"
+	)
+
+	fc.colorbar(cc,locator=65:5:85,length=0.75)
+	fc.savefig(plotsdir("06b-islandsize-crh.png"),transparent=false,dpi=400)
+	load(plotsdir("06b-islandsize-crh.png"))
+end
+
 # ╔═╡ Cell order:
 # ╟─db521478-61e1-4184-960b-7cab95a48b50
 # ╟─c5ed58c4-ec6d-11ec-0bf4-8b84a46aba2e
 # ╟─8d72de06-476c-4bcf-99b3-a9b469fac93d
 # ╟─af993da1-6181-4c26-8531-e8537ae629d9
-# ╟─a99d31a1-4ef8-4cc9-894c-342fd5424e36
+# ╠═a99d31a1-4ef8-4cc9-894c-342fd5424e36
 # ╟─37a716a7-2425-4f9d-960f-a0be3744a223
 # ╟─1455f008-06c8-4f79-a852-ca7d4a324fe8
-# ╠═bb4b054f-87ca-4076-97be-207097ceb79e
+# ╟─bb4b054f-87ca-4076-97be-207097ceb79e
 # ╟─1e9f2a5f-3a84-43e3-9ff8-a8adce7c8077
 # ╟─4ab80acb-afe4-45ad-8698-1131a77c5c79
 # ╟─99e126ae-c746-4e83-8fc5-c09a5dd7980d
 # ╟─03cf4cf1-9d98-4f0e-83c3-036fe0ecae2b
-# ╠═21246adc-d19f-4eb6-8bb5-53f3384e640e
+# ╟─21246adc-d19f-4eb6-8bb5-53f3384e640e
 # ╟─e0d48ddb-0ddc-4e25-90eb-c38f183d2d56
 # ╟─bb611707-a6a1-4009-bdd4-0bb1923ee528
+# ╟─7ec520f8-29ec-4938-ac82-e29400e2fe74
+# ╠═dbeb83e9-088f-40f4-9cd0-0632e6a097cf
+# ╠═a8af74a0-a9c6-431a-8306-49405fcca912
+# ╠═0e6c7843-9b68-4a8b-9a67-60cc8d47ef83
+# ╠═8f892b75-4648-48f8-9e02-e19a9e6baf20
