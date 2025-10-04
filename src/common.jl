@@ -1,185 +1,160 @@
 using Dates
-using Statistics
-using GeoRegions
+using ERA5Reanalysis
+using NCDatasets
+using Printf
 
-prect(N::Real,S::Real,W::Real,E::Real) = [W,E,E,W,W],[S,S,N,N,S]
+expdir(args...) = joinpath(projectdir("exp"), args...)
+prmdir(args...) = joinpath(projectdir("exp","prm"), args...)
+lsfdir(args...) = joinpath(projectdir("exp","lsf"), args...)
+snddir(args...) = joinpath(projectdir("exp","snd"), args...)
 
+rundir(args...) = joinpath(projectdir("run"), args...)
+
+## DateString Aliasing
+yrmo2dir(date::TimeType) = Dates.format(date,dateformat"yyyy/mm")
 yrmo2str(date::TimeType) = Dates.format(date,dateformat"yyyymm")
+yr2str(date::TimeType)   = Dates.format(date,dateformat"yyyy")
+ymd2str(date::TimeType)  = Dates.format(date,dateformat"yyyymmdd")
 
-function ncoffsetscale(data::AbstractArray)
+function read_climatology(
+    geo  :: GeoRegion,
+    e5ds :: ERA5Hourly,
+    evar :: ERA5Variable;
+    days :: Int = 0
+)
 
-    dmax = maximum(data[.!ismissing.(data)])
-    dmin = minimum(data[.!ismissing.(data)])
-    scale = (dmax-dmin) / 65533;
-    offset = (dmax+dmin-scale) / 2;
-
-    return scale,offset
-
-end
-
-function bindatasfclnd(geo::GeoRegion,bins,var,lon,lat,lsm)
-
-	ggrd = RegionGrid(geo,lon,lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-    rvar = zeros(nlon,nlat)
-    rlsm = zeros(nlon,nlat)
-    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
-
-	if typeof(ggrd) <: PolyGrid
-		  mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-
-	for glat in 1 : nlat, glon in 1 : nlon
-		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
-
-    lvar = rvar[rlsm.>0.5];
-	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
-    lbin = fit(Histogram,lvar,bins).weights;
-	lbin = lbin ./ sum(lbin) * (length(bins) - 1)
-
-    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
-    lvar = rvar[rlsm.>0.5];
-	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
-    lvar = lvar / mean(rwgt[rlsm.>0.5])
-
-    return lbin,mean(lvar)
-
-end
-
-function bindatasfcsea(geo::GeoRegion,bins,var,lsd)
-
-	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-    rvar = zeros(nlon,nlat)
-    rlsm = zeros(nlon,nlat)
-    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
-
-	if typeof(ggrd) <: PolyGrid
-		  mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-
-	for glat in 1 : nlat, glon in 1 : nlon
-		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
-
-    svar = rvar[rlsm.<0.5];
-	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
-    sbin = fit(Histogram,svar,bins).weights;
-	sbin = sbin ./ sum(sbin) * (length(bins) - 1)
-
-    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
-    svar = rvar[rlsm.<0.5];
-	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
-    svar = svar / mean(rwgt[rlsm.<0.5])
-
-    return sbin,mean(svar)
-
-end
-
-function bindatasfclnd(geo::GeoRegion,bins,var,lsd)
-
-	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-    rvar = zeros(nlon,nlat)
-    rlsm = zeros(nlon,nlat)
-    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
-
-	if typeof(ggrd) <: PolyGrid
-		  mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-
-	for glat in 1 : nlat, glon in 1 : nlon
-		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
-
-    lvar = rvar[rlsm.>0.5];
-	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
-    lbin = fit(Histogram,lvar,bins).weights;
-	lbin = lbin ./ sum(lbin) * (length(bins) - 1)
-
-    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
-    lvar = rvar[rlsm.>0.5];
-	lvar = lvar[.!ismissing.(lvar)]; lvar = lvar[.!isnan.(lvar)]
-    lvar = lvar / mean(rwgt[rlsm.>0.5])
-
-    return lbin,mean(lvar)
-
-end
-
-function bindatasfcsea(geo::GeoRegion,bins,var,lsd)
-
-	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-    rvar = zeros(nlon,nlat)
-    rlsm = zeros(nlon,nlat)
-    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
-
-	if typeof(ggrd) <: PolyGrid
-		  mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-
-	for glat in 1 : nlat, glon in 1 : nlon
-		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
-
-    svar = rvar[rlsm.<0.5];
-	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
-    sbin = fit(Histogram,svar,bins).weights;
-	sbin = sbin ./ sum(sbin) * (length(bins) - 1)
-
-    rvar = rvar .* cosd.(reshape(ggrd.lat,1,:))
-    svar = rvar[rlsm.<0.5];
-	svar = svar[.!ismissing.(svar)]; svar = svar[.!isnan.(svar)]
-    svar = svar / mean(rwgt[rlsm.<0.5])
-
-    return sbin,mean(svar)
-
-end
-
-function getmean(geo::GeoRegion,var,nlvl,lsd)
-
-	ggrd = RegionGrid(geo,lsd.lon,lsd.lat)
-	ilon = ggrd.ilon; nlon = length(ggrd.ilon)
-	ilat = ggrd.ilat; nlat = length(ggrd.ilat)
-    rvar = zeros(nlon,nlat,nlvl)
-    rlsm = zeros(nlon,nlat)
-    rwgt = ones(nlon,nlat) .* cosd.(reshape(ggrd.lat,1,:))
-
-	if typeof(ggrd) <: PolyGrid
-		  mask = ggrd.mask
-	else; mask = ones(nlon,nlat)
-	end
-
-	for ilvl = 1 : nlvl, glat in 1 : nlat, glon in 1 : nlon
-		rvar[glon,glat] = var[ilon[glon],ilat[glat]]
-		rlsm[glon,glat] = lsd.lsm[ilon[glon],ilat[glat]] * mask[glon,glat]
-	end
-
-    sprf = zeros(nlvl); lprf = zeros(nlvl)
-
-    for ilvl = 1 : nlvl
-
-        ivar = rvar[:,:,ilvl];  ivar = ivar .* cosd.(reshape(tlat,1,:))
-        lavg = ivar[rlsm.>0.5]; lavg = lavg[.!ismissing.(lavg)]; lavg = lavg[.!isnan.(lavg)]
-        savg = ivar[rlsm.<0.5]; savg = savg[.!ismissing.(savg)]; savg = savg[.!isnan.(savg)]
-        lprf[ilvl] = mean(lavg)
-        sprf[ilvl] = mean(savg)
-
+    if iszero(days)
+        return NCDataset(joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+        ))
+    else
+        return NCDataset(joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            "smooth$(@sprintf("%02d",days))days.nc"
+        ))
     end
 
-    return lprf,sprf
+end
 
+function save_climatology(
+    geo  :: GeoRegion,
+    e5ds :: ERA5Hourly,
+    evar :: SingleLevel,
+    data :: Vector{<:Real},
+    ggrd :: RegionGrid;
+    days :: Int = 0
+)
+
+    npts,ndt = size(data)
+    if iszero(days)
+        fnc = joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+        )
+    else
+        fnc = joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            "smooth$(@sprintf("%02d",days))days.nc"
+        )
+    end
+
+    if isfile(fnc); rm(fnc) end
+    ds = NCDataset(fnc,"c",attrib = Dict(
+        "Conventions" => "CF-1.6",
+        "history"     => "Created on $(Dates.now())",
+        "comments"    => "These NetCDF files were created in the same format that data is saved on the Climate Data Store",
+    ))
+
+    ds.dim["values"] = npts
+
+    nclon = defVar(ds,"longitude",Int64,("values",),attrib = Dict(
+        "units"     => "degrees_east",
+        "long_name" => "longitude",
+    ))
+
+    nclat = defVar(ds,"latitude",Int64,("values",),attrib = Dict(
+        "units"     => "degrees_north",
+        "long_name" => "latitude",
+    ))
+
+    ncvar = defVar(ds,evar.ID,Float64,("values",),attrib = Dict(
+        "long_name" => evar.long,
+        "full_name" => evar.name,
+        "units"     => evar.units,
+    ))
+
+    nclon[:] = ggrd.lon
+    nclat[:] = ggrd.lat
+    ncvar[:] = data
+
+    close(ds)
+    
+end
+
+function save_climatology(
+    geo  :: GeoRegion,
+    e5ds :: ERA5Hourly,
+    evar :: PressureLevel,
+    data :: Matrix{<:Real},
+    lvls :: Vector{Int},
+    ggrd :: RegionGrid;
+    days :: Int = 0
+)
+
+    npts,nlvls,ndt = size(data)
+
+    if iszero(days)
+        fnc = joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+        )
+    else
+        fnc = joinpath(e5ds.path,"climatology",
+            geo.ID * "-" * evar.ID * "-" * 
+            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            "smooth$(@sprintf("%02d",days))days.nc"
+        )
+    end
+
+    if isfile(fnc); rm(fnc) end
+    ds = NCDataset(fnc,"c",attrib = Dict(
+        "Conventions" => "CF-1.6",
+        "history"     => "Created on $(Dates.now())",
+        "comments"    => "These NetCDF files were created in the same format that data is saved on the Climate Data Store",
+    ))
+
+    ds.dim["values"] = npts
+    ds.dim["levels"] = nlvls
+
+    nclon = defVar(ds,"longitude",Int64,("values",),attrib = Dict(
+        "units"     => "degrees_east",
+        "long_name" => "longitude",
+    ))
+
+    nclat = defVar(ds,"latitude",Int64,("values",),attrib = Dict(
+        "units"     => "degrees_north",
+        "long_name" => "latitude",
+    ))
+
+    nclvl = defVar(ds,"pressures",Int64,("levels",),attrib = Dict(
+        "units"     => "hPa",
+        "long_name" => "Pressure Levels",
+    ))
+
+    ncvar = defVar(ds,evar.ID,Float64,("values","levels",),attrib = Dict(
+        "long_name" => evar.long,
+        "full_name" => evar.name,
+        "units"     => evar.units,
+    ))
+
+    nclon[:]   = ggrd.lon
+    nclat[:]   = ggrd.lat
+    nclvl[:]   = lvls
+    ncvar[:,:] = data
+
+    close(ds)
+    
 end
