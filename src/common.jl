@@ -11,27 +11,27 @@ snddir(args...) = joinpath(projectdir("exp","snd"), args...)
 rundir(args...) = joinpath(projectdir("run"), args...)
 
 ## DateString Aliasing
+yr2str(date::TimeType)   = Dates.format(date,dateformat"yyyy")
 yrmo2dir(date::TimeType) = Dates.format(date,dateformat"yyyy/mm")
 yrmo2str(date::TimeType) = Dates.format(date,dateformat"yyyymm")
-yr2str(date::TimeType)   = Dates.format(date,dateformat"yyyy")
 ymd2str(date::TimeType)  = Dates.format(date,dateformat"yyyymmdd")
 
 function read_climatology(
-    geo  :: GeoRegion,
-    e5ds :: ERA5Hourly,
-    evar :: ERA5Variable;
+    e5ds :: ERA5Monthly,
+    evar :: ERA5Variable,
+    egeo :: ERA5Region;
     days :: Int = 0
 )
 
     if iszero(days)
         return NCDataset(joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * ".nc"
         ))
     else
         return NCDataset(joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * "-" *
             "smooth$(@sprintf("%02d",days))days.nc"
         ))
     end
@@ -39,24 +39,24 @@ function read_climatology(
 end
 
 function save_climatology(
-    geo  :: GeoRegion,
-    e5ds :: ERA5Hourly,
+    e5ds :: ERA5Monthly,
     evar :: SingleLevel,
+    egeo :: ERA5Region,
     data :: Vector{<:Real},
     ggrd :: RegionGrid;
     days :: Int = 0
 )
 
-    npts,ndt = size(data)
+    npts = length(data)
     if iszero(days)
         fnc = joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * ".nc"
         )
     else
         fnc = joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * "-" *
             "smooth$(@sprintf("%02d",days))days.nc"
         )
     end
@@ -70,12 +70,12 @@ function save_climatology(
 
     ds.dim["values"] = npts
 
-    nclon = defVar(ds,"longitude",Int64,("values",),attrib = Dict(
+    nclon = defVar(ds,"longitude",Float64,("values",),attrib = Dict(
         "units"     => "degrees_east",
         "long_name" => "longitude",
     ))
 
-    nclat = defVar(ds,"latitude",Int64,("values",),attrib = Dict(
+    nclat = defVar(ds,"latitude",Float64,("values",),attrib = Dict(
         "units"     => "degrees_north",
         "long_name" => "latitude",
     ))
@@ -95,26 +95,26 @@ function save_climatology(
 end
 
 function save_climatology(
-    geo  :: GeoRegion,
-    e5ds :: ERA5Hourly,
+    e5ds :: ERA5Monthly,
     evar :: PressureLevel,
+    egeo :: ERA5Region,
     data :: Matrix{<:Real},
     lvls :: Vector{Int},
     ggrd :: RegionGrid;
     days :: Int = 0
 )
 
-    npts,nlvls,ndt = size(data)
+    npts,nlvls = size(data)
 
     if iszero(days)
         fnc = joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * ".nc"
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * ".nc"
         )
     else
         fnc = joinpath(e5ds.path,"climatology",
-            geo.ID * "-" * evar.ID * "-" * 
-            ymd2str(e5ds.start) * "-" * ymd2str(e5ds.stop) * "-" *
+            e5ds.ID * "-" * egeo.string * "-" * evar.ID * "-" *
+            yrmo2str(e5ds.start) * "-" * yrmo2str(e5ds.stop) * "-" *
             "smooth$(@sprintf("%02d",days))days.nc"
         )
     end
@@ -129,12 +129,12 @@ function save_climatology(
     ds.dim["values"] = npts
     ds.dim["levels"] = nlvls
 
-    nclon = defVar(ds,"longitude",Int64,("values",),attrib = Dict(
+    nclon = defVar(ds,"longitude",Float64,("values",),attrib = Dict(
         "units"     => "degrees_east",
         "long_name" => "longitude",
     ))
 
-    nclat = defVar(ds,"latitude",Int64,("values",),attrib = Dict(
+    nclat = defVar(ds,"latitude",Float64,("values",),attrib = Dict(
         "units"     => "degrees_north",
         "long_name" => "latitude",
     ))
