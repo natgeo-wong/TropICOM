@@ -64,13 +64,11 @@ dosatupdnconditionals = .false.,
 nsave2D      = 2880,
 nsave2Dstart = 0,
 nsave2Dend   = 999999999,
-save2Dbin    = .true.,
 save2Davg    = .true.,
 
 nsave3D      = 120,
 nsave3Dstart = 9999999,
 nsave3Dend   = 999999999,
-save3Dbin    = .true.,
 rad3Dout     = .true.,
 
 /
