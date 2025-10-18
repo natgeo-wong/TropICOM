@@ -30,9 +30,9 @@ open(orun,"r") do rrun
             )
             open(nrun,"w") do fprm
                 newstr = replace(oldstr,"[email]"=>"")
-                newstr = replace(newstr,"[project]"=>"TroPrecLS")
-                newstr = replace(newstr,"[experiment]"=>"size$(sizestr)km")
-                newstr = replace(newstr,"[config]"=>"depth$(depthstr)m")
+                newstr = replace(newstr,"[dirname]"=>"TroPrecLS")
+                newstr = replace(newstr,"[expname]"=>"size$(sizestr)km")
+                newstr = replace(newstr,"[runname]"=>"depth$(depthstr)m")
                 newstr = replace(newstr,"[sndname]"=>"islandsize")
                 newstr = replace(newstr,"[lsfname]"=>"noforcing")
                 write(fprm,newstr)
