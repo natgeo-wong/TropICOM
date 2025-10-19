@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=16GB
+#SBATCH --time=3-00:00
+
+#SBATCH --job-name=Isca
+#SBATCH --mail-user=nw2648@nyu.edu
+#SBATCH --mail-type=ALL
+#SBATCH --output=isca.%j.out
+#SBATCH --error=LOGS/isca.%j.err
+
+module unuse /share/apps/modulefiles
+module use /share/apps/intel-2023.2.1/modulefiles/
+module purge
+source /share/apps/anaconda3/2025.06/etc/profile.d/conda.sh
+
+export GFDL_DATA=/scratch/nw2648/TropICOM/data
+conda activate isca_env
+
+python $1
+rm -r isca.${SLURM_JOB_ID}.out
