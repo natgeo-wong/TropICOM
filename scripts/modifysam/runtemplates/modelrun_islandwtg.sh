@@ -1,12 +1,12 @@
 #!/bin/bash 
 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=64
+#SBATCH --ntasks-per-node=32
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=16GB
+#SBATCH --mem=8GB
 #SBATCH --time=0-03:00
 
-#SBATCH --job-name=[schname]_[expname]_[pwrname]
+#SBATCH --job-name=[sndname]_[expname]
 #SBATCH --dependency=singleton
 
 #SBATCH --mail-user=[email]
@@ -18,13 +18,16 @@ module purge
 module load openmpi/intel/5.0.8 netcdf-fortran/intel/4.6.2
 
 exproot=[dirname]/exp
-prmfile=$exproot/prm/[expname]/[schname]/[size]_[depth].prm
-sndfile=$exproot/snd/[sndname]
-lsffile=$exproot/lsf/[lsfname]
+prmfile=$exproot/prm/[project]/[expname]/[runname].prm
+sndfile=$exproot/snd/[sndname].snd
+lsffile=$exproot/lsf/noforcing.lsf
 
-prmloc=./[schname]/prm
-sndloc=./[schname]/snd
-lsfloc=./[schname]/lsf
+mkdir [sndname]
+scp -r CASE_TEMPLATE/* [sndname]/*
+
+prmloc=./[sndname]/prm
+sndloc=./[sndname]/snd
+lsfloc=./[sndname]/lsf
 
 cp $prmfile $prmloc
 cp $sndfile $sndloc
@@ -32,30 +35,30 @@ cp $lsffile $lsfloc
 
 scriptdir=$SLURM_SUBMIT_DIR
 SAMname=`ls $scriptdir/SAM_*`
-echo [schname] > CaseName
+echo [sndname] > CaseName
 
 cd ./OUT_3D
 
-for fcom3D in *[memberx]*.com3D
+for fcom3D in *[expname]*.com3D
 do
     rm "$fcom3D"
 done
 
-for fcom2D in *[memberx]*.com2D
+for fcom2D in *[expname]*.com2D
 do
     rm "$fcom2D"
 done
 
 cd ../OUT_2D
 
-for f2Dcom in *[memberx]*.2Dcom
+for f2Dcom in *[expname]*.2Dcom
 do
     rm "$f2Dcom"
 done
 
 cd ../OUT_STAT
 
-for fstat in *[memberx]*.stat
+for fstat in *[expname]*.stat
 do
     rm "$fstat"
 done
@@ -70,7 +73,7 @@ echo SAM stopped with exit status $exitstatus
 
 cd ./OUT_3D
 
-for fcom3D in *[memberx]*.com3D
+for fcom3D in *[expname]*.com3D
 do
     if com3D2nc "$fcom3D" >& /dev/null
     then
@@ -81,7 +84,7 @@ do
     fi
 done
 
-for fcom2D in *[memberx]*.com2D
+for fcom2D in *[expname]*.com2D
 do
     if com2D2nc "$fcom2D" >& /dev/null
     then
@@ -94,7 +97,7 @@ done
 
 cd ../OUT_2D
 
-for f2Dcom in *[memberx]*.2Dcom
+for f2Dcom in *[expname]*.2Dcom
 do
     if 2Dcom2nc "$f2Dcom" >& /dev/null
     then
@@ -107,7 +110,7 @@ done
 
 cd ../OUT_STAT
 
-for fstat in *[memberx]*.stat
+for fstat in *[expname]*.stat
 do
     if stat2nc "$fstat" >& /dev/null
     then

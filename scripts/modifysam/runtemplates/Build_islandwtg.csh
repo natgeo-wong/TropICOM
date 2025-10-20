@@ -4,7 +4,7 @@
 # restart and large output data file will be located :
 
 #setenv SAM_SCR `pwd`
-setenv SAM_SCR [datadir]/[expname]/[schname]/[runname]
+setenv SAM_SCR [datadir]/[project]
 
 # ----------------------------------
 # specify scalar-advection directory in SRC
@@ -41,7 +41,7 @@ setenv GNUMAKE 'make -j8'
 
 
 setenv SAM_DIR  `pwd`
-setenv SAM_OBJ  [datadir]/SAM_OBJ/128x128
+setenv SAM_OBJ  [datadir]/SAM_OBJ/64x64
 #setenv SAM_SRC  `pwd`/SRC
 setenv SAM_SRC  /home/nw2648/SAM/SRC_v6.11
 

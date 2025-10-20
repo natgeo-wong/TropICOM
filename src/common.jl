@@ -16,6 +16,10 @@ yrmo2dir(date::TimeType) = Dates.format(date,dateformat"yyyy/mm")
 yrmo2str(date::TimeType) = Dates.format(date,dateformat"yyyymm")
 ymd2str(date::TimeType)  = Dates.format(date,dateformat"yyyymmdd")
 
+dampingstrprnt(am::Real) = replace("damping$(@sprintf("%05.3f",am))","."=>"d")
+depthstrprnt(depth::Real) = "depth$(replace(@sprintf("%05.2f",depth),"."=>"d"))m"
+# relaxscalestrprnt(tau::Real) = replace("relaxscale$(@sprintf("%05.2f",tau))","."=>"d")
+
 function read_climatology(
     e5ds :: ERA5Monthly,
     evar :: ERA5Variable,
