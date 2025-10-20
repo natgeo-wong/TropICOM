@@ -29,6 +29,7 @@ diag.add_field('dynamics', 'omega', time_avg=True)
 diag.add_field('dynamics', 'height', time_avg=True)
 diag.add_field('dynamics', 'height_half', time_avg=True)
 diag.add_field('dynamics', 'sphum', time_avg=True)
+diag.add_field('mixed_layer', 't_surf', time_avg=True)
 diag.add_field('atmosphere', 'precipitation', time_avg=True)
 
 exp.clear_rundir()

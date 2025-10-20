@@ -54,6 +54,8 @@
     trop_depth             = -1.0       ! Depth of Tropical Ocean.  Negative values set trop_depth to depth
     albedo_value           = 0.38
     do_ape_sst             = .true.
+    ape_sst_max            = 300.
+    ape_sst_eq             = 10.
 /
 
 &qe_moist_convection_nml
