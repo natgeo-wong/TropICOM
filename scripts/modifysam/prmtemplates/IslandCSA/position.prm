@@ -79,6 +79,7 @@ rad3Dout     = .true.,
 
 &KUANG_PARAMS
 
+nrestart_resetsst = .true
 dosstislands      = .true.
 sstisland_type    = 2
 sstislands_radius = 10.e3
