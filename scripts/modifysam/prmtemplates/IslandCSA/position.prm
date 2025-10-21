@@ -1,6 +1,6 @@
 &PARAMETERS
 
-caseid = 'TropICOM-IslandCSA-x=[position]km',
+caseid = 'TropICOM-IslandCSA-x_[position]km',
 
 case_restart = 'RCE',
 caseid_restart = 'TropICOM-spinup1536x16',
@@ -24,6 +24,7 @@ doprecip         = .true.,
 dolongwave       = .true.,
 doshortwave      = .true.,
 dosurface        = .true.,
+dodynamicocean   = .true.,
 donudging_uv     = .true.,
 
 tauls = 3600.,
