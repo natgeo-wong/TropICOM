@@ -82,15 +82,14 @@ rad3Dout     = .true.,
 
 &KUANG_PARAMS
 
+doadv3d    = .true.,
+dotqlsvadv = .true.,
+douvlsvadv = .true.,
+
 dowtg_blossey_etal_JAMES2009  = .true.
-dowtg_hermanraymond_JAMES2014 = .false.
 
 am_wtg               = [am] ! momentum damping rate in day^-1, default= 1.,
 am_wtg_exp           = 0.,          ! exponent of p/p0 in momentum damping rate.
 lambda_wtg           = 1000.e3,      ! quarter wavelength in m. default = 650.e3 m
-
-tau_wtg              = 1. ! temperature relaxation in hours, default= 1.,
-dthetadz_min         = 1.e-3
-dowtgLBL             = .false.
 
 /

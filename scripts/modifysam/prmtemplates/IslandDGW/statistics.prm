@@ -2,7 +2,7 @@
 
 caseid = 'TropICOM-IslandDGW-[expname]-[runname]',
 
-case_restart = 'DGW',
+case_restart = 'NEUTRAL',
 caseid_restart = 'TropICOM-IslandDGW-spinup-[expname]-[runname]',
 
 dx = 2000.,
@@ -81,6 +81,10 @@ rad3Dout     = .true.,
 /
 
 &KUANG_PARAMS
+
+doadv3d    = .true.,
+dotqlsvadv = .true.,
+douvlsvadv = .true.,
 
 dowtg_blossey_etal_JAMES2009  = .true.
 
