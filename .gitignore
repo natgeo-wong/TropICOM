@@ -13,7 +13,7 @@ logs/
 references/**/*.pdf
 run/
 exp/run_*
-exp/prm/*sample*
+exp/prm
 *.gif
 *.mp4
 
