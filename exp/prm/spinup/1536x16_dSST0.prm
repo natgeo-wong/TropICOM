@@ -34,6 +34,9 @@ day0       = 0.,
 tabs_s     = 300.,
 Szero      = 0,
 
+ocean_type = 0,
+delta_sst  = 0.,
+
 depth_slab_ocean = 1.,
 
 nrad = 12,
