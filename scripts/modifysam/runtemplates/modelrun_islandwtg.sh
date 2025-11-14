@@ -14,6 +14,9 @@
 #SBATCH --output=./LOGS/samrun.%j.out
 #SBATCH --error=./LOGS/samrun.%j.err
 
+module unuse /share/apps/modulefiles
+module use /share/apps/intel-2023.2.1/modulefiles/
+
 module purge
 module load openmpi/intel/5.0.8 netcdf-fortran/intel/4.6.2
 
