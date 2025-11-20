@@ -6,6 +6,7 @@
 #SBATCH --mem=8GB
 #SBATCH --time=0-03:00
 
+#SBATCH --account=torch_pr_214_general
 #SBATCH --job-name=[sndname]_[expname]
 #SBATCH --dependency=singleton
 
@@ -69,7 +70,7 @@ done
 cd ..
 
 cd $scriptdir
-srun $SAMname > ./LOGS/samrun.${SLURM_JOBID}.log
+mpirun -np $SLURM_NTASKS $SAMname > ./LOGS/samrun.${SLURM_JOBID}.log
 
 exitstatus=$?
 echo SAM stopped with exit status $exitstatus

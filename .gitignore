@@ -11,6 +11,7 @@ _research
 /Manifest.toml
 logs/
 references/**/*.pdf
+run
 run/
 exp/run_*
 exp/prm
